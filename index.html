@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Limitless Elite - Manager Pro V4.3</title>
+    <title>Limitless Elite - Manager Pro V4.4</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -17,7 +17,7 @@
         .event-tag { font-size: 7px; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; font-weight: bold; margin-right: 8px; color: white; }
         .bg-vente { background: #3b82f6; }
         .bg-relance { background: #f59e0b; }
-        .bg-prepa { background: #7c3aed; } /* Violet pour J-20 */
+        .bg-prepa { background: #7c3aed; }
         .bg-fete { background: #10b981; }
         .bg-salon { background: #ef4444; }
 
@@ -31,7 +31,7 @@
 <div class="max-w-md mx-auto">
     <div class="text-center mb-6">
         <h1 class="font-luxury text-3xl font-bold text-yellow-700 tracking-tight">LIMITLESS ELITE</h1>
-        <div class="inline-block bg-gray-100 text-[8px] font-bold px-3 py-1 rounded-full uppercase tracking-widest text-gray-400 mt-1">Mode Manager Actif</div>
+        <div class="inline-block bg-gray-100 text-[8px] font-bold px-3 py-1 rounded-full uppercase tracking-widest text-gray-400 mt-1">Tableau de Bord Stratégique</div>
     </div>
 
     <div class="card border-t-4 border-t-yellow-600">
@@ -41,22 +41,25 @@
         <div id="calendar" class="agenda-container space-y-3 text-[10px]"></div>
     </div>
 
-    <div class="card bg-gray-50/50 border-dashed border-2 border-gray-200">
-        <h2 class="font-luxury text-xs font-bold mb-3 text-gray-500 uppercase italic">Planifier un Événement</h2>
-        <input id="evName" placeholder="Nom de l'événement">
+    <div class="card bg-yellow-50/30 border-dashed border-2 border-yellow-200">
+        <h2 class="font-luxury text-xs font-bold mb-3 text-yellow-800 uppercase italic flex items-center gap-2">
+            <i class="fa-solid fa-plus-circle"></i> Planifier un Événement Perso
+        </h2>
+        <input id="evName" placeholder="Nom (ex: Salon, Expo, Réunion)">
         <select id="evType">
             <option value="Salon">Salon / Exposition</option>
             <option value="Réunion">Réunion d'équipe</option>
+            <option value="Formation">Formation</option>
         </select>
         <input id="evDate" type="date">
-        <button onclick="addEvent()" class="bg-black text-white w-full p-3 rounded-xl text-[10px] font-bold uppercase tracking-widest active:scale-95 transition">Ajouter à l'agenda</button>
+        <button onclick="addEvent()" class="bg-black text-white w-full p-3 rounded-xl text-[10px] font-bold uppercase tracking-widest active:scale-95 transition shadow-lg">Ajouter à l'agenda</button>
     </div>
 
     <div class="card shadow-lg">
         <h2 class="font-luxury text-md mb-4 text-gray-700 italic border-b pb-2">Nouvelle Vente</h2>
-        <input id="cons" placeholder="Nom de la consultante">
-        <input id="cli" placeholder="Nom de la cliente">
-        <input id="prd" placeholder="Produit Chogan">
+        <input id="cons" placeholder="Consultante">
+        <input id="cli" placeholder="Cliente">
+        <input id="prd" placeholder="Produit">
         <div class="flex gap-2">
             <input id="amt" type="number" placeholder="Montant" class="flex-1">
             <select id="cur" class="w-24">
@@ -70,7 +73,7 @@
     </div>
 
     <div class="card bg-black text-white">
-        <h2 class="text-yellow-500 font-luxury text-[10px] font-bold uppercase tracking-widest mb-4">Performance Équipe (CA GLOBAL)</h2>
+        <h2 class="text-yellow-500 font-luxury text-[10px] font-bold uppercase tracking-widest mb-4 italic">Performance Équipe (CA Global)</h2>
         <div id="performance" class="space-y-3 text-xs"></div>
     </div>
 
@@ -99,38 +102,39 @@ const fixedHolidays = [
 
 function addEvent() {
     const n = document.getElementById("evName").value, t = document.getElementById("evType").value, d = document.getElementById("evDate").value;
-    if(!n || !d) return alert("Infos manquantes");
+    if(!n || !d) return alert("Veuillez saisir un nom et une date.");
     events.push({ n, t, d });
     localStorage.setItem("events", JSON.stringify(events));
-    location.reload();
+    // Reset champs
+    document.getElementById("evName").value = "";
+    document.getElementById("evDate").value = "";
+    refreshUI();
 }
 
 function saveSale() {
     const cons = document.getElementById("cons").value, cli = document.getElementById("cli").value, prd = document.getElementById("prd").value;
     const amt = document.getElementById("amt").value, cur = document.getElementById("cur").value, dat = document.getElementById("vDate").value;
-    if(!cons || !cli || !dat) return alert("Veuillez remplir les champs obligatoires");
+    if(!cons || !cli || !dat) return alert("Champs obligatoires manquants.");
     sales.push({ id: Date.now(), cons, cli, prd, amt: parseFloat(amt)||0, cur, dat });
     localStorage.setItem("sales", JSON.stringify(sales));
-    location.reload();
+    refreshUI();
 }
 
 function refreshUI() {
     const now = new Date(); now.setHours(0,0,0,0);
     let items = [], perf = {}, query = document.getElementById("search").value.toLowerCase();
 
-    // 1. Agenda (Fêtes + Rappels Stock J-20 + Salons)
+    // 1. Fusion Agenda (Fêtes + Stocks J-20 + Perso)
     fixedHolidays.forEach(h => {
         items.push({ n: h.n, d: h.d, t: "bg-fete", lbl: "FÊTE" });
-        // AJOUT DU RAPPEL PRÉPARATION J-20
         let pD = new Date(h.d); pD.setDate(pD.getDate() - 20);
         items.push({ n: `📦 PRÉPA STOCK : ${h.n}`, d: pD.toISOString().split('T')[0], t: "bg-prepa", lbl: "RAPPEL J-20" });
     });
     
     events.forEach(e => {
         items.push({ n: e.n, d: e.d, t: "bg-salon", lbl: e.t });
-        // J-20 aussi pour les salons planifiés
         let pE = new Date(e.d); pE.setDate(pE.getDate() - 20);
-        items.push({ n: `📦 PRÉPA STOCK : ${e.n}`, d: pE.toISOString().split('T')[0], t: "bg-prepa", lbl: "RAPPEL J-20" });
+        items.push({ n: `📦 PRÉPA : ${e.n}`, d: pE.toISOString().split('T')[0], t: "bg-prepa", lbl: "RAPPEL J-20" });
     });
     
     items.sort((a,b) => new Date(a.d) - new Date(b.d));
@@ -143,7 +147,7 @@ function refreshUI() {
             <span class="font-bold text-gray-400">${diff<0?'OK':'J-'+diff}</span>
         </div>`;
     });
-    document.getElementById("calendar").innerHTML = calH;
+    document.getElementById("calendar").innerHTML = calH || "Aucun événement.";
 
     // 2. Performance & Clients
     let cliH = "";
@@ -157,11 +161,11 @@ function refreshUI() {
             cliH += `<div class="card border-l-4 ${diff>=40?'border-red-500':'border-yellow-500'}">
                 <div class="flex justify-between items-start mb-2">
                     <p class="text-[9px] font-bold text-gray-400 uppercase">${s.cons} • ${diff} JOURS</p>
-                    <button onclick="del(${s.id})" class="text-gray-200"><i class="fa-solid fa-trash"></i></button>
+                    <button onclick="del(${s.id})" class="text-gray-200"><i class="fa-solid fa-trash-alt"></i></button>
                 </div>
                 <p class="font-luxury text-lg text-gray-800">${s.cli}</p>
                 <p class="text-[10px] text-gray-500 mb-3">${s.prd} — ${s.amt} ${s.cur}</p>
-                <button onclick="sendWA('${s.cli}','${s.prd}',${diff})" class="gold-gradient text-white w-full p-3 rounded-xl text-[10px] font-bold uppercase shadow-sm">Relancer & Proposer Nouveautés</button>
+                <button onclick="sendWA('${s.cli}','${s.prd}',${diff})" class="gold-gradient text-white w-full p-3 rounded-xl text-[10px] font-bold uppercase shadow-sm">Relancer WhatsApp</button>
             </div>`;
         }
     });
@@ -171,18 +175,18 @@ function refreshUI() {
     for(let name in perf) {
         perfH += `<div class="flex justify-between border-b border-gray-800 pb-2">
             <span class="uppercase font-bold">${name}</span>
-            <span class="text-yellow-500 font-bold">${perf[name].da} DA / ${perf[name].eu} € (${perf[name].v} v.)</span>
+            <span class="text-yellow-500 font-bold">${perf[name].da} DA / ${perf[name].eu} €</span>
         </div>`;
     }
-    document.getElementById("performance").innerHTML = perfH || "Aucune donnée de performance.";
+    document.getElementById("performance").innerHTML = perfH || "En attente de ventes...";
 }
 
 function sendWA(n,p,d) {
-    const msg = `Bonjour ${n} ✨, c'est Marie 🌸. Ton ${p||'produit'} doit toucher à sa fin après ${d} jours. On prévoit ton réassort ? J'ai aussi des nouveautés ! 😍`;
+    const msg = `Bonjour ${n} ✨, c'est Marie 🌸. Ton ${p||'produit'} doit être fini après ${d} jours. On prévoit ton réassort ? 😍`;
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
 }
 
-function del(id) { if(confirm("Supprimer ?")) { sales = sales.filter(s => s.id !== id); localStorage.setItem("sales", JSON.stringify(sales)); refreshUI(); } }
+function del(id) { if(confirm("Supprimer cette vente ?")) { sales = sales.filter(s => s.id !== id); localStorage.setItem("sales", JSON.stringify(sales)); refreshUI(); } }
 
 refreshUI();
 </script>
