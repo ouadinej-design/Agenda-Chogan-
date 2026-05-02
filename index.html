@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Limitless Elite - V5.4</title>
+    <title>Limitless Elite - V5.5</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -13,9 +13,9 @@
         .gold-gradient { background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%); }
         .card { background:white; border-radius:25px; padding:20px; margin-bottom:20px; border: 1px solid rgba(212,175,55,0.15); box-shadow: 0 10px 25px rgba(0,0,0,0.02); }
         
-        /* Style Agenda */
-        .agenda-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f8f8f8; transition: all 0.3s; }
-        .event-past { opacity: 0.35; filter: grayscale(0.5); } /* Assombrissement des dates passées */
+        /* Agenda & Historique */
+        .agenda-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f8f8f8; }
+        .event-past { opacity: 0.3; filter: grayscale(1); } /* Dates passées assombries */
         
         .agenda-info { flex: 1; display: flex; flex-direction: column; align-items: center; text-align: center; }
         .tag { font-size: 7px; padding: 2px 8px; border-radius: 10px; text-transform: uppercase; font-weight: bold; margin-bottom: 4px; color: white; }
@@ -36,33 +36,31 @@
 <div class="max-w-md mx-auto">
     <div class="text-center mb-6">
         <h1 class="font-luxury text-3xl font-bold text-yellow-700 uppercase">Limitless Elite</h1>
-        <p class="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-1">Édition Manager Pro</p>
+        <p class="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-1">Tableau de Bord Stratégique</p>
     </div>
 
     <div class="card border-t-4 border-t-yellow-600">
         <h2 class="font-luxury text-sm font-bold mb-4 text-gray-800 uppercase text-center"><i class="fa-solid fa-calendar-days text-yellow-600 mr-2"></i>Planning & Anticipation</h2>
-        <div id="calendar-box" class="max-h-80 overflow-y-auto px-1"></div>
+        <div id="calendar-box" class="max-h-96 overflow-y-auto px-1"></div>
     </div>
 
     <div class="card bg-gray-50 border-dashed border-2 border-gray-200">
-        <h2 class="font-luxury text-[10px] font-bold mb-3 text-gray-600 uppercase"><i class="fa-solid fa-plus-circle mr-2"></i>Ajouter un Événement</h2>
-        <input id="evName" placeholder="Titre (Salon, Foire, Réunion...)">
+        <h2 class="font-luxury text-[10px] font-bold mb-3 text-gray-600 uppercase"><i class="fa-solid fa-plus-circle mr-2"></i>Nouvel Événement Perso</h2>
+        <input id="evName" placeholder="Titre (Salon, Foire...)">
         <select id="evType">
             <option value="Salon">Salon / Exposition</option>
             <option value="Réunion">Réunion d'équipe</option>
             <option value="Foire">Foire Commerciale</option>
         </select>
-        
         <span class="label-gold">SÉLECTIONNER LA DATE DE L'ÉVÉNEMENT</span>
         <input id="evDate" type="date">
-        
-        <button onclick="addEvent()" class="bg-black text-white w-full p-3 rounded-xl text-[10px] font-bold uppercase tracking-widest mt-2 shadow-sm">Enregistrer l'événement</button>
+        <button onclick="addEvent()" class="bg-black text-white w-full p-3 rounded-xl text-[10px] font-bold uppercase tracking-widest mt-2">Enregistrer</button>
     </div>
 
     <div class="card shadow-lg mt-6">
         <h2 class="font-luxury text-md mb-4 text-gray-700 italic border-b pb-2 text-center">Nouvelle Vente</h2>
-        <input id="cons" placeholder="Nom de la consultante">
-        <input id="cli" placeholder="Nom de la cliente">
+        <input id="cons" placeholder="Consultante">
+        <input id="cli" placeholder="Cliente">
         <input id="prd" placeholder="Produit Chogan">
         <div class="flex gap-2">
             <input id="amt" type="number" placeholder="Montant" class="flex-1">
@@ -76,6 +74,8 @@
 
 <script>
 const masterEvents = [
+    { n: "Épiphanie", d: "2026-01-06", t: "bg-cath", lbl: "Catho" },
+    { n: "Saint Valentin ❤️", d: "2026-02-14", t: "bg-comm", lbl: "Business" },
     { n: "Ramadan (Début)", d: "2026-02-18", t: "bg-mus", lbl: "Islam" },
     { n: "Aïd el-Fitr", d: "2026-03-20", t: "bg-mus", lbl: "Islam" },
     { n: "Pâques", d: "2026-04-05", t: "bg-cath", lbl: "Catho" },
@@ -84,8 +84,11 @@ const masterEvents = [
     { n: "Aïd el-Adha", d: "2026-05-27", t: "bg-mus", lbl: "Islam" },
     { n: "Fête des Mères", d: "2026-05-31", t: "bg-comm", lbl: "Business" },
     { n: "Fête des Pères", d: "2026-06-21", t: "bg-comm", lbl: "Business" },
+    { n: "Assomption", d: "2026-08-15", t: "bg-cath", lbl: "Catho" },
+    { n: "Mawlid", d: "2026-08-26", t: "bg-mus", lbl: "Islam" },
+    { n: "Toussaint", d: "2026-11-01", t: "bg-cath", lbl: "Catho" },
     { n: "Black Friday", d: "2026-11-27", t: "bg-comm", lbl: "Business" },
-    { n: "Noël", d: "2026-12-25", t: "bg-cath", lbl: "Catho" }
+    { n: "Noël 🎄", d: "2026-12-25", t: "bg-cath", lbl: "Catho" }
 ];
 
 let customEvents = JSON.parse(localStorage.getItem("customEvents")) || [];
@@ -101,7 +104,7 @@ function addEvent() {
 
 function saveSale() {
     const d = document.getElementById("vDate").value;
-    if(!d) return alert("Sélectionnez une date d'achat.");
+    if(!d) return alert("Sélectionnez une date.");
     sales.push({ cons: document.getElementById("cons").value || "Manager", amt: parseFloat(document.getElementById("amt").value) || 0, cur: document.getElementById("cur").value, dat: d });
     localStorage.setItem("sales", JSON.stringify(sales));
     refresh();
@@ -111,7 +114,6 @@ function refresh() {
     const now = new Date(); now.setHours(0,0,0,0);
     let all = [...masterEvents, ...customEvents];
     
-    // Génération automatique des Rappels Stock J-20
     let prepas = [];
     all.forEach(e => {
         let pD = new Date(e.d); pD.setDate(pD.getDate() - 20);
@@ -125,7 +127,7 @@ function refresh() {
         let dObj = new Date(i.d);
         let diff = Math.ceil((dObj - now) / 86400000);
         
-        // On garde les anciennes dates mais on les assombrit avec la classe 'event-past'
+        // On affiche tout, mais on assombrit si c'est passé
         const isPast = diff < 0;
         
         html += `
@@ -135,7 +137,7 @@ function refresh() {
                 <span class="tag ${i.t}">${i.lbl}</span>
                 <span class="font-bold text-gray-700 uppercase text-[9px] tracking-tight">${i.n}</span>
             </div>
-            <div class="j-col">${isPast ? 'PASSÉ' : 'J-' + diff}</div>
+            <div class="j-col">${isPast ? 'OK' : 'J-' + diff}</div>
         </div>`;
     });
     document.getElementById("calendar-box").innerHTML = html;
