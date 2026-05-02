@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Limitless Elite - V5.6</title>
+    <title>Limitless Elite - V5.7</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@300;400;600&display=swap');
         body { background:#fdfdfd; font-family: 'Montserrat', sans-serif; color: #333; padding-bottom: 80px; }
         .font-luxury { font-family: 'Playfair Display', serif; }
-        .gold-gradient { background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%); }
         .card { background:white; border-radius:25px; padding:20px; margin-bottom:20px; border: 1px solid rgba(212,175,55,0.15); box-shadow: 0 10px 25px rgba(0,0,0,0.02); }
         
         .agenda-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f8f8f8; }
@@ -29,6 +28,7 @@
         
         .date-col { font-size: 9px; color: #9ca3af; font-weight: 600; width: 65px; }
         .j-col { font-weight: bold; color: #4b5563; font-size: 11px; width: 40px; text-align: right; }
+        .gold-btn { background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%); color: white; font-weight: bold; text-transform: uppercase; border-radius: 15px; padding: 15px; width: 100%; margin-top: 10px; font-size: 11px; }
     </style>
 </head>
 <body class="p-4">
@@ -41,24 +41,44 @@
 
     <div class="card border-t-4 border-t-yellow-600">
         <h2 class="font-luxury text-sm font-bold mb-4 text-gray-800 uppercase text-center"><i class="fa-solid fa-calendar-check text-yellow-600 mr-2"></i>Calendrier Stratégique</h2>
-        <div id="calendar-box" class="max-h-96 overflow-y-auto px-1"></div>
+        <div id="calendar-box" class="max-h-80 overflow-y-auto px-1"></div>
     </div>
 
     <div class="card bg-gray-50 border-dashed border-2 border-gray-200">
-        <h2 class="font-luxury text-[10px] font-bold mb-3 text-gray-600 uppercase"><i class="fa-solid fa-plus-circle mr-2"></i>Nouvel Événement Perso</h2>
-        <input id="evName" placeholder="Titre (Salon, Mariage...)">
+        <h2 class="font-luxury text-[10px] font-bold mb-3 text-gray-600 uppercase text-center"><i class="fa-solid fa-plus-circle mr-2"></i>Nouvel Événement Perso</h2>
+        <input id="evName" placeholder="Titre (ex: Salon, Mariage...)">
         <select id="evType">
             <option value="Salon">Salon / Exposition</option>
-            <option value="Réunion">Réunion d'équipe</option>
-            <option value="Privé">Événement Privé</option>
+            <option value="Réunion domicile">Réunion à domicile</option>
+            <option value="Réseaux sociaux">Vente réseaux sociaux</option>
+            <option value="Réunion équipe">Réunion d'équipe</option>
+            <option value="Événement Privé">Événement Privé</option>
         </select>
         <span class="label-gold">DATE DE L'ÉVÉNEMENT</span>
         <input id="evDate" type="date">
-        <button onclick="addEvent()" class="bg-black text-white w-full p-3 rounded-xl text-[10px] font-bold uppercase mt-2">Enregistrer</button>
+        <button onclick="addEvent()" class="bg-black text-white w-full p-3 rounded-xl text-[10px] font-bold uppercase mt-2">Enregistrer l'événement</button>
+    </div>
+
+    <div class="card">
+        <h2 class="font-luxury text-sm font-bold mb-4 text-gray-800 uppercase text-center">Nouvelle Vente</h2>
+        <input id="saleConsultant" placeholder="Nom de la consultante">
+        <input id="saleClient" placeholder="Nom de la cliente">
+        <input id="saleProduct" placeholder="Produit Chogan">
+        <div class="flex gap-2">
+            <input id="saleAmount" type="number" placeholder="Montant">
+            <select id="currency" class="w-24">
+                <option value="DA">DA</option>
+                <option value="€">€</option>
+            </select>
+        </div>
+        <span class="label-gold">DATE DE L'ACHAT</span>
+        <input id="saleDate" type="date">
+        <button onclick="saveSale()" class="gold-btn">Valider la transaction</button>
     </div>
 </div>
 
 <script>
+// Événements fixes
 const masterEvents = [
     { n: "Épiphanie", d: "2026-01-06", t: "bg-cath", lbl: "Catho" },
     { n: "Soldes d'Hiver", d: "2026-01-10", t: "bg-comm", lbl: "Business" },
@@ -66,21 +86,8 @@ const masterEvents = [
     { n: "Ramadan (Début)", d: "2026-02-18", t: "bg-mus", lbl: "Islam" },
     { n: "Aïd el-Fitr", d: "2026-03-20", t: "bg-mus", lbl: "Islam" },
     { n: "Pâques", d: "2026-04-05", t: "bg-cath", lbl: "Catho" },
-    { n: "Saison Solaire (Prépa Solaire)", d: "2026-04-15", t: "bg-saison", lbl: "Saison" },
-    { n: "Ascension", d: "2026-05-14", t: "bg-cath", lbl: "Catho" },
-    { n: "Pentecôte", d: "2026-05-24", t: "bg-cath", lbl: "Catho" },
-    { n: "Aïd el-Adha", d: "2026-05-27", t: "bg-mus", lbl: "Islam" },
-    { n: "Fête des Mères", d: "2026-05-31", t: "bg-comm", lbl: "Business" },
-    { n: "Soldes d'Été", d: "2026-06-24", t: "bg-comm", lbl: "Business" },
-    { n: "Fête des Pères", d: "2026-06-21", t: "bg-comm", lbl: "Business" },
-    { n: "Nouvel An Hégire", d: "2026-06-17", t: "bg-mus", lbl: "Islam" },
-    { n: "Achoura", d: "2026-06-26", t: "bg-mus", lbl: "Islam" },
-    { n: "Assomption", d: "2026-08-15", t: "bg-cath", lbl: "Catho" },
-    { n: "Mawlid", d: "2026-08-26", t: "bg-mus", lbl: "Islam" },
-    { n: "Rentrée Scolaire", d: "2026-09-01", t: "bg-comm", lbl: "Business" },
-    { n: "Toussaint", d: "2026-11-01", t: "bg-cath", lbl: "Catho" },
-    { n: "Black Friday 🔥", d: "2026-11-27", t: "bg-comm", lbl: "Business" },
-    { n: "Cyber Monday", d: "2026-11-30", t: "bg-comm", lbl: "Business" },
+    { n: "Saison Solaire", d: "2026-04-15", t: "bg-saison", lbl: "Saison" },
+    { n: "Fête des Mères (FR)", d: "2026-05-31", t: "bg-comm", lbl: "Business" },
     { n: "Noël 🎄", d: "2026-12-25", t: "bg-cath", lbl: "Catho" }
 ];
 
@@ -88,20 +95,27 @@ let customEvents = JSON.parse(localStorage.getItem("customEvents")) || [];
 
 function addEvent() {
     const n = document.getElementById("evName").value, t = document.getElementById("evType").value, d = document.getElementById("evDate").value;
-    if(!n || !d) return alert("Veuillez remplir les champs.");
+    if(!n || !d) return alert("Champs obligatoires.");
     customEvents.push({ n, t: "bg-comm", lbl: t, d });
     localStorage.setItem("customEvents", JSON.stringify(customEvents));
     refresh();
+}
+
+function saveSale() {
+    const client = document.getElementById("saleClient").value;
+    if(!client) return alert("Nom client requis.");
+    alert("Vente enregistrée avec succès !");
 }
 
 function refresh() {
     const now = new Date(); now.setHours(0,0,0,0);
     let all = [...masterEvents, ...customEvents];
     
+    // Génération des rappels J-20
     let prepas = [];
     all.forEach(e => {
         let pD = new Date(e.d); pD.setDate(pD.getDate() - 20);
-        prepas.push({ n: `📦 STOCK : ${e.n}`, d: pD.toISOString().split('T')[0], t: "bg-prepa", lbl: "Rappel J-20" });
+        prepas.push({ n: `STOCK : ${e.n}`, d: pD.toISOString().split('T')[0], t: "bg-prepa", lbl: "Rappel J-20" });
     });
     
     all = [...all, ...prepas].sort((a,b) => new Date(a.d) - new Date(b.d));
@@ -110,16 +124,16 @@ function refresh() {
     all.forEach(i => {
         let dObj = new Date(i.d);
         let diff = Math.ceil((dObj - now) / 86400000);
-        const isPast = diff < 0;
+        if (diff < -5) return; // Cache les vieux événements (plus de 5 jours)
         
         html += `
-        <div class="agenda-row ${isPast ? 'event-past' : ''}">
-            <div class="date-col">${dObj.toLocaleDateString('fr-FR')}</div>
+        <div class="agenda-row ${diff < 0 ? 'event-past' : ''}">
+            <div class="date-col">${dObj.toLocaleDateString('fr-FR', {day:'2-digit', month:'2-digit'})}</div>
             <div class="agenda-info">
                 <span class="tag ${i.t}">${i.lbl}</span>
                 <span class="font-bold text-gray-700 uppercase text-[9px] tracking-tight">${i.n}</span>
             </div>
-            <div class="j-col">${isPast ? 'OK' : 'J-' + diff}</div>
+            <div class="j-col">${diff < 0 ? 'OK' : 'J-' + diff}</div>
         </div>`;
     });
     document.getElementById("calendar-box").innerHTML = html;
