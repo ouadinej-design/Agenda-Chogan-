@@ -3,77 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Limitless Elite - V5.1</title>
+    <title>Limitless Elite - V5.2</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@300;400;600&display=swap');
-        body { background:#fdfdfd; font-family: 'Montserrat', sans-serif; color: #333; padding-bottom: 60px; }
+        body { background:#fdfdfd; font-family: 'Montserrat', sans-serif; color: #333; padding-bottom: 80px; }
         .font-luxury { font-family: 'Playfair Display', serif; }
         .gold-gradient { background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%); }
         .card { background:white; border-radius:25px; padding:20px; margin-bottom:20px; border: 1px solid rgba(212,175,55,0.15); box-shadow: 0 10px 25px rgba(0,0,0,0.02); }
         
-        /* Style Agenda identique à tes captures */
-        .agenda-item { display: flex; align-items: center; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #f9f9f9; }
-        .agenda-center { flex: 1; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .agenda-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f8f8f8; }
+        .agenda-info { flex: 1; display: flex; flex-direction: column; align-items: center; text-align: center; }
         
-        .tag { font-size: 7px; padding: 2px 8px; border-radius: 8px; text-transform: uppercase; font-weight: bold; margin-bottom: 4px; color: white; }
-        .tag-prepa { background: #7c3aed; }
-        .tag-fete { background: #10b981; }
+        .tag { font-size: 7px; padding: 2px 8px; border-radius: 10px; text-transform: uppercase; font-weight: bold; margin-bottom: 4px; color: white; }
+        .bg-prepa { background: #7c3aed; }
+        .bg-fete { background: #10b981; }
+        .bg-comm { background: #3b82f6; }
 
         input, select { border-bottom: 1px solid #eee !important; border: none; outline: none; width: 100%; padding: 12px; font-size: 14px; margin-bottom: 8px; background: transparent; }
+        .label-gold { font-size: 9px; font-weight: bold; color: #bca05d; text-transform: uppercase; margin: 15px 0 5px 0; display: block; text-align: center; letter-spacing: 1px; }
         
-        /* Intitulé Doré Fixe */
-        .gold-label { font-size: 9px; font-weight: bold; color: #bca05d; text-transform: uppercase; margin: 15px 0 5px 0; display: block; text-align: center; letter-spacing: 1px; }
-        
-        .date-txt { font-size: 9px; color: #9ca3af; font-weight: 600; width: 70px; }
-        .days-txt { font-weight: bold; color: #4b5563; font-size: 11px; width: 45px; text-align: right; }
+        .date-col { font-size: 9px; color: #9ca3af; font-weight: 600; width: 65px; }
+        .j-col { font-weight: bold; color: #4b5563; font-size: 11px; width: 40px; text-align: right; }
     </style>
 </head>
 <body class="p-4">
 
 <div class="max-w-md mx-auto">
     <div class="text-center mb-6">
-        <h1 class="font-luxury text-3xl font-bold text-yellow-700 tracking-tight">LIMITLESS ELITE</h1>
-        <div class="inline-block bg-gray-100 text-[8px] font-bold px-4 py-1 rounded-full uppercase tracking-widest text-gray-400 mt-1">Tableau de Bord Stratégique</div>
+        <h1 class="font-luxury text-3xl font-bold text-yellow-700">LIMITLESS ELITE</h1>
+        <p class="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-1">Édition Manager Pro</p>
     </div>
 
     <div class="card border-t-4 border-t-yellow-600">
-        <h2 class="font-luxury text-sm font-bold mb-4 text-gray-800 uppercase flex justify-center items-center gap-2">
-            <i class="fa-solid fa-calendar-check text-yellow-600"></i> Planning & Anticipation
-        </h2>
-        <div id="calendar-display">
-            <div class="agenda-item">
-                <div class="date-txt">07/05/2026</div>
-                <div class="agenda-center">
-                    <span class="tag tag-prepa">Rappel J-20</span>
-                    <span class="font-bold text-gray-700 uppercase text-[9px]">📦 PRÉPA STOCK : Aïd el-Adha</span>
-                </div>
-                <div class="days-txt">J-5</div>
-            </div>
-            <div class="agenda-item">
-                <div class="date-txt">11/05/2026</div>
-                <div class="agenda-center">
-                    <span class="tag tag-prepa">Rappel J-20</span>
-                    <span class="font-bold text-gray-700 uppercase text-[9px]">📦 PRÉPA STOCK : Fête des Mères</span>
-                </div>
-                <div class="days-txt">J-9</div>
-            </div>
-            <div class="agenda-item">
-                <div class="date-txt">27/05/2026</div>
-                <div class="agenda-center">
-                    <span class="tag tag-fete">Fête</span>
-                    <span class="font-bold text-gray-700 uppercase text-[9px]">Aïd el-Adha</span>
-                </div>
-                <div class="days-txt">J-25</div>
-            </div>
-        </div>
+        <h2 class="font-luxury text-sm font-bold mb-4 text-gray-800 uppercase text-center"><i class="fa-solid fa-calendar-days text-yellow-600 mr-2"></i>Planning & Anticipation</h2>
+        <div id="calendar-box" class="max-h-96 overflow-y-auto"></div>
     </div>
 
-    <div class="card shadow-lg">
+    <div class="card bg-gray-50 border-dashed border-2 border-gray-200">
+        <h2 class="font-luxury text-[10px] font-bold mb-3 text-gray-600 uppercase"><i class="fa-solid fa-plus-circle mr-2"></i>Ajouter un Événement Perso</h2>
+        <input id="evName" placeholder="Titre (Salon, Foire, Réunion...)">
+        <select id="evType">
+            <option value="Salon">Salon / Exposition</option>
+            <option value="Réunion">Réunion d'équipe</option>
+            <option value="Formation">Formation</option>
+        </select>
+        <input id="evDate" type="date">
+        <button onclick="addEvent()" class="bg-black text-white w-full p-3 rounded-xl text-[10px] font-bold uppercase tracking-widest mt-2">Enregistrer Événement</button>
+    </div>
+
+    <div class="card shadow-lg mt-6">
         <h2 class="font-luxury text-md mb-4 text-gray-700 italic border-b pb-2 text-center">Nouvelle Vente</h2>
-        <input id="cons" placeholder="Nom de la consultante">
-        <input id="cli" placeholder="Nom de la cliente">
+        <input id="cons" placeholder="Consultante">
+        <input id="cli" placeholder="Cliente">
         <input id="prd" placeholder="Produit Chogan">
         <div class="flex gap-2">
             <input id="amt" type="number" placeholder="Montant" class="flex-1">
@@ -83,54 +66,70 @@
             </select>
         </div>
         
-        <span class="gold-label">SÉLECTIONNER UNE DATE D'ACHAT</span>
+        <span class="label-gold">SÉLECTIONNER UNE DATE D'ACHAT</span>
         <input id="vDate" type="date">
         
-        <button onclick="saveSale()" class="gold-gradient text-white w-full p-4 rounded-2xl font-bold text-[11px] uppercase tracking-widest shadow-md mt-2">Enregistrer Transaction</button>
+        <button onclick="saveSale()" class="gold-gradient text-white w-full p-4 rounded-2xl font-bold text-[11px] uppercase tracking-widest shadow-md mt-4">Valider Transaction</button>
     </div>
 
-    <div class="card bg-black text-white">
-        <h2 class="text-yellow-500 font-luxury text-[10px] font-bold uppercase tracking-widest mb-4 italic text-center">Performance Équipe</h2>
-        <div id="performance" class="space-y-3 text-[11px]"></div>
+    <div class="card bg-black text-white mt-4">
+        <h2 class="text-yellow-500 font-luxury text-[10px] font-bold uppercase text-center mb-4 italic">Performance Global Équipe</h2>
+        <div id="performance" class="space-y-2 text-[11px]"></div>
     </div>
 </div>
 
 <script>
+// Base de données intégrée (Fêtes 2026)
+const staticEvents = [
+    // Religieuses Musulmanes
+    { n: "Aïd el-Fitr 🌙", d: "2026-03-20", t: "bg-fete", lbl: "Fête Musulmane" },
+    { n: "Aïd el-Adha 🐑", d: "2026-05-27", t: "bg-fete", lbl: "Fête Musulmane" },
+    { n: "Achoura", d: "2026-07-25", t: "bg-fete", lbl: "Fête Musulmane" },
+    { n: "Mawlid", d: "2026-09-04", t: "bg-fete", lbl: "Fête Musulmane" },
+    // Religieuses Catholiques
+    { n: "Pâques 🐣", d: "2026-04-05", t: "bg-fete", lbl: "Fête Catholique" },
+    { n: "Ascension", d: "2026-05-14", t: "bg-fete", lbl: "Fête Catholique" },
+    { n: "Assomption", d: "2026-08-15", t: "bg-fete", lbl: "Fête Catholique" },
+    { n: "Toussaint", d: "2026-11-01", t: "bg-fete", lbl: "Fête Catholique" },
+    { n: "Noël 🎄", d: "2026-12-25", t: "bg-fete", lbl: "Fête Catholique" },
+    // Commerciales & Saisonnières
+    { n: "Saint Valentin ❤️", d: "2026-02-14", t: "bg-comm", lbl: "Commercial" },
+    { n: "Fête des Mères 🌸", d: "2026-05-31", t: "bg-comm", lbl: "Commercial" },
+    { n: "Fête des Pères", d: "2026-06-21", t: "bg-comm", lbl: "Commercial" },
+    { n: "Black Friday 🔥", d: "2026-11-27", t: "bg-comm", lbl: "Commercial" }
+];
+
+let sales = JSON.parse(localStorage.getItem("sales")) || [];
+let userEvents = JSON.parse(localStorage.getItem("userEvents")) || [];
+
+function addEvent() {
+    const n = document.getElementById("evName").value, t = document.getElementById("evType").value, d = document.getElementById("evDate").value;
+    if(!n || !d) return alert("Nom et Date requis");
+    userEvents.push({ n, t: "bg-comm", lbl: t, d });
+    localStorage.setItem("userEvents", JSON.stringify(userEvents));
+    refresh();
+}
+
 function saveSale() {
     const dat = document.getElementById("vDate").value;
-    if(!dat) return alert("Date obligatoire");
-    
-    let sales = JSON.parse(localStorage.getItem("sales")) || [];
-    sales.push({
+    if(!dat) return alert("Date requise");
+    sales.push({ 
         cons: document.getElementById("cons").value || "Inconnu",
         cli: document.getElementById("cli").value,
-        amt: document.getElementById("amt").value,
+        amt: parseFloat(document.getElementById("amt").value) || 0,
         cur: document.getElementById("cur").value,
         dat: dat
     });
     localStorage.setItem("sales", JSON.stringify(sales));
-    renderPerformance();
-    alert("Vente enregistrée !");
+    refresh();
 }
 
-function renderPerformance() {
-    let sales = JSON.parse(localStorage.getItem("sales")) || [];
-    let perf = {};
-    sales.forEach(s => {
-        if(!perf[s.cons]) perf[s.cons] = { da: 0, eu: 0 };
-        if(s.cur === "DA") perf[s.cons].da += parseFloat(s.amt)||0; 
-        else perf[s.cons].eu += parseFloat(s.amt)||0;
-    });
-    let html = "";
-    for(let c in perf) {
-        html += `<div class="flex justify-between border-b border-gray-800 pb-1">
-            <span class="uppercase">${c}</span><span>${perf[c].da} DA / ${perf[c].eu} €</span>
-        </div>`;
-    }
-    document.getElementById("performance").innerHTML = html || "En attente de données...";
-}
+function refresh() {
+    const now = new Date(); now.setHours(0,0,0,0);
+    let items = [...staticEvents, ...userEvents];
 
-renderPerformance();
-</script>
-</body>
-</html>
+    // Ajout automatique des rappels J-20
+    let prepas = [];
+    items.forEach(i => {
+        let pD = new Date(i.d); pD.setDate(pD.getDate() - 20);
+        prepas.push({ n: `📦 PRÉPA STOCK : ${i.n}`, d: pD.toISOString().split('T')
