@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Limitless Elite - V5.3</title>
+    <title>Limitless Elite - V5.4</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -13,18 +13,19 @@
         .gold-gradient { background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%); }
         .card { background:white; border-radius:25px; padding:20px; margin-bottom:20px; border: 1px solid rgba(212,175,55,0.15); box-shadow: 0 10px 25px rgba(0,0,0,0.02); }
         
-        /* Agenda - Structure fixe visuel 17916 */
-        .agenda-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f8f8f8; }
-        .agenda-info { flex: 1; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        /* Style Agenda */
+        .agenda-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f8f8f8; transition: all 0.3s; }
+        .event-past { opacity: 0.35; filter: grayscale(0.5); } /* Assombrissement des dates passées */
         
+        .agenda-info { flex: 1; display: flex; flex-direction: column; align-items: center; text-align: center; }
         .tag { font-size: 7px; padding: 2px 8px; border-radius: 10px; text-transform: uppercase; font-weight: bold; margin-bottom: 4px; color: white; }
-        .bg-prepa { background: #7c3aed; } /* Violet J-20 */
-        .bg-mus { background: #10b981; }   /* Vert Musulman */
-        .bg-cath { background: #3b82f6; }  /* Bleu Catholique */
-        .bg-comm { background: #f59e0b; }  /* Orange Commercial */
+        .bg-prepa { background: #7c3aed; } 
+        .bg-mus { background: #10b981; }   
+        .bg-cath { background: #3b82f6; }  
+        .bg-comm { background: #f59e0b; }  
 
         input, select { border-bottom: 1px solid #eee !important; border: none; outline: none; width: 100%; padding: 12px; font-size: 14px; margin-bottom: 8px; background: transparent; }
-        .label-gold { font-size: 9px; font-weight: bold; color: #bca05d; text-transform: uppercase; margin: 15px 0 5px 0; display: block; text-align: center; letter-spacing: 1px; }
+        .label-gold { font-size: 9px; font-weight: bold; color: #bca05d; text-transform: uppercase; margin: 10px 0 5px 0; display: block; text-align: center; letter-spacing: 1px; }
         
         .date-col { font-size: 9px; color: #9ca3af; font-weight: 600; width: 65px; }
         .j-col { font-weight: bold; color: #4b5563; font-size: 11px; width: 40px; text-align: right; }
@@ -34,99 +35,74 @@
 
 <div class="max-w-md mx-auto">
     <div class="text-center mb-6">
-        <h1 class="font-luxury text-3xl font-bold text-yellow-700">LIMITLESS ELITE</h1>
+        <h1 class="font-luxury text-3xl font-bold text-yellow-700 uppercase">Limitless Elite</h1>
         <p class="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-1">Édition Manager Pro</p>
     </div>
 
     <div class="card border-t-4 border-t-yellow-600">
         <h2 class="font-luxury text-sm font-bold mb-4 text-gray-800 uppercase text-center"><i class="fa-solid fa-calendar-days text-yellow-600 mr-2"></i>Planning & Anticipation</h2>
-        <div id="calendar-box" class="max-h-96 overflow-y-auto">
-            </div>
+        <div id="calendar-box" class="max-h-80 overflow-y-auto px-1"></div>
     </div>
 
     <div class="card bg-gray-50 border-dashed border-2 border-gray-200">
-        <h2 class="font-luxury text-[10px] font-bold mb-3 text-gray-600 uppercase"><i class="fa-solid fa-plus-circle mr-2"></i>Planifier Événement (Salon, Expo...)</h2>
-        <input id="evName" placeholder="Titre de l'événement">
+        <h2 class="font-luxury text-[10px] font-bold mb-3 text-gray-600 uppercase"><i class="fa-solid fa-plus-circle mr-2"></i>Ajouter un Événement</h2>
+        <input id="evName" placeholder="Titre (Salon, Foire, Réunion...)">
         <select id="evType">
             <option value="Salon">Salon / Exposition</option>
             <option value="Réunion">Réunion d'équipe</option>
             <option value="Foire">Foire Commerciale</option>
         </select>
+        
+        <span class="label-gold">SÉLECTIONNER LA DATE DE L'ÉVÉNEMENT</span>
         <input id="evDate" type="date">
-        <button onclick="addEvent()" class="bg-black text-white w-full p-3 rounded-xl text-[10px] font-bold uppercase tracking-widest mt-2">Ajouter à l'agenda</button>
+        
+        <button onclick="addEvent()" class="bg-black text-white w-full p-3 rounded-xl text-[10px] font-bold uppercase tracking-widest mt-2 shadow-sm">Enregistrer l'événement</button>
     </div>
 
     <div class="card shadow-lg mt-6">
         <h2 class="font-luxury text-md mb-4 text-gray-700 italic border-b pb-2 text-center">Nouvelle Vente</h2>
-        <input id="cons" placeholder="Consultante">
-        <input id="cli" placeholder="Cliente">
+        <input id="cons" placeholder="Nom de la consultante">
+        <input id="cli" placeholder="Nom de la cliente">
         <input id="prd" placeholder="Produit Chogan">
         <div class="flex gap-2">
             <input id="amt" type="number" placeholder="Montant" class="flex-1">
-            <select id="cur" class="w-24">
-                <option value="DA">DA</option>
-                <option value="€">€</option>
-            </select>
+            <select id="cur" class="w-24"><option value="DA">DA</option><option value="€">€</option></select>
         </div>
         <span class="label-gold">SÉLECTIONNER UNE DATE D'ACHAT</span>
         <input id="vDate" type="date">
-        <button onclick="saveSale()" class="gold-gradient text-white w-full p-4 rounded-2xl font-bold text-[11px] uppercase tracking-widest shadow-md mt-4">Enregistrer Vente</button>
-    </div>
-
-    <div class="card bg-black text-white mt-4">
-        <h2 class="text-yellow-500 font-luxury text-[10px] font-bold uppercase text-center mb-4 italic">Performance Équipe</h2>
-        <div id="performance" class="space-y-2 text-[11px]"></div>
+        <button onclick="saveSale()" class="gold-gradient text-white w-full p-4 rounded-2xl font-bold text-[11px] uppercase tracking-widest shadow-md mt-4">Valider Transaction</button>
     </div>
 </div>
 
 <script>
-// Base de données Mondiale 2026
 const masterEvents = [
-    // MUSULMANES
     { n: "Ramadan (Début)", d: "2026-02-18", t: "bg-mus", lbl: "Islam" },
     { n: "Aïd el-Fitr", d: "2026-03-20", t: "bg-mus", lbl: "Islam" },
-    { n: "Aïd el-Adha", d: "2026-05-27", t: "bg-mus", lbl: "Islam" },
-    { n: "Nouvel An Hégire", d: "2026-06-16", t: "bg-mus", lbl: "Islam" },
-    { n: "Achoura", d: "2026-06-25", t: "bg-mus", lbl: "Islam" },
-    { n: "Mawlid", d: "2026-08-26", t: "bg-mus", lbl: "Islam" },
-    // CATHOLIQUES
-    { n: "Épiphanie", d: "2026-01-06", t: "bg-cath", lbl: "Catho" },
-    { n: "Mercredi des Cendres", d: "2026-02-18", t: "bg-cath", lbl: "Catho" },
     { n: "Pâques", d: "2026-04-05", t: "bg-cath", lbl: "Catho" },
     { n: "Ascension", d: "2026-05-14", t: "bg-cath", lbl: "Catho" },
     { n: "Pentecôte", d: "2026-05-24", t: "bg-cath", lbl: "Catho" },
-    { n: "Assomption", d: "2026-08-15", t: "bg-cath", lbl: "Catho" },
-    { n: "Toussaint", d: "2026-11-01", t: "bg-cath", lbl: "Catho" },
-    { n: "Noël", d: "2026-12-25", t: "bg-cath", lbl: "Catho" },
-    // COMMERCIALES
-    { n: "Soldes d'Hiver", d: "2026-01-07", t: "bg-comm", lbl: "Business" },
-    { n: "Saint Valentin", d: "2026-02-14", t: "bg-comm", lbl: "Business" },
-    { n: "Fête des Mères (DZ/FR)", d: "2026-05-31", t: "bg-comm", lbl: "Business" },
-    { n: "Soldes d'Été", d: "2026-06-24", t: "bg-comm", lbl: "Business" },
-    { n: "Rentrée Scolaire", d: "2026-09-01", t: "bg-comm", lbl: "Business" },
-    { n: "Black Friday", d: "2026-11-27", t: "bg-comm", lbl: "Business" }
+    { n: "Aïd el-Adha", d: "2026-05-27", t: "bg-mus", lbl: "Islam" },
+    { n: "Fête des Mères", d: "2026-05-31", t: "bg-comm", lbl: "Business" },
+    { n: "Fête des Pères", d: "2026-06-21", t: "bg-comm", lbl: "Business" },
+    { n: "Black Friday", d: "2026-11-27", t: "bg-comm", lbl: "Business" },
+    { n: "Noël", d: "2026-12-25", t: "bg-cath", lbl: "Catho" }
 ];
 
-let sales = JSON.parse(localStorage.getItem("sales")) || [];
 let customEvents = JSON.parse(localStorage.getItem("customEvents")) || [];
+let sales = JSON.parse(localStorage.getItem("sales")) || [];
 
 function addEvent() {
     const n = document.getElementById("evName").value, t = document.getElementById("evType").value, d = document.getElementById("evDate").value;
-    if(!n || !d) return alert("Champs vides");
+    if(!n || !d) return alert("Veuillez remplir le nom et la date.");
     customEvents.push({ n, t: "bg-comm", lbl: t, d });
     localStorage.setItem("customEvents", JSON.stringify(customEvents));
     refresh();
 }
 
 function saveSale() {
-    const dat = document.getElementById("vDate").value;
-    if(!dat) return alert("Date manquante");
-    sales.push({ 
-        cons: document.getElementById("cons").value || "Manager",
-        amt: parseFloat(document.getElementById("amt").value) || 0,
-        cur: document.getElementById("cur").value,
-        dat: dat
-    });
+    const d = document.getElementById("vDate").value;
+    if(!d) return alert("Sélectionnez une date d'achat.");
+    sales.push({ cons: document.getElementById("cons").value || "Manager", amt: parseFloat(document.getElementById("amt").value) || 0, cur: document.getElementById("cur").value, dat: d });
     localStorage.setItem("sales", JSON.stringify(sales));
     refresh();
 }
@@ -135,11 +111,11 @@ function refresh() {
     const now = new Date(); now.setHours(0,0,0,0);
     let all = [...masterEvents, ...customEvents];
     
-    // Génération Rappels J-20
+    // Génération automatique des Rappels Stock J-20
     let prepas = [];
     all.forEach(e => {
         let pD = new Date(e.d); pD.setDate(pD.getDate() - 20);
-        prepas.push({ n: `📦 STOCK : ${e.n}`, d: pD.toISOString().split('T')[0], t: "bg-prepa", lbl: "Rappel J-20" });
+        prepas.push({ n: `📦 STOCK : ${e.n}`, d: pD.toISOString().split('T')[0], t: "bg-prepa", lbl: "Anticipation" });
     });
     
     all = [...all, ...prepas].sort((a,b) => new Date(a.d) - new Date(b.d));
@@ -148,29 +124,21 @@ function refresh() {
     all.forEach(i => {
         let dObj = new Date(i.d);
         let diff = Math.ceil((dObj - now) / 86400000);
-        if(diff < -2 || diff > 60) return; // Affiche sur 60 jours glissants
-
+        
+        // On garde les anciennes dates mais on les assombrit avec la classe 'event-past'
+        const isPast = diff < 0;
+        
         html += `
-        <div class="agenda-row ${diff < 0 ? 'opacity-30' : ''}">
+        <div class="agenda-row ${isPast ? 'event-past' : ''}">
             <div class="date-col">${dObj.toLocaleDateString('fr-FR')}</div>
             <div class="agenda-info">
                 <span class="tag ${i.t}">${i.lbl}</span>
                 <span class="font-bold text-gray-700 uppercase text-[9px] tracking-tight">${i.n}</span>
             </div>
-            <div class="j-col">${diff < 0 ? 'OK' : 'J-' + diff}</div>
+            <div class="j-col">${isPast ? 'PASSÉ' : 'J-' + diff}</div>
         </div>`;
     });
     document.getElementById("calendar-box").innerHTML = html;
-
-    // Performance
-    let perf = {};
-    sales.forEach(s => {
-        if(!perf[s.cons]) perf[s.cons] = { da: 0, eu: 0 };
-        if(s.cur === "DA") perf[s.cons].da += s.amt; else perf[s.cons].eu += s.amt;
-    });
-    let perfH = "";
-    for(let c in perf) perfH += `<div class="flex justify-between border-b border-gray-800 pb-1"><span>${c}</span><span>${perf[c].da} DA / ${perf[c].eu} €</span></div>`;
-    document.getElementById("performance").innerHTML = perfH || "Aucune donnée.";
 }
 
 refresh();
