@@ -118,3 +118,13 @@ function refresh() {
             <div class="agenda-info">
                 <span class="tag ${i.t}">${i.lbl}</span>
                 <span class="font-bold text-gray-700 uppercase text-[9px] tracking-tight">${i.n}</span>
+            </div>
+            <div class="j-col">${isPast ? 'OK' : 'J-' + diff}</div>
+        </div>`;
+    });
+    document.getElementById("calendar-box").innerHTML = html;
+}
+refresh();
+</script>
+</body>
+</html>
