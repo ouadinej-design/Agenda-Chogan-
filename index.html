@@ -3,32 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Limitless Elite - V5.8</title>
+    <title>Limitless Elite - V5.9</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@300;400;600&display=swap');
-        body { background:#fdfdfd; font-family: 'Montserrat', sans-serif; color: #333; padding-bottom: 80px; }
+        body { background:#fdfdfd; font-family: 'Montserrat', sans-serif; color: #333; padding-bottom: 100px; }
         .font-luxury { font-family: 'Playfair Display', serif; }
         .card { background:white; border-radius:25px; padding:20px; margin-bottom:20px; border: 1px solid rgba(212,175,55,0.15); box-shadow: 0 10px 25px rgba(0,0,0,0.02); }
-        
         .agenda-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f8f8f8; }
         .event-past { opacity: 0.3; filter: grayscale(1); }
-        
-        .agenda-info { flex: 1; display: flex; flex-direction: column; align-items: center; text-align: center; }
-        .tag { font-size: 7px; padding: 2px 8px; border-radius: 10px; text-transform: uppercase; font-weight: bold; margin-bottom: 4px; color: white; }
-        .bg-prepa { background: #7c3aed; } 
-        .bg-mus { background: #10b981; }   
-        .bg-cath { background: #3b82f6; }  
-        .bg-comm { background: #f59e0b; }  
-        .bg-saison { background: #ec4899; }
-
+        .tag { font-size: 7px; padding: 2px 8px; border-radius: 10px; text-transform: uppercase; font-weight: bold; color: white; }
+        .bg-prepa { background: #7c3aed; } .bg-mus { background: #10b981; } .bg-cath { background: #3b82f6; } .bg-comm { background: #f59e0b; }
         input, select { border-bottom: 1px solid #eee !important; border: none; outline: none; width: 100%; padding: 12px; font-size: 14px; margin-bottom: 8px; background: transparent; }
         .label-gold { font-size: 9px; font-weight: bold; color: #bca05d; text-transform: uppercase; margin: 10px 0 5px 0; display: block; text-align: center; letter-spacing: 1px; }
-        
-        .date-col { font-size: 9px; color: #9ca3af; font-weight: 600; width: 65px; }
-        .j-col { font-weight: bold; color: #4b5563; font-size: 11px; width: 40px; text-align: right; }
         .gold-btn { background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%); color: white; font-weight: bold; text-transform: uppercase; border-radius: 15px; padding: 15px; width: 100%; margin-top: 10px; font-size: 11px; }
+        .section-title { font-size: 11px; font-weight: 800; color: #B8860B; border-left: 3px solid #D4AF37; padding-left: 10px; margin: 15px 0; text-transform: uppercase; }
     </style>
 </head>
 <body class="p-4">
@@ -40,51 +30,121 @@
     </div>
 
     <div class="card border-t-4 border-t-yellow-600">
-        <h2 class="font-luxury text-sm font-bold mb-4 text-gray-800 uppercase text-center"><i class="fa-solid fa-calendar-check text-yellow-600 mr-2"></i>Calendrier Stratégique</h2>
-        <div id="calendar-box" class="max-h-96 overflow-y-auto px-1"></div>
-    </div>
-
-    <div class="card bg-gray-50 border-dashed border-2 border-gray-200">
-        <h2 class="font-luxury text-[10px] font-bold mb-3 text-gray-600 uppercase text-center"><i class="fa-solid fa-plus-circle mr-2"></i>Nouvel Événement Perso</h2>
-        <input id="evName" placeholder="Titre (ex: Salon, Mariage...)">
-        <select id="evType">
-            <option value="Salon">Salon / Exposition</option>
-            <option value="Réunion domicile">Réunion à domicile</option>
-            <option value="Réseaux sociaux">Vente réseaux sociaux</option>
-            <option value="Réunion équipe">Réunion d'équipe</option>
-            <option value="Événement Privé">Événement Privé</option>
-        </select>
-        <span class="label-gold">DATE DE L'ÉVÉNEMENT</span>
-        <input id="evDate" type="date">
-        <button onclick="addEvent()" class="bg-black text-white w-full p-3 rounded-xl text-[10px] font-bold uppercase mt-2">Enregistrer l'événement</button>
+        <h2 class="font-luxury text-sm font-bold mb-4 text-center uppercase">Calendrier Stratégique</h2>
+        <div id="calendar-box" class="max-h-64 overflow-y-auto px-1 text-[10px]"></div>
     </div>
 
     <div class="card">
-        <h2 class="font-luxury text-sm font-bold mb-4 text-gray-800 uppercase text-center">Nouvelle Vente</h2>
-        <input id="saleConsultant" placeholder="Nom de la consultante">
+        <h2 class="font-luxury text-sm font-bold mb-4 text-center uppercase">Enregistrer une Vente</h2>
+        <select id="roleType">
+            <option value="Consultant">Cession Consultant</option>
+            <option value="Manager">Cession Manager</option>
+        </select>
+        <input id="saleName" placeholder="Nom du membre">
         <input id="saleClient" placeholder="Nom de la cliente">
-        <input id="saleProduct" placeholder="Produit Chogan">
         <div class="flex gap-2">
             <input id="saleAmount" type="number" placeholder="Montant">
-            <select id="currency" class="w-24">
-                <option value="DA">DA</option>
-                <option value="€">€</option>
-            </select>
+            <select id="currency" class="w-24"><option value="DA">DA</option><option value="€">€</option></select>
         </div>
-        <span class="label-gold">DATE DE L'ACHAT</span>
+        <span class="label-gold">DATE DE TRANSACTION</span>
         <input id="saleDate" type="date">
-        <button onclick="saveSale()" class="gold-btn">Enregistrer Transaction</button>
+        <button onclick="saveSale()" class="gold-btn">Valider la Cession</button>
+    </div>
+
+    <div class="card bg-gray-50 border-dashed border-2 border-gray-200">
+        <h2 class="font-luxury text-[10px] font-bold mb-3 text-center uppercase">Ajouter Événement</h2>
+        <input id="evName" placeholder="Titre">
+        <select id="evType">
+            <option value="Réunion domicile">Réunion à domicile</option>
+            <option value="Réseaux sociaux">Vente réseaux sociaux</option>
+            <option value="Salon">Salon / Exposition</option>
+        </select>
+        <input id="evDate" type="date">
+        <button onclick="addEvent()" class="bg-black text-white w-full p-3 rounded-xl text-[10px] font-bold uppercase mt-2">Ajouter</button>
+    </div>
+
+    <div class="card bg-black text-white">
+        <h2 class="text-yellow-500 font-luxury text-xs font-bold uppercase text-center mb-4 italic">Bilan des Cessions</h2>
+        
+        <div class="section-title">Équipe Consultants</div>
+        <div id="list-consultant" class="text-[10px] space-y-2 mb-4"></div>
+
+        <div class="section-title">Équipe Managers</div>
+        <div id="list-manager" class="text-[10px] space-y-2"></div>
     </div>
 </div>
 
 <script>
-// Agenda complet incluant toutes les dates validées
 const masterEvents = [
-    { n: "Soldes d'Hiver", d: "2026-01-10", t: "bg-comm", lbl: "Business" },
     { n: "Saint Valentin ❤️", d: "2026-02-14", t: "bg-comm", lbl: "Business" },
     { n: "Ramadan (Début)", d: "2026-02-18", t: "bg-mus", lbl: "Islam" },
     { n: "Aïd el-Fitr", d: "2026-03-20", t: "bg-mus", lbl: "Islam" },
     { n: "Pâques", d: "2026-04-05", t: "bg-cath", lbl: "Catho" },
-    { n: "Saison Solaire ☀️", d: "2026-04-15", t: "bg-saison", lbl: "Saison" },
-    { n: "Fête du Travail", d: "2026-05-01", t: "bg-comm", lbl: "Public" },
-    { n: "Pentecôte", d: "2026-05-24", t: "
+    { n: "Saison Solaire", d: "2026-04-15", t: "bg-comm", lbl: "Saison" },
+    { n: "Fête des Mères", d: "2026-05-31", t: "bg-comm", lbl: "Business" },
+    { n: "Noël 🎄", d: "2026-12-25", t: "bg-cath", lbl: "Catho" }
+];
+
+let sales = JSON.parse(localStorage.getItem("sales_v59")) || [];
+let customEvents = JSON.parse(localStorage.getItem("customEvents")) || [];
+
+function saveSale() {
+    const role = document.getElementById("roleType").value;
+    const name = document.getElementById("saleName").value;
+    const amt = parseFloat(document.getElementById("saleAmount").value) || 0;
+    const cur = document.getElementById("currency").value;
+    const date = document.getElementById("saleDate").value;
+
+    if(!name || !date) return alert("Nom et Date requis");
+
+    sales.push({ role, name, amt, cur, date });
+    localStorage.setItem("sales_v59", JSON.stringify(sales));
+    alert("Cession " + role + " enregistrée !");
+    refresh();
+}
+
+function addEvent() {
+    const n = document.getElementById("evName").value, t = document.getElementById("evType").value, d = document.getElementById("evDate").value;
+    if(!n || !d) return alert("Champs requis");
+    customEvents.push({ n, t: "bg-comm", lbl: t, d });
+    localStorage.setItem("customEvents", JSON.stringify(customEvents));
+    refresh();
+}
+
+function refresh() {
+    const now = new Date(); now.setHours(0,0,0,0);
+    
+    // Agenda
+    let allEv = [...masterEvents, ...customEvents];
+    let prepas = [];
+    allEv.forEach(e => {
+        let pD = new Date(e.d); pD.setDate(pD.getDate() - 20);
+        prepas.push({ n: `PRÉPA STOCK : ${e.n}`, d: pD.toISOString().split('T')[0], t: "bg-prepa", lbl: "Anticipation" });
+    });
+    allEv = [...allEv, ...prepas].sort((a,b) => new Date(a.d) - new Date(b.d));
+    let hEv = "";
+    allEv.forEach(i => {
+        let dObj = new Date(i.d); let diff = Math.ceil((dObj - now) / 86400000);
+        if(diff < -2) return;
+        hEv += `<div class="agenda-row ${diff < 0 ? 'event-past' : ''}">
+            <div class="w-16">${dObj.toLocaleDateString('fr-FR', {day:'2-digit', month:'2-digit'})}</div>
+            <div class="agenda-info"><span class="tag ${i.t}">${i.lbl}</span><b>${i.n}</b></div>
+            <div class="w-8 text-right">${diff < 0 ? 'OK' : 'J-'+diff}</div>
+        </div>`;
+    });
+    document.getElementById("calendar-box").innerHTML = hEv;
+
+    // Listes Consultant / Manager
+    let htmlC = "", htmlM = "";
+    sales.forEach(s => {
+        let line = `<div class="flex justify-between border-b border-gray-800 pb-1"><span>${s.name}</span><span class="text-yellow-500 font-bold">${s.amt} ${s.cur}</span></div>`;
+        if(s.role === "Consultant") htmlC += line; else htmlM += line;
+    });
+    document.getElementById("list-consultant").innerHTML = htmlC || "Aucune vente consultant.";
+    document.getElementById("list-manager").innerHTML = htmlM || "Aucune vente manager.";
+}
+
+refresh();
+</script>
+</body>
+</html>
