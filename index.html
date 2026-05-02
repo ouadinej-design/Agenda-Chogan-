@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Limitless Elite - V4.9</title>
+    <title>Limitless Elite - V5.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -13,24 +13,21 @@
         .gold-gradient { background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%); }
         .card { background:white; border-radius:25px; padding:20px; margin-bottom:20px; border: 1px solid rgba(212,175,55,0.15); box-shadow: 0 10px 25px rgba(0,0,0,0.02); }
         
-        /* Structure Agenda - Fixé sur visuel 17916 */
-        .agenda-container { min-height: 200px; max-height: 500px; overflow-y: auto; }
-        .agenda-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid #f2f2f2; }
+        /* Agenda - Structure fixe visuel 17916 */
+        .agenda-row { display: flex; align-items: center; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #f5f5f5; }
         .agenda-info { flex: 1; display: flex; flex-direction: column; align-items: center; text-align: center; }
         
-        .event-tag { font-size: 7px; padding: 2px 8px; border-radius: 8px; text-transform: uppercase; font-weight: bold; margin-bottom: 4px; color: white; display: inline-block; }
-        .bg-prepa { background: #7c3aed; } /* Violet pour Rappel J-20 */
-        .bg-fete { background: #10b981; }  /* Vert pour Fêtes */
-        .bg-salon { background: #ef4444; } /* Rouge pour Salon */
-        .bg-relance { background: #f59e0b; } /* Orange pour Relance */
+        .event-tag { font-size: 7px; padding: 2px 8px; border-radius: 8px; text-transform: uppercase; font-weight: bold; margin-bottom: 4px; color: white; }
+        .bg-prepa { background: #7c3aed; }
+        .bg-fete { background: #10b981; }
 
         input, select { border-bottom: 1px solid #eee !important; border: none; outline: none; width: 100%; padding: 12px; font-size: 14px; margin-bottom: 8px; background: transparent; }
         
-        /* Intitulé Doré - Visuel 17918 */
-        .label-gold-fixed { font-size: 9px; font-weight: bold; color: #bca05d; text-transform: uppercase; margin: 15px 0 5px 0; display: block; text-align: center; letter-spacing: 1px; }
+        /* Label Doré - Fixé visuel 17918 */
+        .label-gold { font-size: 9px; font-weight: bold; color: #bca05d; text-transform: uppercase; margin: 15px 0 5px 0; display: block; text-align: center; letter-spacing: 1px; }
         
-        .date-left { font-size: 9px; color: #9ca3af; font-weight: 600; width: 70px; text-align: left; }
-        .j-right { font-weight: bold; color: #4b5563; font-size: 11px; width: 45px; text-align: right; }
+        .date-col { font-size: 9px; color: #9ca3af; font-weight: 600; width: 70px; }
+        .j-col { font-weight: bold; color: #4b5563; font-size: 11px; width: 45px; text-align: right; }
     </style>
 </head>
 <body class="p-4">
@@ -45,27 +42,14 @@
         <h2 class="font-luxury text-sm font-bold mb-4 text-gray-800 uppercase flex justify-center items-center gap-2">
             <i class="fa-solid fa-calendar-day text-yellow-600"></i> Planning & Anticipation
         </h2>
-        <div id="calendar" class="agenda-container">
+        <div id="calendar-box" class="min-height-[200px]">
             </div>
-    </div>
-
-    <div class="card bg-yellow-50/30 border-dashed border-2 border-yellow-200">
-        <h2 class="font-luxury text-[10px] font-bold mb-3 text-yellow-800 uppercase flex items-center gap-2">
-            <i class="fa-solid fa-plus-circle"></i> Planifier un Événement
-        </h2>
-        <input id="evName" placeholder="Nom (ex: Salon, Expo)">
-        <select id="evType">
-            <option value="Salon">Salon / Exposition</option>
-            <option value="Réunion">Réunion d'équipe</option>
-        </select>
-        <input id="evDate" type="date">
-        <button onclick="addEvent()" class="bg-black text-white w-full p-3 rounded-xl text-[10px] font-bold uppercase tracking-widest shadow-md">Ajouter à l'agenda</button>
     </div>
 
     <div class="card shadow-lg">
         <h2 class="font-luxury text-md mb-4 text-gray-700 italic border-b pb-2 text-center">Nouvelle Vente</h2>
-        <input id="cons" placeholder="Consultante">
-        <input id="cli" placeholder="Cliente">
+        <input id="cons" placeholder="Nom de la consultante">
+        <input id="cli" placeholder="Nom de la cliente">
         <input id="prd" placeholder="Produit Chogan">
         <div class="flex gap-2">
             <input id="amt" type="number" placeholder="Montant" class="flex-1">
@@ -75,24 +59,21 @@
             </select>
         </div>
         
-        <span class="label-gold-fixed">SÉLECTIONNER UNE DATE D'ACHAT</span>
+        <span class="label-gold">SÉLECTIONNER UNE DATE D'ACHAT</span>
         <input id="vDate" type="date">
         
-        <button onclick="saveSale()" class="gold-gradient text-white w-full p-4 rounded-2xl font-bold text-[11px] uppercase tracking-widest shadow-md mt-2">Valider la Transaction</button>
+        <button onclick="saveSale()" class="gold-gradient text-white w-full p-4 rounded-2xl font-bold text-[11px] uppercase tracking-widest shadow-md mt-2">Enregistrer Transaction</button>
     </div>
 
     <div class="card bg-black text-white">
-        <h2 class="text-yellow-500 font-luxury text-[10px] font-bold uppercase tracking-widest mb-4 italic text-center">Performance Équipe (CA Global)</h2>
+        <h2 class="text-yellow-500 font-luxury text-[10px] font-bold uppercase tracking-widest mb-4 italic text-center">Performance Équipe</h2>
         <div id="performance" class="space-y-3 text-[11px]"></div>
     </div>
 </div>
 
 <script>
-// Chargement des données
-let sales = JSON.parse(localStorage.getItem("sales")) || [];
-let events = JSON.parse(localStorage.getItem("events")) || [];
-
-const fixedHolidays = [
+// Données de base
+const holidays = [
     { n:"Aïd el-Adha", d:"2026-05-27" },
     { n:"Fête des Mères 🌸", d:"2026-05-31" },
     { n:"Saison Solaire ☀️", d:"2026-06-15" },
@@ -101,84 +82,85 @@ const fixedHolidays = [
     { n:"Noël 🎄", d:"2026-12-25" }
 ];
 
-function addEvent() {
-    const n = document.getElementById("evName").value, t = document.getElementById("evType").value, d = document.getElementById("evDate").value;
-    if(!n || !d) return alert("Nom et date obligatoires");
-    events.push({ n, t, d });
-    localStorage.setItem("events", JSON.stringify(events));
-    refreshUI();
-}
-
-function saveSale() {
-    const cons = document.getElementById("cons").value, cli = document.getElementById("cli").value, prd = document.getElementById("prd").value;
-    const amt = document.getElementById("amt").value, cur = document.getElementById("cur").value, dat = document.getElementById("vDate").value;
-    if(!dat) return alert("Sélectionnez une date d'achat");
-    sales.push({ id: Date.now(), cons, cli, prd, amt: parseFloat(amt)||0, cur, dat });
-    localStorage.setItem("sales", JSON.stringify(sales));
-    refreshUI();
-}
-
-function refreshUI() {
+function renderAgenda() {
+    const container = document.getElementById("calendar-box");
     const now = new Date(); now.setHours(0,0,0,0);
-    let items = [], perf = {};
+    let items = [];
 
-    // Génération automatique des dates d'agenda
-    fixedHolidays.forEach(h => {
+    // Création des lignes agenda
+    holidays.forEach(h => {
+        // La fête elle-même
         items.push({ n: h.n, d: h.d, t: "bg-fete", lbl: "Fête" });
+        // Le rappel J-20
         let pD = new Date(h.d); pD.setDate(pD.getDate() - 20);
         items.push({ n: `📦 PRÉPA STOCK : ${h.n}`, d: pD.toISOString().split('T')[0], t: "bg-prepa", lbl: "Rappel J-20" });
     });
-    
-    events.forEach(e => {
-        items.push({ n: e.n, d: e.d, t: "bg-salon", lbl: e.t });
-        let pE = new Date(e.d); pE.setDate(pE.getDate() - 20);
-        items.push({ n: `📦 PRÉPA : ${e.n}`, d: pE.toISOString().split('T')[0], t: "bg-prepa", lbl: "Rappel J-20" });
-    });
 
+    // Ajout des relances clients si elles existent
+    let sales = JSON.parse(localStorage.getItem("sales")) || [];
     sales.forEach(s => {
         let rDate = new Date(s.dat); rDate.setDate(rDate.getDate() + 40);
-        items.push({ n: `RELANCE : ${s.cli}`, d: rDate.toISOString().split('T')[0], t: "bg-relance", lbl: "Relance" });
+        items.push({ n: `RELANCE : ${s.cli}`, d: rDate.toISOString().split('T')[0], t: "bg-fete", lbl: "Relance" });
     });
-    
-    // Tri chronologique
+
     items.sort((a,b) => new Date(a.d) - new Date(b.d));
-    
-    let calH = "";
+
+    let html = "";
     items.forEach(i => {
         let dObj = new Date(i.d);
         let diff = Math.ceil((dObj - now) / 86400000);
-        if(diff < -5) return; // Cache les événements passés depuis 5 jours
-        
-        calH += `
-        <div class="agenda-row ${diff < 0 ? 'opacity-30 grayscale' : ''}">
-            <div class="date-left">${dObj.toLocaleDateString('fr-FR')}</div>
+        if(diff < -2) return;
+
+        html += `
+        <div class="agenda-row ${diff < 0 ? 'opacity-30' : ''}">
+            <div class="date-col">${dObj.toLocaleDateString('fr-FR')}</div>
             <div class="agenda-info">
                 <span class="event-tag ${i.t}">${i.lbl}</span>
-                <span class="font-bold text-gray-700 uppercase text-[9px] tracking-tighter">${i.n}</span>
+                <span class="font-bold text-gray-700 uppercase text-[9px] tracking-tight">${i.n}</span>
             </div>
-            <div class="j-right">${diff < 0 ? 'OK' : 'J-' + diff}</div>
+            <div class="j-col">${diff < 0 ? 'OK' : 'J-' + diff}</div>
         </div>`;
     });
-    document.getElementById("calendar").innerHTML = calH || "<p class='text-center py-8 text-xs text-gray-400'>Aucune donnée à afficher</p>";
-
-    // Performance
-    sales.forEach(s => {
-        if(!perf[s.cons]) perf[s.cons] = { da: 0, eu: 0 };
-        if(s.cur === "DA") perf[s.cons].da += s.amt; else perf[s.cons].eu += s.amt;
-    });
-
-    let perfH = "";
-    for(let name in perf) {
-        perfH += `<div class="flex justify-between border-b border-gray-800 pb-2">
-            <span class="uppercase font-bold">${name}</span>
-            <span class="text-yellow-500 font-bold">${perf[name].da} DA / ${perf[name].eu} €</span>
-        </div>`;
-    }
-    document.getElementById("performance").innerHTML = perfH || "<p class='text-center text-gray-600'>Aucune vente</p>";
+    container.innerHTML = html;
 }
 
-// Lancement immédiat
-refreshUI();
+function saveSale() {
+    const dat = document.getElementById("vDate").value;
+    if(!dat) return alert("Veuillez sélectionner une date");
+    
+    let sales = JSON.parse(localStorage.getItem("sales")) || [];
+    sales.push({
+        cons: document.getElementById("cons").value,
+        cli: document.getElementById("cli").value,
+        amt: document.getElementById("amt").value,
+        cur: document.getElementById("cur").value,
+        dat: dat
+    });
+    localStorage.setItem("sales", JSON.stringify(sales));
+    renderAgenda();
+    renderPerformance();
+}
+
+function renderPerformance() {
+    let sales = JSON.parse(localStorage.getItem("sales")) || [];
+    let perf = {};
+    sales.forEach(s => {
+        if(!perf[s.cons]) perf[s.cons] = { da: 0, eu: 0 };
+        if(s.cur === "DA") perf[s.cons].da += parseFloat(s.amt)||0; 
+        else perf[s.cons].eu += parseFloat(s.amt)||0;
+    });
+    let html = "";
+    for(let c in perf) {
+        html += `<div class="flex justify-between border-b border-gray-800 pb-1">
+            <span>${c}</span><span>${perf[c].da} DA / ${perf[c].eu} €</span>
+        </div>`;
+    }
+    document.getElementById("performance").innerHTML = html || "Aucune vente.";
+}
+
+// EXECUTION IMMÉDIATE
+renderAgenda();
+renderPerformance();
 </script>
 </body>
 </html>
