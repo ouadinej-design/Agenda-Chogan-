@@ -71,7 +71,7 @@ select.inp option{background:#1E2230;}
 /* AGENDA */
 .ev-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
 .ev-row:last-child{border-bottom:none;}
-.ev-past{opacity:0.2;filter:grayscale(0.9);}
+.ev-past{opacity:0.2;filter:grayscale(1) brightness(0.7);}
 .ev-today{background:rgba(201,168,76,0.06);border-radius:10px;padding:9px 8px;margin:2px -5px;}
 .ev-soon{position:relative;}
 .ev-soon::before{content:'';position:absolute;left:-10px;top:50%;transform:translateY(-50%);width:3px;height:26px;background:var(--gold);border-radius:3px;}
@@ -269,11 +269,11 @@ select.inp option{background:#1E2230;}
         <div class="t-tab" onclick="filterCal('cath',this)">Catho</div>
         <div class="t-tab" onclick="filterCal('comm',this)">Business</div>
         <div class="t-tab" onclick="filterCal('saison',this)">Saison</div>
-        <div class="t-tab" onclick="filterCal('prepa',this)">Rappels</div>
+        <div class="t-tab" onclick="filterCal('prepa',this)">Pré-commandes</div>
         <div class="t-tab" onclick="filterCal('perso',this)">Perso</div>
       </div>
 
-      <div id="cal-box" style="max-height:360px;overflow-y:auto;padding-right:2px;"></div>
+      <div id="cal-box" style="max-height:520px;overflow-y:auto;padding-right:2px;"></div>
     </div>
 
     <!-- Add personal event -->
@@ -627,24 +627,21 @@ function renderAgenda(){
   const now = new Date(); now.setHours(0,0,0,0);
   const customEvs = getEvents();
 
-  // Build all events including J-20 preps
+  // ── 1. Construire tous les événements
   let all = [...MASTER_EVENTS];
   customEvs.forEach(e=>{
     all.push({n:e.n, d:e.d, t:'bg-perso', lbl:e.lbl, id:e.id, custom:true});
   });
 
-  // Generate J-20 reminders
+  // ── 2. Générer les rappels J-20
   const base = [...all];
   base.forEach(e=>{
     const pd = new Date(e.d);
     pd.setDate(pd.getDate()-20);
-    all.push({n:'📦 STOCK : '+e.n, d:pd.toISOString().split('T')[0], t:'bg-prepa', lbl:'Rappel J-20', isPrep:true});
+    all.push({n:'🛒 Pré-commande : '+e.n, d:pd.toISOString().split('T')[0], t:'bg-prepa', lbl:'Pré-commande', isPrep:true});
   });
 
-  // Sort
-  all.sort((a,b)=>new Date(a.d)-new Date(b.d));
-
-  // Filter
+  // ── 3. Filtrer par catégorie
   const f = CUR_FILTER_CAL;
   if(f!=='all'){
     all = all.filter(e=>{
@@ -654,45 +651,52 @@ function renderAgenda(){
     });
   }
 
-  let html='', relancesHTML='';
+  // ── 4. Séparer futurs et passés
+  const futurs = all
+    .filter(e=> Math.ceil((new Date(e.d)-now)/86400000) >= 0)
+    .sort((a,b)=>new Date(a.d)-new Date(b.d));   // chronologique ↑
+
+  const passes = all
+    .filter(e=> Math.ceil((new Date(e.d)-now)/86400000) < 0)
+    .sort((a,b)=>new Date(b.d)-new Date(a.d));   // anti-chronologique ↓ (plus récent en premier)
+
+  // ── 5. Construire le HTML
+  let relancesHTML='';
   let hasRelances=false;
 
-  all.forEach(ev=>{
+  function buildRow(ev){
     const dObj = new Date(ev.d);
     const diff = Math.ceil((dObj-now)/86400000);
-    if(diff<-7) return; // hide very old
+    const dStr = dObj.toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'2-digit'});
+    const isPast  = diff < 0;
+    const isToday = diff === 0;
+    const isSoon  = diff > 0 && diff <= 5;
 
-    const dStr = dObj.toLocaleDateString('fr-FR',{day:'2-digit',month:'short'});
-    const isPast = diff<0;
-    const isToday = diff===0;
-    const isSoon = diff>0&&diff<=5;
-
+    // Badge J-X
     let jBadge='';
-    if(isPast) jBadge=`<span class="j-badge j-past">Passé</span>`;
-    else if(isToday) jBadge=`<span class="j-badge j-zero">Aujourd'hui !</span>`;
-    else jBadge=`<span class="j-badge j-future">J-${diff}</span>`;
+    if(isPast){
+      const abs=Math.abs(diff);
+      const label = abs===1?'Hier': abs<365? abs+'j' : Math.floor(abs/365)+'an';
+      jBadge=`<span class="j-badge j-past">${label}</span>`;
+    } else if(isToday){
+      jBadge=`<span class="j-badge j-zero">Auj. !</span>`;
+    } else {
+      jBadge=`<span class="j-badge j-future">J-${diff}</span>`;
+    }
 
+    // Classes
     let rowClass='ev-row';
-    if(isPast) rowClass+=' ev-past';
-    if(isToday) rowClass+=' ev-today';
-    if(isSoon&&!isPast) rowClass+=' ev-soon';
+    if(isPast)              rowClass+=' ev-past';
+    if(isToday)             rowClass+=' ev-today';
+    if(isSoon && !isPast)   rowClass+=' ev-soon';
 
+    // Bouton suppression (événements perso seulement)
     const delBtn = ev.custom
       ? `<button class="del-btn" onclick="deleteEvent('${ev.id}')"><i class="fa-solid fa-trash-can"></i></button>`
       : '';
 
-    html+=`<div class="${rowClass}">
-      <div class="date-col">${dStr}</div>
-      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;">
-        <span class="tag ${ev.t}">${ev.lbl}</span>
-        <span style="font-size:9px;font-weight:600;color:#C8BFA8;letter-spacing:0.3px;">${ev.n}</span>
-      </div>
-      ${jBadge}
-      ${delBtn}
-    </div>`;
-
-    // Relances today
-    if(!isPast&&diff<=1&&!ev.isPrep){
+    // Relances du jour
+    if(!isPast && diff<=1 && !ev.isPrep){
       hasRelances=true;
       relancesHTML+=`<div class="relance">
         <span class="tag ${ev.t}" style="flex-shrink:0;">${ev.lbl}</span>
@@ -703,10 +707,45 @@ function renderAgenda(){
         <i class="fa-solid fa-bell" style="color:var(--gold);font-size:12px;"></i>
       </div>`;
     }
-  });
 
-  document.getElementById('cal-box').innerHTML = html||`<div class="empty"><i class="fa-solid fa-calendar-xmark"></i><p>Aucun événement pour ce filtre</p></div>`;
+    return `<div class="${rowClass}">
+      <div class="date-col">${dStr}</div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;">
+        <span class="tag ${ev.t}">${ev.lbl}</span>
+        <span style="font-size:9px;font-weight:600;color:#C8BFA8;letter-spacing:0.3px;">${ev.n}</span>
+      </div>
+      ${jBadge}${delBtn}
+    </div>`;
+  }
 
+  // ── BLOC FUTURS
+  let html = '';
+
+  if(futurs.length){
+    html += `<div style="display:flex;align-items:center;gap:8px;padding:4px 0 10px;">
+      <div style="flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,0.5));"></div>
+      <span style="font-size:7.5px;color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:2px;white-space:nowrap;">✦ Prochains événements</span>
+      <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(201,168,76,0.5),transparent);"></div>
+    </div>`;
+    futurs.forEach(ev=>{ html+=buildRow(ev); });
+  } else {
+    html += `<div class="empty"><i class="fa-solid fa-calendar-check"></i><p>Aucun événement à venir</p></div>`;
+  }
+
+  // ── BLOC PASSÉS (en dessous, bien visibles mais assombris)
+  if(passes.length){
+    html += `<div style="display:flex;align-items:center;gap:8px;padding:18px 0 10px;">
+      <div style="flex:1;height:1px;background:rgba(255,255,255,0.06);"></div>
+      <span style="font-size:7px;color:rgba(107,114,128,0.6);font-weight:600;text-transform:uppercase;letter-spacing:2px;white-space:nowrap;">📁 Historique</span>
+      <div style="flex:1;height:1px;background:rgba(255,255,255,0.06);"></div>
+    </div>`;
+    passes.forEach(ev=>{ html+=buildRow(ev); });
+  }
+
+  // ── Injecter
+  document.getElementById('cal-box').innerHTML = html;
+
+  // ── Relances & clients
   const rBox=document.getElementById('agenda-relances');
   if(hasRelances){
     rBox.style.display='block';
@@ -714,8 +753,6 @@ function renderAgenda(){
   } else {
     rBox.style.display='none';
   }
-
-  // Client relances
   renderClientRelances();
 }
 
@@ -1264,4 +1301,3 @@ setTimeout(()=>setCur('DA'),100);
 </script>
 </body>
 </html>
-
