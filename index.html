@@ -1,158 +1,164 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CRM Manager Elite</title>
-
-<script src="https://cdn.tailwindcss.com"></script>
-
-<style>
-body { background:#f9f9f9; font-family: Arial }
-.card { background:white; padding:12px; border-radius:12px; margin-bottom:10px }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Limitless Manager Elite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@300;400;600&display=swap');
+        body { background:#fdfdfd; font-family: 'Montserrat', sans-serif; color: #333; }
+        .font-luxury { font-family: 'Playfair Display', serif; }
+        .gold-gradient { background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%); }
+        .card { background:white; border-radius:20px; padding:20px; margin-bottom:15px; border: 1px solid rgba(212,175,55,0.15); box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+        input { border-bottom: 2px solid #eee !important; border: none; outline: none; transition: 0.3s; width: 100%; padding: 10px; margin-bottom: 10px; }
+        input:focus { border-color: #D4AF37 !important; }
+    </style>
 </head>
-
-<body class="p-4">
+<body class="p-4 md:p-8">
 
 <div class="max-w-md mx-auto">
 
-<h1 class="text-xl font-bold text-center mb-4">CRM MANAGER</h1>
+    <div id="login" class="flex flex-col items-center justify-center min-h-[80vh]">
+        <div class="text-center mb-8">
+            <h1 class="font-luxury text-3xl font-bold text-yellow-700 tracking-widest uppercase">Limitless</h1>
+            <p class="text-[10px] text-gray-400 tracking-widest uppercase">Accès Manager</p>
+        </div>
+        <div class="card w-full shadow-xl">
+            <input id="pass" type="password" placeholder="Mot de passe" class="text-center">
+            <button onclick="login()" class="gold-gradient text-white w-full p-4 rounded-xl font-bold mt-4 uppercase tracking-widest active:scale-95 transition">Entrer</button>
+        </div>
+    </div>
 
-<!-- LOGIN MANAGER -->
-<div id="login" class="card">
-<input id="pass" type="password" placeholder="Mot de passe manager" class="border p-2 w-full mb-2">
-<button onclick="login()" class="bg-black text-white w-full p-2">Accéder</button>
-</div>
+    <div id="app" style="display:none">
+        
+        <header class="flex justify-between items-center mb-6">
+            <h1 class="font-luxury text-xl font-bold text-yellow-700 uppercase">Dashboard Elite</h1>
+            <button onclick="location.reload()" class="text-gray-400"><i class="fa-solid fa-power-off"></i></button>
+        </header>
 
-<!-- APP -->
-<div id="app" style="display:none">
+        <div class="card">
+            <h2 class="font-luxury text-sm font-bold mb-4 text-gray-700 uppercase border-b pb-2 italic">Enregistrer une transaction</h2>
+            <input id="consultant" placeholder="Nom de la consultante">
+            <input id="name" placeholder="Nom de la cliente">
+            <input id="product" placeholder="Produit (ex: Parfum 061)">
+            <input id="price" type="number" placeholder="Prix de vente (DZD / €)">
+            <input id="date" type="date">
+            <button onclick="addSale()" class="gold-gradient text-white w-full p-3 rounded-xl font-bold mt-2 shadow-md">AJOUTER À L'ÉQUIPE</button>
+        </div>
 
-<div class="card">
-<input id="consultant" placeholder="Consultante" class="border p-2 w-full mb-2">
-<input id="name" placeholder="Cliente" class="border p-2 w-full mb-2">
-<input id="product" placeholder="Produit" class="border p-2 w-full mb-2">
-<input id="price" type="number" placeholder="Prix (€)" class="border p-2 w-full mb-2">
-<input id="date" type="date" class="border p-2 w-full mb-2">
+        <h2 class="font-luxury text-sm font-bold mb-3 text-yellow-800 uppercase px-2"><i class="fa-solid fa-chart-line"></i> Performance équipe</h2>
+        <div id="stats" class="grid grid-cols-1 gap-3 mb-6 text-sm">
+            </div>
 
-<button onclick="addSale()" class="bg-yellow-500 text-white w-full p-2">Ajouter</button>
-</div>
+        <div class="flex items-center justify-between mb-3 px-2">
+            <h2 class="font-luxury text-sm font-bold text-yellow-800 uppercase">Historique</h2>
+            <input id="searchBar" onkeyup="render()" placeholder="Filtrer..." class="!mb-0 !p-1 !w-1/2 text-xs">
+        </div>
+        <div id="list"></div>
 
-<!-- MANAGER STATS -->
-<div class="card">
-<h2 class="font-bold mb-2">📊 Performance équipe</h2>
-<div id="stats"></div>
-</div>
-
-<!-- LIST -->
-<div id="list"></div>
-
-</div>
+    </div>
 
 </div>
 
 <script>
+    let PASSWORD = "1234"; // 🔥 À modifier
+    let sales = JSON.parse(localStorage.getItem("sales")) || [];
 
-let PASSWORD = "1234"; // 🔥 change ici
-let sales = JSON.parse(localStorage.getItem("sales")) || [];
+    function login(){
+        if(document.getElementById("pass").value === PASSWORD){
+            document.getElementById("login").style.display="none";
+            document.getElementById("app").style.display="block";
+            render();
+        }else{
+            alert("Accès refusé");
+        }
+    }
 
-/* LOGIN */
-function login(){
-if(document.getElementById("pass").value === PASSWORD){
-document.getElementById("login").style.display="none";
-document.getElementById("app").style.display="block";
-render();
-}else{
-alert("Mot de passe incorrect");
-}
-}
+    function addSale(){
+        let c = document.getElementById("consultant").value;
+        let n = document.getElementById("name").value;
+        let p = document.getElementById("product").value;
+        let pr = parseFloat(document.getElementById("price").value);
+        let d = document.getElementById("date").value;
 
-/* ADD */
-function addSale(){
-let c = consultant.value;
-let n = name.value;
-let p = product.value;
-let price = parseFloat(document.getElementById("price").value);
-let d = date.value;
+        if(!c || !n || !p || !pr || !d) return alert("Veuillez remplir tous les champs");
 
-if(!c||!n||!p||!price||!d) return alert("Champs requis");
+        let relance = new Date(d);
+        relance.setDate(relance.getDate() + 40);
 
-let relance = new Date(d);
-relance.setDate(relance.getDate()+40);
+        sales.push({
+            id: Date.now(),
+            consultant: c.charAt(0).toUpperCase() + c.slice(1),
+            name: n,
+            product: p,
+            price: pr,
+            date: d,
+            relance: relance.toISOString().split("T")[0]
+        });
 
-sales.push({
-id: Date.now(),
-consultant:c,
-name:n,
-product:p,
-price:price,
-date:d,
-relance:relance.toISOString().split("T")[0]
-});
+        save();
+        // Clear fields
+        ["consultant", "name", "product", "price", "date"].forEach(id => document.getElementById(id).value = "");
+    }
 
-save();
-}
+    function deleteSale(id){
+        if(confirm("Supprimer cette vente ?")){
+            sales = sales.filter(s => s.id !== id);
+            save();
+        }
+    }
 
-/* SAVE */
-function save(){
-localStorage.setItem("sales", JSON.stringify(sales));
-render();
-}
+    function save(){
+        localStorage.setItem("sales", JSON.stringify(sales));
+        render();
+    }
 
-/* RENDER */
-function render(){
+    function render(){
+        let html = "";
+        let teamStats = {};
+        let searchQuery = document.getElementById("searchBar").value.toLowerCase();
 
-let html="";
-let stats={};
+        sales.forEach(s => {
+            // Calcul Stats par consultante
+            if(!teamStats[s.consultant]){
+                teamStats[s.consultant] = {ca: 0, total: 0};
+            }
+            teamStats[s.consultant].ca += s.price;
+            teamStats[s.consultant].total++;
 
-sales.forEach(s=>{
+            // Filtrage recherche
+            if(s.consultant.toLowerCase().includes(searchQuery) || s.name.toLowerCase().includes(searchQuery)){
+                let msg = `Bonjour ${s.name} 😊\n\nC'est la Limitless Team ✨\n\nComment se passe ton utilisation du ${s.product} ? On prévoit ton réassort ? 💖`;
+                let url = `https://wa.me/?text=${encodeURIComponent(msg)}`;
 
-// stats
-if(!stats[s.consultant]){
-stats[s.consultant]={ca:0,total:0};
-}
-stats[s.consultant].ca += s.price;
-stats[s.consultant].total++;
+                html += `
+                <div class="card relative">
+                    <button onclick="deleteSale(${s.id})" class="absolute top-4 right-4 text-gray-300 hover:text-red-500"><i class="fa-solid fa-trash-can"></i></button>
+                    <p class="text-[9px] font-bold text-yellow-600 uppercase mb-1 tracking-wider italic">${s.consultant}</p>
+                    <p class="font-luxury text-md text-gray-800">${s.name}</p>
+                    <p class="text-xs text-gray-400 mb-4">${s.product} — ${s.price} €/DZD</p>
+                    <a href="${url}" target="_blank" class="bg-green-500 text-white p-3 block text-center rounded-xl text-xs font-bold uppercase tracking-widest shadow-sm">
+                        <i class="fa-brands fa-whatsapp"></i> Relancer cliente
+                    </a>
+                </div>`;
+            }
+        });
 
-let msg = `Bonjour ${s.name} 😊
+        // Affichage des Stats Globales
+        let statsHTML = "";
+        Object.keys(teamStats).forEach(c => {
+            statsHTML += `
+            <div class="flex justify-between items-center bg-yellow-50 p-3 rounded-xl border border-yellow-100">
+                <span class="font-bold text-gray-700">${c}</span>
+                <span class="text-xs font-bold text-yellow-700">${teamStats[c].ca.toFixed(2)} — (${teamStats[c].total} v.)</span>
+            </div>`;
+        });
 
-Je reviens vers toi pour ton ${s.product} ✨
-
-Je peux te proposer un réassort si tu veux 💖`;
-
-let url = `https://wa.me/?text=${encodeURIComponent(msg)}`;
-
-html += `
-<div class="card">
-<p><b>${s.consultant}</b></p>
-<p>${s.name} - ${s.product}</p>
-<p>${s.price} €</p>
-
-<a href="${url}" target="_blank" class="bg-green-500 text-white p-2 block text-center rounded">
-WhatsApp
-</a>
-</div>
-`;
-
-});
-
-// manager stats
-let statsHTML="";
-Object.keys(stats).forEach(c=>{
-statsHTML += `
-<div class="card">
-<p><b>${c}</b></p>
-<p>CA: ${stats[c].ca} €</p>
-<p>Ventes: ${stats[c].total}</p>
-</div>
-`;
-});
-
-document.getElementById("list").innerHTML = html;
-document.getElementById("stats").innerHTML = statsHTML;
-
-}
-
+        document.getElementById("list").innerHTML = html;
+        document.getElementById("stats").innerHTML = statsHTML || "<p class='text-center text-xs text-gray-400'>Aucune performance enregistrée.</p>";
+    }
 </script>
 
 </body>
