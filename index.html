@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Limitless Elite - Planificateur Expert</title>
+    <title>Limitless Elite - Manager Pro V3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -12,13 +12,14 @@
         .font-luxury { font-family: 'Playfair Display', serif; }
         .gold-gradient { background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%); }
         .card { background:white; border-radius:20px; padding:18px; margin-bottom:15px; border: 1px solid rgba(212,175,55,0.15); box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
-        input, select, textarea { border-bottom: 1px solid #eee !important; border: none; outline: none; transition: 0.3s; width: 100%; padding: 8px; margin-bottom: 10px; font-size: 14px; background: transparent; }
+        input, select { border-bottom: 1px solid #eee !important; border: none; outline: none; transition: 0.3s; width: 100%; padding: 8px; margin-bottom: 10px; font-size: 14px; background: transparent; }
         input:focus, select:focus { border-color: #D4AF37 !important; }
         .admin-only { display: none; }
         .event-tag { font-size: 8px; padding: 2px 6px; border-radius: 10px; text-transform: uppercase; font-weight: bold; margin-right: 5px; }
         .tag-salon { background: #fee2e2; color: #991b1b; }
         .tag-reunion { background: #dcfce7; color: #166534; }
         .tag-fete { background: #fef9c3; color: #854d0e; }
+        .tag-religieux { background: #e0f2fe; color: #075985; }
     </style>
 </head>
 <body class="p-4">
@@ -47,17 +48,19 @@
 
     <div class="card border-dashed border-2 border-yellow-200 bg-white">
         <h2 class="font-luxury text-sm font-bold mb-3 text-gray-600 uppercase italic">Planifier un Événement</h2>
-        <input id="evName" placeholder="Nom de l'événement (ex: Foire de Lyon)">
+        <input id="evName" placeholder="Nom de l'événement">
         <select id="evType">
             <option value="Salon">Salon / Exposition</option>
             <option value="Brocante">Brocante / Marché</option>
             <option value="Réunion">Réunion à domicile</option>
-            <option value="Atelier">Atelier Bien-être / Parfum</option>
+            <option value="Atelier">Atelier Bien-être</option>
             <option value="Vente Privée">Vente Privée</option>
-            <option value="Flash Sale">Flash Sale Réseaux</option>
         </select>
-        <input id="evDate" type="date">
-        <input id="evFocus" placeholder="Produits à vendre (ex: Parfums Homme, Solaire)">
+        <div class="flex flex-col mb-2">
+            <label class="text-[9px] font-bold text-gray-400 uppercase ml-2">Sélectionner la date</label>
+            <input id="evDate" type="date">
+        </div>
+        <input id="evFocus" placeholder="Produits à vendre">
         <button onclick="addEvent()" class="bg-gray-800 text-white w-full p-3 rounded-xl text-[9px] font-bold uppercase tracking-widest active:scale-95 transition">Ajouter à l'agenda</button>
     </div>
 
@@ -83,7 +86,7 @@
     </div>
 
     <div class="flex items-center justify-between my-4 px-2">
-        <h2 class="font-luxury text-sm font-bold text-yellow-800 uppercase italic">Fichier Clients</h2>
+        <h2 class="font-luxury text-sm font-bold text-yellow-800 uppercase italic">Historique des Ventes</h2>
         <input id="searchBar" onkeyup="render()" placeholder="Rechercher..." class="!mb-0 !p-1 !w-1/2 text-xs">
     </div>
 
@@ -98,10 +101,14 @@ const ADMIN_PASS = "1981";
 let sales = JSON.parse(localStorage.getItem("sales")) || [];
 let myEvents = JSON.parse(localStorage.getItem("myEvents")) || [];
 
+// Dates 2026 approx (à ajuster selon calendrier lunaire)
 const fixedHolidays = [
+    { name:"Aïd el-Fitr", date:"2026-03-20", type:"Religieux" },
     { name:"Fête des Mères", date:"2026-05-31", type:"Fête" },
+    { name:"Aïd el-Adha", date:"2026-05-27", type:"Religieux" },
     { name:"Saison Solaire", date:"2026-06-15", type:"Fête" },
     { name:"Fête des Pères", date:"2026-06-21", type:"Fête" },
+    { name:"Mawlid", date:"2026-08-25", type:"Religieux" },
     { name:"Black Friday", date:"2026-11-27", type:"Fête" }
 ];
 
@@ -123,60 +130,31 @@ function addEvent() {
     let type = document.getElementById("evType").value;
     let date = document.getElementById("evDate").value;
     let focus = document.getElementById("evFocus").value;
-
-    if(!name || !date) return alert("Nom et Date requis");
-
+    if(!name || !date) return alert("Date et Nom requis");
     myEvents.push({ id: Date.now(), name, type, date, focus });
     localStorage.setItem("myEvents", JSON.stringify(myEvents));
-    
-    document.getElementById("evName").value = "";
-    document.getElementById("evFocus").value = "";
     renderCalendar();
-}
-
-function deleteEvent(id) {
-    if(!isAdmin) return;
-    if(confirm("Supprimer cet événement ?")) {
-        myEvents = myEvents.filter(e => e.id !== id);
-        localStorage.setItem("myEvents", JSON.stringify(myEvents));
-        renderCalendar();
-    }
 }
 
 function renderCalendar(){
     let html="";
     const today = new Date();
-    
-    let allEvents = [...fixedHolidays, ...myEvents];
-    
-    // TRI : Du plus proche au plus lointain
-    allEvents.sort((a,b) => new Date(a.date) - new Date(b.date));
+    let allEvents = [...fixedHolidays, ...myEvents].sort((a,b) => new Date(a.date) - new Date(b.date));
 
     allEvents.forEach(h => {
         const hDate = new Date(h.date);
         const diff = Math.ceil((hDate - today) / (1000 * 60 * 60 * 24));
-        
-        if (diff < -5) return; // Cache les vieux événements
-
-        let tagClass = h.type === "Salon" || h.type === "Brocante" ? "tag-salon" : (h.type === "Réunion" ? "tag-reunion" : "tag-fete");
-        
-        html += `
-        <div class="border-b border-yellow-100 py-2 relative">
+        if (diff < -5) return;
+        let tagClass = h.type === "Religieux" ? "tag-religieux" : (h.type === "Fête" ? "tag-fete" : "tag-salon");
+        html += `<div class="border-b border-yellow-100 py-2">
             <div class="flex justify-between items-start">
-                <div>
-                    <span class="event-tag ${tagClass}">${h.type}</span>
-                    <span class="font-bold text-gray-800">${h.name}</span>
-                    ${h.focus ? `<p class="text-[8px] text-gray-400 mt-1 uppercase italic">Focus : ${h.focus}</p>` : ''}
-                </div>
-                <div class="text-right">
-                    <span class="font-bold ${diff < 0 ? 'text-red-500' : 'text-yellow-700'}">${diff < 0 ? 'PASSÉ' : 'J-' + diff}</span>
-                    <p class="text-[8px] text-gray-400">${hDate.toLocaleDateString('fr-FR')}</p>
-                </div>
+                <div><span class="event-tag ${tagClass}">${h.type}</span><span class="font-bold text-gray-800">${h.name}</span></div>
+                <div class="text-right text-yellow-700 font-bold">${diff < 0 ? 'EN COURS' : 'J-' + diff}</div>
             </div>
-            ${isAdmin && h.id ? `<button onclick="deleteEvent(${h.id})" class="absolute -left-5 top-2 text-gray-300 text-[8px]"><i class="fa-solid fa-xmark"></i></button>` : ''}
+            <p class="text-[8px] text-gray-400 uppercase italic">${hDate.toLocaleDateString('fr-FR')} ${h.focus ? '• ' + h.focus : ''}</p>
         </div>`;
     });
-    document.getElementById("calendar").innerHTML = html || "Aucun événement prévu.";
+    document.getElementById("calendar").innerHTML = html;
 }
 
 function addSale(){
@@ -186,35 +164,8 @@ function addSale(){
     let pr = parseFloat(document.getElementById("price").value);
     let cur = document.getElementById("currency").value;
     let d = document.getElementById("date").value;
-
-    if(!c || !n || !p || isNaN(pr) || !d) return alert("Champs incomplets");
-
-    let relance = new Date(d);
-    relance.setDate(relance.getDate() + 40);
-
-    sales.push({
-        id: Date.now(),
-        consultant: c.charAt(0).toUpperCase() + c.slice(1),
-        name: n,
-        product: p,
-        price: pr,
-        currency: cur,
-        date: d,
-        relance: relance.toISOString().split("T")[0]
-    });
-
-    save();
-    ["consultant", "name", "product", "price", "date"].forEach(id => document.getElementById(id).value = "");
-}
-
-function deleteSale(id){
-    if(confirm("Supprimer cette transaction ?")) {
-        sales = sales.filter(s => s.id !== id);
-        save();
-    }
-}
-
-function save(){
+    if(!c || !n || !p || isNaN(pr) || !d) return alert("Champs vides");
+    sales.push({ id: Date.now(), consultant: c, name: n, product: p, price: pr, currency: cur, date: d });
     localStorage.setItem("sales", JSON.stringify(sales));
     render();
 }
@@ -223,29 +174,34 @@ function render(){
     let html = "";
     let teamData = {};
     let query = document.getElementById("searchBar").value.toLowerCase();
-    sales.sort((a,b) => new Date(b.date) - new Date(a.date));
+    
+    // TRI : Du plus ANCIEN au plus NOUVEAU
+    sales.sort((a,b) => new Date(a.date) - new Date(b.date));
 
     sales.forEach(s => {
         if(!teamData[s.consultant]) teamData[s.consultant] = {caDA:0, caEUR:0, v:0};
-        if(s.currency === "DA") teamData[s.consultant].caDA += s.price;
-        else teamData[s.consultant].caEUR += s.price;
+        s.currency === "DA" ? teamData[s.consultant].caDA += s.price : teamData[s.consultant].caEUR += s.price;
         teamData[s.consultant].v++;
 
         if(s.name.toLowerCase().includes(query) || s.consultant.toLowerCase().includes(query)){
-            let diff = Math.ceil((new Date(s.relance) - new Date()) / (1000*60*60*24));
-            let msg = `Bonjour ${s.name} ✨\n\nC'est Marie de la Limitless Team Chogan 🌸\n\nJ'espère que tu apprécies ton ${s.product}. Il doit toucher à sa fin après ces 40 jours ! \n\nC'est le moment idéal pour ton réassort, et j'ai hâte de te faire découvrir nos DERNIÈRES NOUVEAUTÉS exclusives (parfums luxe et soins visage) qui viennent d'arriver ! 😍\n\nOn regarde ça ensemble ?`;
+            let dateVente = new Date(s.date);
+            let joursEcoules = Math.floor((new Date() - dateVente) / (1000*60*60*24));
+            let estDepasse = joursEcoules >= 40;
+
+            let msg = `Bonjour ${s.name} ✨\n\nC'est Marie de la Limitless Team Chogan 🌸\n\nJ'espère que tu apprécies ton ${s.product}. Il doit toucher à sa fin après ces ${joursEcoules} jours ! \n\nC'est le moment idéal pour ton réassort, et j'ai hâte de te faire découvrir nos DERNIÈRES NOUVEAUTÉS exclusives ! 😍`;
             
             html += `
-            <div class="card ${diff <= 3 ? 'border-l-4 border-red-500' : 'border-l-4 border-yellow-500'} relative">
-                ${isAdmin ? `<button onclick="deleteSale(${s.id})" class="absolute top-4 right-4 text-gray-300"><i class="fa-solid fa-trash-can"></i></button>` : ''}
+            <div class="card ${estDepasse ? 'border-2 border-red-500' : 'border-l-4 border-yellow-500'} relative">
                 <div class="flex justify-between items-start mb-2">
                     <p class="text-[9px] font-bold text-yellow-600 uppercase tracking-widest">${s.consultant}</p>
-                    <p class="text-[10px] font-bold ${diff <= 3 ? 'text-red-500' : 'text-gray-400'} uppercase">${new Date(s.date).toLocaleDateString('fr-FR')}</p>
+                    <p class="text-[10px] font-bold ${estDepasse ? 'text-red-600' : 'text-gray-400'} uppercase">
+                        ${estDepasse ? '⚠️ DEPÀSSÉ : ' : 'Depuis : '} ${joursEcoules} Jours
+                    </p>
                 </div>
                 <p class="font-luxury text-lg text-gray-800">${s.name}</p>
-                <p class="text-xs text-gray-500 mb-4">${s.product} ${isAdmin ? '— ' + s.price + ' ' + (s.currency || 'DA') : ''}</p>
+                <p class="text-xs text-gray-500 mb-4">${s.product} — ${s.date} ${isAdmin ? '— ' + s.price + ' ' + s.currency : ''}</p>
                 <a href="https://wa.me/?text=${encodeURIComponent(msg)}" target="_blank" class="gold-gradient text-white p-3 block text-center rounded-xl text-[10px] font-bold uppercase shadow-sm">
-                    <i class="fa-brands fa-whatsapp text-lg"></i> Relancer & Proposer Nouveautés
+                    <i class="fa-brands fa-whatsapp text-lg"></i> Relancer Client
                 </a>
             </div>`;
         }
@@ -254,11 +210,9 @@ function render(){
     let statsHTML = "";
     Object.keys(teamData).forEach(c => {
         statsHTML += `<div class="flex justify-between text-[11px] py-1 border-b border-gray-800 text-gray-300">
-            <span>${c}</span>
-            <span class="text-yellow-500 font-bold">${teamData[c].caDA} DA / ${teamData[c].caEUR} € (${teamData[c].v} v.)</span>
+            <span>${c}</span><span class="text-yellow-500 font-bold">${teamData[c].caDA} DA / ${teamData[c].caEUR} €</span>
         </div>`;
     });
-
     document.getElementById("list").innerHTML = html;
     document.getElementById("teamStats").innerHTML = statsHTML;
 }
