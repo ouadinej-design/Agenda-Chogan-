@@ -1,211 +1,183 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chogan CRM Elite</title>
-
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-<style>
-body { background:#fafafa; font-family: Arial }
-.card { background:white; border-radius:16px; padding:12px; margin-bottom:10px; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chogan Elite - Limitless Team</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@300;400;600&display=swap');
+        body { background:#f9f9f9; font-family: 'Montserrat', sans-serif; color: #333; }
+        .font-luxury { font-family: 'Playfair Display', serif; }
+        .gold-gradient { background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%); }
+        .card { background:white; border-radius:20px; padding:18px; margin-bottom:15px; border: 1px solid rgba(212,175,55,0.15); box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        .urgent { border-left: 6px solid #ef4444 !important; }
+        .upcoming { border-left: 6px solid #D4AF37 !important; }
+        .progress-bg { background: #eee; height: 6px; border-radius: 3px; overflow: hidden; margin-top: 5px; }
+        .progress-fill { background: #D4AF37; height: 100%; transition: 0.5s; }
+    </style>
 </head>
-
-<body class="p-3">
+<body class="p-4 md:p-8">
 
 <div class="max-w-md mx-auto">
+    <div class="text-center mb-6">
+        <h1 class="font-luxury text-3xl font-bold text-yellow-700 uppercase tracking-widest">Elite CRM</h1>
+        <p class="text-[9px] text-gray-400 tracking-[0.2em] uppercase mt-1 italic">Limitless Team Edition</p>
+    </div>
 
-<h1 class="text-xl font-bold text-center mb-4">CRM ELITE</h1>
+    <div class="card bg-white border-yellow-200">
+        <h2 class="font-luxury text-sm font-bold mb-4 text-yellow-800 uppercase flex items-center gap-2">
+            <i class="fa-solid fa-box-open"></i> Alertes Commandes (J-20)
+        </h2>
+        <div id="calendar" class="space-y-4">
+            </div>
+    </div>
 
-<!-- FORM -->
-<div class="card">
-<input id="name" placeholder="Cliente" class="border p-2 w-full mb-2">
-<input id="product" placeholder="Produit" class="border p-2 w-full mb-2">
-<input id="date" type="date" class="border p-2 w-full mb-2">
+    <div class="card shadow-lg">
+        <h2 class="font-luxury text-md mb-4 text-gray-700 italic border-b pb-2">Nouvelle Vente</h2>
+        <input id="name" placeholder="Nom de la cliente" class="w-full mb-3 p-2 text-sm border-b outline-none focus:border-yellow-600">
+        <input id="product" placeholder="Produit (ex: Parfum Homme 061)" class="w-full mb-3 p-2 text-sm border-b outline-none focus:border-yellow-600">
+        <div class="flex flex-col mb-4">
+            <label class="text-[9px] font-bold text-gray-400 uppercase mb-1">Date de l'achat</label>
+            <input id="date" type="date" class="w-full p-2 text-sm border-b outline-none">
+        </div>
+        <button onclick="addSale()" class="gold-gradient text-white w-full p-3 rounded-xl font-bold shadow-md active:scale-95 transition text-xs uppercase tracking-widest">
+            Enregistrer & Calculer Relance
+        </button>
+    </div>
 
-<button onclick="addSale()" class="bg-yellow-500 text-white w-full p-2 rounded">
-Ajouter vente
-</button>
-</div>
+    <div class="flex items-center justify-between mb-4 px-2">
+        <p class="text-xs font-bold text-gray-500 uppercase">Suivi Clientèle</p>
+        <span id="statTotal" class="bg-yellow-100 text-yellow-800 text-[10px] font-bold px-2 py-1 rounded-full">0 clients</span>
+    </div>
+    
+    <input id="searchBar" onkeyup="render()" placeholder="🔍 Chercher un nom ou produit..." class="card w-full mb-4 p-4 text-sm outline-none focus:border-yellow-600">
 
-<!-- STAT MANAGER -->
-<div class="card">
-<h2 class="font-bold mb-2">📊 Stats Consultantes</h2>
-<div id="stats"></div>
-</div>
-
-<!-- FETES ANNUELLES -->
-<div class="card">
-<h2 class="font-bold mb-2">📅 Vision Année (Fêtes)</h2>
-<div id="calendar"></div>
-</div>
-
-<!-- SALES -->
-<div id="list"></div>
-
+    <div id="list"></div>
 </div>
 
 <script>
-
 let sales = JSON.parse(localStorage.getItem("sales")) || [];
 
-/* =======================
-   WHATSAPP MESSAGE TEMPLATE
-======================= */
-function whatsappMsg(name, product){
-return `Bonjour ${name} ✨
-
-J’espère que tu vas bien.
-
-Je reviens vers toi concernant ton ${product} 🌸
-
-Après quelques semaines, il est peut-être bientôt terminé ou tu commences à t’y habituer.
-
-Je peux te proposer un réassort ou un produit équivalent adapté à ton besoin 💖
-
-Dis-moi si tu veux que je te conseille 😊`;
-}
-
-/* =======================
-   FÊTES ANNUELLES (COMPLET)
-======================= */
+// Liste des fêtes avec dates (pour l'année 2026/2027)
 const holidays = [
-{ name:"Nouvel An", date:"01-01" },
-{ name:"Aïd el-Fitr", date:"variable" },
-{ name:"Aïd el-Adha", date:"variable" },
-{ name:"Fête du Travail", date:"05-01" },
-{ name:"Fête de l’Indépendance", date:"07-05" },
-{ name:"Achoura", date:"variable" },
-{ name:"Rentrée Septembre", date:"09-01" },
-{ name:"Halloween", date:"10-31" },
-{ name:"Black Friday", date:"11-28" },
-{ name:"Noël", date:"12-25" }
+    { name:"Fête des Pères", date:"2026-06-21", cat:"Homme" },
+    { name:"Saison Solaire", date:"2026-06-15", cat:"Été" },
+    { name:"Aïd el-Adha (Est.)", date:"2026-05-27", cat:"Spirituel" },
+    { name:"Fête des Mères", date:"2026-05-31", cat:"Femme" },
+    { name:"Black Friday", date:"2026-11-27", cat:"Promo" }
 ];
 
 function renderCalendar(){
-let html="";
-holidays.forEach(h=>{
-html+=`<p>📌 ${h.name} → ${h.date}</p>`;
-});
-document.getElementById("calendar").innerHTML=html;
+    let html="";
+    const today = new Date();
+
+    holidays.forEach(h => {
+        const hDate = new Date(h.date);
+        const limitDate = new Date(hDate);
+        limitDate.setDate(limitDate.getDate() - 20);
+        
+        // Calcul pour la barre de progression
+        const totalDays = 60; // On regarde sur 2 mois
+        const diff = Math.ceil((limitDate - today) / (1000 * 60 * 60 * 24));
+        let progress = 100 - (diff / totalDays * 100);
+        if(progress > 100) progress = 100;
+        if(progress < 0) progress = 0;
+
+        const isLate = diff < 0;
+
+        html += `
+            <div class="mb-2">
+                <div class="flex justify-between text-[10px] font-bold uppercase mb-1">
+                    <span class="${isLate ? 'text-red-500' : 'text-gray-600'}">${h.name}</span>
+                    <span class="text-yellow-700 italic">${isLate ? 'URGENT' : 'J-' + diff}</span>
+                </div>
+                <div class="progress-bg">
+                    <div class="progress-fill" style="width: ${progress}%; background: ${isLate ? '#ef4444' : '#D4AF37'}"></div>
+                </div>
+                <p class="text-[8px] text-gray-400 mt-1 uppercase">Date limite commande : ${limitDate.toLocaleDateString('fr-FR')}</p>
+            </div>
+        `;
+    });
+    document.getElementById("calendar").innerHTML = html;
 }
 
-/* =======================
-   ADD SALE
-======================= */
 function addSale(){
-let name=document.getElementById("name").value;
-let product=document.getElementById("product").value;
-let date=document.getElementById("date").value;
+    let name = document.getElementById("name").value;
+    let product = document.getElementById("product").value;
+    let date = document.getElementById("date").value;
 
-if(!name||!product||!date) return alert("Remplir tous les champs");
+    if(!name || !product || !date) return alert("Champs vides !");
 
-let relance=new Date(date);
-relance.setDate(relance.getDate()+40);
+    let relance = new Date(date);
+    relance.setDate(relance.getDate() + 40);
 
-sales.push({
-id:Date.now(),
-name,
-product,
-date,
-relance:relance.toISOString().split("T")[0],
-consultant:"ouadi.nej@gmail.com"
-});
+    sales.push({
+        id: Date.now(),
+        name: name,
+        product: product,
+        date: date,
+        relance: relance.toISOString().split("T")[0]
+    });
 
-save();
+    save();
+    document.getElementById("name").value = "";
+    document.getElementById("product").value = "";
 }
 
-/* =======================
-   SAVE
-======================= */
+function deleteSale(id){
+    if(confirm("Supprimer ce suivi ?")) {
+        sales = sales.filter(s => s.id !== id);
+        save();
+    }
+}
+
 function save(){
-localStorage.setItem("sales",JSON.stringify(sales));
-render();
+    localStorage.setItem("sales", JSON.stringify(sales));
+    render();
 }
 
-/* =======================
-   STATS MANAGER
-======================= */
-function renderStats(){
-
-let total=sales.length;
-let urgent=0;
-
-sales.forEach(s=>{
-let r=new Date(s.relance);
-let today=new Date();
-let diff=(r-today)/(1000*60*60*24);
-if(diff<=3) urgent++;
-});
-
-document.getElementById("stats").innerHTML=`
-<p>Total ventes: ${total}</p>
-<p>Urgent (J-3): ${urgent}</p>
-<p>Manager: ouadi.nej@gmail.com</p>
-`;
-}
-
-/* =======================
-   NOTIFICATIONS (J-20 / J+40)
-======================= */
-function notify(){
-if(Notification.permission!=="granted"){
-Notification.requestPermission();
-return;
-}
-
-sales.forEach(s=>{
-let r=new Date(s.relance);
-let today=new Date();
-let diff=Math.floor((r-today)/(1000*60*60*24));
-
-if(diff<=20 && diff>=0){
-new Notification("🔔 Relance cliente",{
-body:`${s.name} - ${s.product} à relancer`
-});
-}
-});
-}
-
-/* =======================
-   RENDER SALES
-======================= */
 function render(){
-let html="";
+    let html = "";
+    let searchQuery = document.getElementById("searchBar").value.toLowerCase();
+    let filtered = sales.filter(s => s.name.toLowerCase().includes(searchQuery) || s.product.toLowerCase().includes(searchQuery));
 
-sales.forEach(s=>{
+    filtered.forEach(s => {
+        let rDate = new Date(s.relance);
+        let today = new Date();
+        today.setHours(0,0,0,0);
+        let diff = Math.ceil((rDate - today) / (1000*60*60*24));
+        
+        let statusClass = diff <= 3 ? "urgent" : "upcoming";
+        let msg = `Bonjour ${s.name} ✨\n\nJ’espère que tu vas bien. Je reviens vers toi pour ton ${s.product} 🌸\n\nIl doit être bientôt terminé. Veux-tu que je te commande le même pour la fête des pères ? 😊`;
+        let url = `https://wa.me/?text=${encodeURIComponent(msg)}`;
 
-let msg=whatsappMsg(s.name,s.product);
-let url=`https://wa.me/?text=${encodeURIComponent(msg)}`;
+        html += `
+        <div class="card ${statusClass} relative">
+            <button onclick="deleteSale(${s.id})" class="absolute top-4 right-4 text-gray-300"><i class="fa-solid fa-trash-can"></i></button>
+            <p class="font-luxury text-lg text-gray-800">${s.name}</p>
+            <p class="text-xs text-gray-500 mb-4 tracking-wide font-semibold">${s.product}</p>
+            
+            <div class="flex justify-between items-center bg-gray-50 p-3 rounded-xl">
+                <div class="text-[10px]">
+                    <p class="text-gray-400 uppercase font-bold">Relance dans</p>
+                    <p class="text-sm font-bold ${diff <= 3 ? 'text-red-600' : 'text-yellow-700'}">${diff} jours</p>
+                </div>
+                <a href="${url}" target="_blank" class="bg-green-500 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase flex items-center gap-2">
+                    <i class="fa-brands fa-whatsapp text-lg"></i> Envoyer
+                </a>
+            </div>
+        </div>
+        `;
+    });
 
-html+=`
-<div class="card">
-<p><b>${s.name}</b></p>
-<p>${s.product}</p>
-<p>Relance: ${s.relance}</p>
-
-<a href="${url}" target="_blank"
-class="bg-green-500 text-white p-2 block text-center rounded mt-2">
-📲 Envoyer WhatsApp
-</a>
-</div>
-`;
-});
-
-document.getElementById("list").innerHTML=html;
-
-renderStats();
-notify();
+    document.getElementById("list").innerHTML = html;
+    document.getElementById("statTotal").innerText = sales.length + " clients";
 }
 
-/* INIT */
 renderCalendar();
 render();
-setInterval(notify,60000);
-
 </script>
 
 </body>
