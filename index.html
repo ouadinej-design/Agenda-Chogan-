@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Limitless Elite - Mode Dual</title>
+    <title>Limitless Elite - Planificateur Expert</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -12,11 +12,13 @@
         .font-luxury { font-family: 'Playfair Display', serif; }
         .gold-gradient { background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%); }
         .card { background:white; border-radius:20px; padding:18px; margin-bottom:15px; border: 1px solid rgba(212,175,55,0.15); box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
-        .urgent { border-left: 6px solid #ef4444 !important; }
-        .upcoming { border-left: 6px solid #D4AF37 !important; }
-        input { border-bottom: 1px solid #eee !important; border: none; outline: none; transition: 0.3s; width: 100%; padding: 8px; margin-bottom: 10px; font-size: 14px; background: transparent; }
-        input:focus { border-color: #D4AF37 !important; }
+        input, select, textarea { border-bottom: 1px solid #eee !important; border: none; outline: none; transition: 0.3s; width: 100%; padding: 8px; margin-bottom: 10px; font-size: 14px; background: transparent; }
+        input:focus, select:focus { border-color: #D4AF37 !important; }
         .admin-only { display: none; }
+        .event-tag { font-size: 8px; padding: 2px 6px; border-radius: 10px; text-transform: uppercase; font-weight: bold; margin-right: 5px; }
+        .tag-salon { background: #fee2e2; color: #991b1b; }
+        .tag-reunion { background: #dcfce7; color: #166534; }
+        .tag-fete { background: #fef9c3; color: #854d0e; }
     </style>
 </head>
 <body class="p-4">
@@ -27,45 +29,62 @@
         <div id="userBadge" class="inline-block bg-gray-100 text-[8px] font-bold px-3 py-1 rounded-full uppercase tracking-widest text-gray-500">Mode Consultante</div>
     </div>
 
-    <div id="loginSection" class="mb-6">
-        <button onclick="toggleLogin()" class="text-[9px] text-gray-300 uppercase mb-2">Accès Manager 🔒</button>
-        <div id="loginForm" class="hidden card bg-gray-50 border-gray-200">
-            <input id="adminId" placeholder="ID (Email)">
+    <div id="loginSection" class="mb-4 text-center">
+        <button onclick="toggleLogin()" class="text-[9px] text-gray-300 uppercase tracking-widest">Espace Manager 🔒</button>
+        <div id="loginForm" class="hidden card mt-2 bg-gray-50">
+            <input id="adminId" placeholder="ID (ouadi.nej@gmail.com)">
             <input id="adminPass" type="password" placeholder="Mot de passe">
-            <button onclick="checkAdmin()" class="bg-black text-white w-full p-2 rounded-xl text-[10px] font-bold uppercase tracking-widest">Se connecter</button>
+            <button onclick="checkAdmin()" class="bg-black text-white w-full p-2 rounded-xl text-[10px] font-bold uppercase">Valider</button>
         </div>
     </div>
 
     <div class="card bg-yellow-50/30 border-yellow-200">
         <h2 class="font-luxury text-sm font-bold mb-3 text-yellow-800 uppercase flex items-center gap-2">
-            <i class="fa-solid fa-calendar-star"></i> Rappels Stocks J-20
+            <i class="fa-solid fa-calendar-day"></i> Agenda Stratégique
         </h2>
-        <div id="calendar" class="space-y-2 text-[10px]"></div>
+        <div id="calendar" class="space-y-3 text-[10px]"></div>
+    </div>
+
+    <div class="card border-dashed border-2 border-yellow-200 bg-white">
+        <h2 class="font-luxury text-sm font-bold mb-3 text-gray-600 uppercase italic">Planifier un Événement</h2>
+        <input id="evName" placeholder="Nom de l'événement (ex: Foire de Lyon)">
+        <select id="evType">
+            <option value="Salon">Salon / Exposition</option>
+            <option value="Brocante">Brocante / Marché</option>
+            <option value="Réunion">Réunion à domicile</option>
+            <option value="Atelier">Atelier Bien-être / Parfum</option>
+            <option value="Vente Privée">Vente Privée</option>
+            <option value="Flash Sale">Flash Sale Réseaux</option>
+        </select>
+        <input id="evDate" type="date">
+        <input id="evFocus" placeholder="Produits à vendre (ex: Parfums Homme, Solaire)">
+        <button onclick="addEvent()" class="bg-gray-800 text-white w-full p-3 rounded-xl text-[9px] font-bold uppercase tracking-widest active:scale-95 transition">Ajouter à l'agenda</button>
     </div>
 
     <div class="card shadow-lg">
         <h2 class="font-luxury text-md mb-4 text-gray-700 italic border-b pb-2">Nouvelle Vente</h2>
         <input id="consultant" placeholder="Nom de la consultante">
         <input id="name" placeholder="Nom de la cliente">
-        <input id="product" placeholder="Produit">
-        <input id="price" type="number" step="0.01" placeholder="Montant">
-        <div class="flex flex-col mb-4 text-left">
-            <label class="text-[9px] font-bold text-gray-400 uppercase mb-1 ml-2">Date de l'achat</label>
-            <input id="date" type="date">
+        <input id="product" placeholder="Produit Chogan">
+        <div class="flex gap-2">
+            <input id="price" type="number" placeholder="Montant" class="flex-1">
+            <select id="currency" class="w-20">
+                <option value="DA">DA</option>
+                <option value="€">€</option>
+            </select>
         </div>
-        <button onclick="addSale()" class="gold-gradient text-white w-full p-4 rounded-2xl font-bold shadow-md active:scale-95 transition text-[10px] uppercase tracking-widest">
-            Enregistrer Transaction
-        </button>
+        <input id="date" type="date">
+        <button onclick="addSale()" class="gold-gradient text-white w-full p-4 rounded-2xl font-bold shadow-md active:scale-95 transition text-[10px] uppercase tracking-widest">Enregistrer Transaction</button>
     </div>
 
     <div id="adminStats" class="admin-only card bg-black text-white">
-        <h2 class="font-luxury text-[11px] font-bold mb-3 text-yellow-500 uppercase tracking-widest italic">Performance Équipe (CA Global)</h2>
+        <h2 class="font-luxury text-[11px] font-bold mb-3 text-yellow-500 uppercase tracking-widest">Performance Équipe</h2>
         <div id="teamStats" class="space-y-2"></div>
     </div>
 
     <div class="flex items-center justify-between my-4 px-2">
-        <h2 class="font-luxury text-sm font-bold text-yellow-800 uppercase">Fichier Clients</h2>
-        <input id="searchBar" onkeyup="render()" placeholder="Filtrer..." class="!mb-0 !p-1 !w-1/2 text-xs">
+        <h2 class="font-luxury text-sm font-bold text-yellow-800 uppercase italic">Fichier Clients</h2>
+        <input id="searchBar" onkeyup="render()" placeholder="Rechercher..." class="!mb-0 !p-1 !w-1/2 text-xs">
     </div>
 
     <div id="list"></div>
@@ -77,48 +96,87 @@ const ADMIN_ID = "ouadi.nej@gmail.com";
 const ADMIN_PASS = "1981";
 
 let sales = JSON.parse(localStorage.getItem("sales")) || [];
+let myEvents = JSON.parse(localStorage.getItem("myEvents")) || [];
 
-const holidays = [
-    { name:"Fête des Pères", date:"2026-06-21" },
-    { name:"Saison Solaire", date:"2026-06-15" },
-    { name:"Fête des Mères", date:"2026-05-31" },
-    { name:"Black Friday", date:"2026-11-27" }
+const fixedHolidays = [
+    { name:"Fête des Mères", date:"2026-05-31", type:"Fête" },
+    { name:"Saison Solaire", date:"2026-06-15", type:"Fête" },
+    { name:"Fête des Pères", date:"2026-06-21", type:"Fête" },
+    { name:"Black Friday", date:"2026-11-27", type:"Fête" }
 ];
 
-function toggleLogin() {
-    let form = document.getElementById("loginForm");
-    form.classList.toggle("hidden");
-}
+function toggleLogin() { document.getElementById("loginForm").classList.toggle("hidden"); }
 
 function checkAdmin() {
-    let id = document.getElementById("adminId").value;
-    let pass = document.getElementById("adminPass").value;
-    if(id === ADMIN_ID && pass === ADMIN_PASS) {
+    if(document.getElementById("adminId").value === ADMIN_ID && document.getElementById("adminPass").value === ADMIN_PASS) {
         isAdmin = true;
         document.getElementById("userBadge").innerText = "Mode Manager Actif";
-        document.getElementById("userBadge").classList.replace("text-gray-500", "text-yellow-600");
         document.getElementById("loginSection").classList.add("hidden");
         document.querySelectorAll(".admin-only").forEach(el => el.style.display = "block");
         render();
-    } else {
-        alert("Identifiants incorrects");
+        renderCalendar();
+    } else { alert("Accès refusé"); }
+}
+
+function addEvent() {
+    let name = document.getElementById("evName").value;
+    let type = document.getElementById("evType").value;
+    let date = document.getElementById("evDate").value;
+    let focus = document.getElementById("evFocus").value;
+
+    if(!name || !date) return alert("Nom et Date requis");
+
+    myEvents.push({ id: Date.now(), name, type, date, focus });
+    localStorage.setItem("myEvents", JSON.stringify(myEvents));
+    
+    document.getElementById("evName").value = "";
+    document.getElementById("evFocus").value = "";
+    renderCalendar();
+}
+
+function deleteEvent(id) {
+    if(!isAdmin) return;
+    if(confirm("Supprimer cet événement ?")) {
+        myEvents = myEvents.filter(e => e.id !== id);
+        localStorage.setItem("myEvents", JSON.stringify(myEvents));
+        renderCalendar();
     }
 }
 
 function renderCalendar(){
     let html="";
     const today = new Date();
-    holidays.forEach(h => {
+    
+    let allEvents = [...fixedHolidays, ...myEvents];
+    
+    // TRI : Du plus proche au plus lointain
+    allEvents.sort((a,b) => new Date(a.date) - new Date(b.date));
+
+    allEvents.forEach(h => {
         const hDate = new Date(h.date);
-        const limit = new Date(hDate);
-        limit.setDate(limit.getDate() - 20);
-        const diff = Math.ceil((limit - today) / (1000 * 60 * 60 * 24));
-        html += `<div class="flex justify-between border-b border-yellow-100 py-1">
-            <span>${h.name}</span>
-            <span class="font-bold ${diff < 0 ? 'text-red-500' : 'text-yellow-700'}">${diff < 0 ? 'COMMANDEZ' : 'J-' + diff} (${limit.toLocaleDateString('fr-FR')})</span>
+        const diff = Math.ceil((hDate - today) / (1000 * 60 * 60 * 24));
+        
+        if (diff < -5) return; // Cache les vieux événements
+
+        let tagClass = h.type === "Salon" || h.type === "Brocante" ? "tag-salon" : (h.type === "Réunion" ? "tag-reunion" : "tag-fete");
+        
+        html += `
+        <div class="border-b border-yellow-100 py-2 relative">
+            <div class="flex justify-between items-start">
+                <div>
+                    <span class="event-tag ${tagClass}">${h.type}</span>
+                    <span class="font-bold text-gray-800">${h.name}</span>
+                    ${h.focus ? `<p class="text-[8px] text-gray-400 mt-1 uppercase italic">Focus : ${h.focus}</p>` : ''}
+                </div>
+                <div class="text-right">
+                    <span class="font-bold ${diff < 0 ? 'text-red-500' : 'text-yellow-700'}">${diff < 0 ? 'PASSÉ' : 'J-' + diff}</span>
+                    <p class="text-[8px] text-gray-400">${hDate.toLocaleDateString('fr-FR')}</p>
+                </div>
+            </div>
+            ${isAdmin && h.id ? `<button onclick="deleteEvent(${h.id})" class="absolute -left-5 top-2 text-gray-300 text-[8px]"><i class="fa-solid fa-xmark"></i></button>` : ''}
         </div>`;
     });
-    document.getElementById("calendar").innerHTML = html;
+    document.getElementById("calendar").innerHTML = html || "Aucun événement prévu.";
 }
 
 function addSale(){
@@ -126,6 +184,7 @@ function addSale(){
     let n = document.getElementById("name").value;
     let p = document.getElementById("product").value;
     let pr = parseFloat(document.getElementById("price").value);
+    let cur = document.getElementById("currency").value;
     let d = document.getElementById("date").value;
 
     if(!c || !n || !p || isNaN(pr) || !d) return alert("Champs incomplets");
@@ -135,10 +194,11 @@ function addSale(){
 
     sales.push({
         id: Date.now(),
-        consultant: c,
+        consultant: c.charAt(0).toUpperCase() + c.slice(1),
         name: n,
         product: p,
         price: pr,
+        currency: cur,
         date: d,
         relance: relance.toISOString().split("T")[0]
     });
@@ -148,7 +208,7 @@ function addSale(){
 }
 
 function deleteSale(id){
-    if(confirm("Confirmer la suppression (Action Manager) ?")) {
+    if(confirm("Supprimer cette transaction ?")) {
         sales = sales.filter(s => s.id !== id);
         save();
     }
@@ -163,29 +223,29 @@ function render(){
     let html = "";
     let teamData = {};
     let query = document.getElementById("searchBar").value.toLowerCase();
-    
-    sales.sort((a,b) => new Date(a.relance) - new Date(b.relance));
+    sales.sort((a,b) => new Date(b.date) - new Date(a.date));
 
     sales.forEach(s => {
-        if(!teamData[s.consultant]) teamData[s.consultant] = {ca:0, v:0};
-        teamData[s.consultant].ca += s.price;
+        if(!teamData[s.consultant]) teamData[s.consultant] = {caDA:0, caEUR:0, v:0};
+        if(s.currency === "DA") teamData[s.consultant].caDA += s.price;
+        else teamData[s.consultant].caEUR += s.price;
         teamData[s.consultant].v++;
 
         if(s.name.toLowerCase().includes(query) || s.consultant.toLowerCase().includes(query)){
-            let rDate = new Date(s.relance);
-            let diff = Math.ceil((rDate - new Date()) / (1000*60*60*24));
+            let diff = Math.ceil((new Date(s.relance) - new Date()) / (1000*60*60*24));
+            let msg = `Bonjour ${s.name} ✨\n\nC'est Marie de la Limitless Team Chogan 🌸\n\nJ'espère que tu apprécies ton ${s.product}. Il doit toucher à sa fin après ces 40 jours ! \n\nC'est le moment idéal pour ton réassort, et j'ai hâte de te faire découvrir nos DERNIÈRES NOUVEAUTÉS exclusives (parfums luxe et soins visage) qui viennent d'arriver ! 😍\n\nOn regarde ça ensemble ?`;
             
             html += `
-            <div class="card ${diff <= 3 ? 'urgent' : 'upcoming'} relative">
+            <div class="card ${diff <= 3 ? 'border-l-4 border-red-500' : 'border-l-4 border-yellow-500'} relative">
                 ${isAdmin ? `<button onclick="deleteSale(${s.id})" class="absolute top-4 right-4 text-gray-300"><i class="fa-solid fa-trash-can"></i></button>` : ''}
                 <div class="flex justify-between items-start mb-2">
                     <p class="text-[9px] font-bold text-yellow-600 uppercase tracking-widest">${s.consultant}</p>
-                    <p class="text-[10px] font-bold ${diff <= 3 ? 'text-red-500' : 'text-gray-400'} uppercase">Relance J-${diff}</p>
+                    <p class="text-[10px] font-bold ${diff <= 3 ? 'text-red-500' : 'text-gray-400'} uppercase">${new Date(s.date).toLocaleDateString('fr-FR')}</p>
                 </div>
                 <p class="font-luxury text-lg text-gray-800">${s.name}</p>
-                <p class="text-xs text-gray-500 mb-4">${s.product} ${isAdmin ? '— ' + s.price + ' €/DA' : ''}</p>
-                <a href="https://wa.me/?text=${encodeURIComponent('Bonjour ' + s.name + ' ✨. Ton ' + s.product + ' arrive à sa fin. On prévoit ton réassort ? 🌸')}" target="_blank" class="bg-green-500 text-white p-3 block text-center rounded-xl text-[10px] font-bold uppercase tracking-widest">
-                    <i class="fa-brands fa-whatsapp text-lg"></i> Relancer Client
+                <p class="text-xs text-gray-500 mb-4">${s.product} ${isAdmin ? '— ' + s.price + ' ' + (s.currency || 'DA') : ''}</p>
+                <a href="https://wa.me/?text=${encodeURIComponent(msg)}" target="_blank" class="gold-gradient text-white p-3 block text-center rounded-xl text-[10px] font-bold uppercase shadow-sm">
+                    <i class="fa-brands fa-whatsapp text-lg"></i> Relancer & Proposer Nouveautés
                 </a>
             </div>`;
         }
@@ -195,7 +255,7 @@ function render(){
     Object.keys(teamData).forEach(c => {
         statsHTML += `<div class="flex justify-between text-[11px] py-1 border-b border-gray-800 text-gray-300">
             <span>${c}</span>
-            <span class="text-yellow-500 font-bold">${teamData[c].ca.toFixed(2)} (${teamData[c].v} v.)</span>
+            <span class="text-yellow-500 font-bold">${teamData[c].caDA} DA / ${teamData[c].caEUR} € (${teamData[c].v} v.)</span>
         </div>`;
     });
 
