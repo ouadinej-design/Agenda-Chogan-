@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Limitless Elite - V5.2</title>
+    <title>Limitless Elite - V5.3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -13,13 +13,15 @@
         .gold-gradient { background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%); }
         .card { background:white; border-radius:25px; padding:20px; margin-bottom:20px; border: 1px solid rgba(212,175,55,0.15); box-shadow: 0 10px 25px rgba(0,0,0,0.02); }
         
+        /* Agenda - Structure fixe visuel 17916 */
         .agenda-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f8f8f8; }
         .agenda-info { flex: 1; display: flex; flex-direction: column; align-items: center; text-align: center; }
         
         .tag { font-size: 7px; padding: 2px 8px; border-radius: 10px; text-transform: uppercase; font-weight: bold; margin-bottom: 4px; color: white; }
-        .bg-prepa { background: #7c3aed; }
-        .bg-fete { background: #10b981; }
-        .bg-comm { background: #3b82f6; }
+        .bg-prepa { background: #7c3aed; } /* Violet J-20 */
+        .bg-mus { background: #10b981; }   /* Vert Musulman */
+        .bg-cath { background: #3b82f6; }  /* Bleu Catholique */
+        .bg-comm { background: #f59e0b; }  /* Orange Commercial */
 
         input, select { border-bottom: 1px solid #eee !important; border: none; outline: none; width: 100%; padding: 12px; font-size: 14px; margin-bottom: 8px; background: transparent; }
         .label-gold { font-size: 9px; font-weight: bold; color: #bca05d; text-transform: uppercase; margin: 15px 0 5px 0; display: block; text-align: center; letter-spacing: 1px; }
@@ -38,19 +40,20 @@
 
     <div class="card border-t-4 border-t-yellow-600">
         <h2 class="font-luxury text-sm font-bold mb-4 text-gray-800 uppercase text-center"><i class="fa-solid fa-calendar-days text-yellow-600 mr-2"></i>Planning & Anticipation</h2>
-        <div id="calendar-box" class="max-h-96 overflow-y-auto"></div>
+        <div id="calendar-box" class="max-h-96 overflow-y-auto">
+            </div>
     </div>
 
     <div class="card bg-gray-50 border-dashed border-2 border-gray-200">
-        <h2 class="font-luxury text-[10px] font-bold mb-3 text-gray-600 uppercase"><i class="fa-solid fa-plus-circle mr-2"></i>Ajouter un Événement Perso</h2>
-        <input id="evName" placeholder="Titre (Salon, Foire, Réunion...)">
+        <h2 class="font-luxury text-[10px] font-bold mb-3 text-gray-600 uppercase"><i class="fa-solid fa-plus-circle mr-2"></i>Planifier Événement (Salon, Expo...)</h2>
+        <input id="evName" placeholder="Titre de l'événement">
         <select id="evType">
             <option value="Salon">Salon / Exposition</option>
             <option value="Réunion">Réunion d'équipe</option>
-            <option value="Formation">Formation</option>
+            <option value="Foire">Foire Commerciale</option>
         </select>
         <input id="evDate" type="date">
-        <button onclick="addEvent()" class="bg-black text-white w-full p-3 rounded-xl text-[10px] font-bold uppercase tracking-widest mt-2">Enregistrer Événement</button>
+        <button onclick="addEvent()" class="bg-black text-white w-full p-3 rounded-xl text-[10px] font-bold uppercase tracking-widest mt-2">Ajouter à l'agenda</button>
     </div>
 
     <div class="card shadow-lg mt-6">
@@ -65,57 +68,61 @@
                 <option value="€">€</option>
             </select>
         </div>
-        
         <span class="label-gold">SÉLECTIONNER UNE DATE D'ACHAT</span>
         <input id="vDate" type="date">
-        
-        <button onclick="saveSale()" class="gold-gradient text-white w-full p-4 rounded-2xl font-bold text-[11px] uppercase tracking-widest shadow-md mt-4">Valider Transaction</button>
+        <button onclick="saveSale()" class="gold-gradient text-white w-full p-4 rounded-2xl font-bold text-[11px] uppercase tracking-widest shadow-md mt-4">Enregistrer Vente</button>
     </div>
 
     <div class="card bg-black text-white mt-4">
-        <h2 class="text-yellow-500 font-luxury text-[10px] font-bold uppercase text-center mb-4 italic">Performance Global Équipe</h2>
+        <h2 class="text-yellow-500 font-luxury text-[10px] font-bold uppercase text-center mb-4 italic">Performance Équipe</h2>
         <div id="performance" class="space-y-2 text-[11px]"></div>
     </div>
 </div>
 
 <script>
-// Base de données intégrée (Fêtes 2026)
-const staticEvents = [
-    // Religieuses Musulmanes
-    { n: "Aïd el-Fitr 🌙", d: "2026-03-20", t: "bg-fete", lbl: "Fête Musulmane" },
-    { n: "Aïd el-Adha 🐑", d: "2026-05-27", t: "bg-fete", lbl: "Fête Musulmane" },
-    { n: "Achoura", d: "2026-07-25", t: "bg-fete", lbl: "Fête Musulmane" },
-    { n: "Mawlid", d: "2026-09-04", t: "bg-fete", lbl: "Fête Musulmane" },
-    // Religieuses Catholiques
-    { n: "Pâques 🐣", d: "2026-04-05", t: "bg-fete", lbl: "Fête Catholique" },
-    { n: "Ascension", d: "2026-05-14", t: "bg-fete", lbl: "Fête Catholique" },
-    { n: "Assomption", d: "2026-08-15", t: "bg-fete", lbl: "Fête Catholique" },
-    { n: "Toussaint", d: "2026-11-01", t: "bg-fete", lbl: "Fête Catholique" },
-    { n: "Noël 🎄", d: "2026-12-25", t: "bg-fete", lbl: "Fête Catholique" },
-    // Commerciales & Saisonnières
-    { n: "Saint Valentin ❤️", d: "2026-02-14", t: "bg-comm", lbl: "Commercial" },
-    { n: "Fête des Mères 🌸", d: "2026-05-31", t: "bg-comm", lbl: "Commercial" },
-    { n: "Fête des Pères", d: "2026-06-21", t: "bg-comm", lbl: "Commercial" },
-    { n: "Black Friday 🔥", d: "2026-11-27", t: "bg-comm", lbl: "Commercial" }
+// Base de données Mondiale 2026
+const masterEvents = [
+    // MUSULMANES
+    { n: "Ramadan (Début)", d: "2026-02-18", t: "bg-mus", lbl: "Islam" },
+    { n: "Aïd el-Fitr", d: "2026-03-20", t: "bg-mus", lbl: "Islam" },
+    { n: "Aïd el-Adha", d: "2026-05-27", t: "bg-mus", lbl: "Islam" },
+    { n: "Nouvel An Hégire", d: "2026-06-16", t: "bg-mus", lbl: "Islam" },
+    { n: "Achoura", d: "2026-06-25", t: "bg-mus", lbl: "Islam" },
+    { n: "Mawlid", d: "2026-08-26", t: "bg-mus", lbl: "Islam" },
+    // CATHOLIQUES
+    { n: "Épiphanie", d: "2026-01-06", t: "bg-cath", lbl: "Catho" },
+    { n: "Mercredi des Cendres", d: "2026-02-18", t: "bg-cath", lbl: "Catho" },
+    { n: "Pâques", d: "2026-04-05", t: "bg-cath", lbl: "Catho" },
+    { n: "Ascension", d: "2026-05-14", t: "bg-cath", lbl: "Catho" },
+    { n: "Pentecôte", d: "2026-05-24", t: "bg-cath", lbl: "Catho" },
+    { n: "Assomption", d: "2026-08-15", t: "bg-cath", lbl: "Catho" },
+    { n: "Toussaint", d: "2026-11-01", t: "bg-cath", lbl: "Catho" },
+    { n: "Noël", d: "2026-12-25", t: "bg-cath", lbl: "Catho" },
+    // COMMERCIALES
+    { n: "Soldes d'Hiver", d: "2026-01-07", t: "bg-comm", lbl: "Business" },
+    { n: "Saint Valentin", d: "2026-02-14", t: "bg-comm", lbl: "Business" },
+    { n: "Fête des Mères (DZ/FR)", d: "2026-05-31", t: "bg-comm", lbl: "Business" },
+    { n: "Soldes d'Été", d: "2026-06-24", t: "bg-comm", lbl: "Business" },
+    { n: "Rentrée Scolaire", d: "2026-09-01", t: "bg-comm", lbl: "Business" },
+    { n: "Black Friday", d: "2026-11-27", t: "bg-comm", lbl: "Business" }
 ];
 
 let sales = JSON.parse(localStorage.getItem("sales")) || [];
-let userEvents = JSON.parse(localStorage.getItem("userEvents")) || [];
+let customEvents = JSON.parse(localStorage.getItem("customEvents")) || [];
 
 function addEvent() {
     const n = document.getElementById("evName").value, t = document.getElementById("evType").value, d = document.getElementById("evDate").value;
-    if(!n || !d) return alert("Nom et Date requis");
-    userEvents.push({ n, t: "bg-comm", lbl: t, d });
-    localStorage.setItem("userEvents", JSON.stringify(userEvents));
+    if(!n || !d) return alert("Champs vides");
+    customEvents.push({ n, t: "bg-comm", lbl: t, d });
+    localStorage.setItem("customEvents", JSON.stringify(customEvents));
     refresh();
 }
 
 function saveSale() {
     const dat = document.getElementById("vDate").value;
-    if(!dat) return alert("Date requise");
+    if(!dat) return alert("Date manquante");
     sales.push({ 
-        cons: document.getElementById("cons").value || "Inconnu",
-        cli: document.getElementById("cli").value,
+        cons: document.getElementById("cons").value || "Manager",
         amt: parseFloat(document.getElementById("amt").value) || 0,
         cur: document.getElementById("cur").value,
         dat: dat
@@ -126,10 +133,47 @@ function saveSale() {
 
 function refresh() {
     const now = new Date(); now.setHours(0,0,0,0);
-    let items = [...staticEvents, ...userEvents];
-
-    // Ajout automatique des rappels J-20
+    let all = [...masterEvents, ...customEvents];
+    
+    // Génération Rappels J-20
     let prepas = [];
-    items.forEach(i => {
-        let pD = new Date(i.d); pD.setDate(pD.getDate() - 20);
-        prepas.push({ n: `📦 PRÉPA STOCK : ${i.n}`, d: pD.toISOString().split('T')
+    all.forEach(e => {
+        let pD = new Date(e.d); pD.setDate(pD.getDate() - 20);
+        prepas.push({ n: `📦 STOCK : ${e.n}`, d: pD.toISOString().split('T')[0], t: "bg-prepa", lbl: "Rappel J-20" });
+    });
+    
+    all = [...all, ...prepas].sort((a,b) => new Date(a.d) - new Date(b.d));
+
+    let html = "";
+    all.forEach(i => {
+        let dObj = new Date(i.d);
+        let diff = Math.ceil((dObj - now) / 86400000);
+        if(diff < -2 || diff > 60) return; // Affiche sur 60 jours glissants
+
+        html += `
+        <div class="agenda-row ${diff < 0 ? 'opacity-30' : ''}">
+            <div class="date-col">${dObj.toLocaleDateString('fr-FR')}</div>
+            <div class="agenda-info">
+                <span class="tag ${i.t}">${i.lbl}</span>
+                <span class="font-bold text-gray-700 uppercase text-[9px] tracking-tight">${i.n}</span>
+            </div>
+            <div class="j-col">${diff < 0 ? 'OK' : 'J-' + diff}</div>
+        </div>`;
+    });
+    document.getElementById("calendar-box").innerHTML = html;
+
+    // Performance
+    let perf = {};
+    sales.forEach(s => {
+        if(!perf[s.cons]) perf[s.cons] = { da: 0, eu: 0 };
+        if(s.cur === "DA") perf[s.cons].da += s.amt; else perf[s.cons].eu += s.amt;
+    });
+    let perfH = "";
+    for(let c in perf) perfH += `<div class="flex justify-between border-b border-gray-800 pb-1"><span>${c}</span><span>${perf[c].da} DA / ${perf[c].eu} €</span></div>`;
+    document.getElementById("performance").innerHTML = perfH || "Aucune donnée.";
+}
+
+refresh();
+</script>
+</body>
+</html>
