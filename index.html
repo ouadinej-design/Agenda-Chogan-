@@ -1,183 +1,158 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chogan Elite - Limitless Team</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@300;400;600&display=swap');
-        body { background:#f9f9f9; font-family: 'Montserrat', sans-serif; color: #333; }
-        .font-luxury { font-family: 'Playfair Display', serif; }
-        .gold-gradient { background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%); }
-        .card { background:white; border-radius:20px; padding:18px; margin-bottom:15px; border: 1px solid rgba(212,175,55,0.15); box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
-        .urgent { border-left: 6px solid #ef4444 !important; }
-        .upcoming { border-left: 6px solid #D4AF37 !important; }
-        .progress-bg { background: #eee; height: 6px; border-radius: 3px; overflow: hidden; margin-top: 5px; }
-        .progress-fill { background: #D4AF37; height: 100%; transition: 0.5s; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRM Manager Elite</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+body { background:#f9f9f9; font-family: Arial }
+.card { background:white; padding:12px; border-radius:12px; margin-bottom:10px }
+</style>
 </head>
-<body class="p-4 md:p-8">
+
+<body class="p-4">
 
 <div class="max-w-md mx-auto">
-    <div class="text-center mb-6">
-        <h1 class="font-luxury text-3xl font-bold text-yellow-700 uppercase tracking-widest">Elite CRM</h1>
-        <p class="text-[9px] text-gray-400 tracking-[0.2em] uppercase mt-1 italic">Limitless Team Edition</p>
-    </div>
 
-    <div class="card bg-white border-yellow-200">
-        <h2 class="font-luxury text-sm font-bold mb-4 text-yellow-800 uppercase flex items-center gap-2">
-            <i class="fa-solid fa-box-open"></i> Alertes Commandes (J-20)
-        </h2>
-        <div id="calendar" class="space-y-4">
-            </div>
-    </div>
+<h1 class="text-xl font-bold text-center mb-4">CRM MANAGER</h1>
 
-    <div class="card shadow-lg">
-        <h2 class="font-luxury text-md mb-4 text-gray-700 italic border-b pb-2">Nouvelle Vente</h2>
-        <input id="name" placeholder="Nom de la cliente" class="w-full mb-3 p-2 text-sm border-b outline-none focus:border-yellow-600">
-        <input id="product" placeholder="Produit (ex: Parfum Homme 061)" class="w-full mb-3 p-2 text-sm border-b outline-none focus:border-yellow-600">
-        <div class="flex flex-col mb-4">
-            <label class="text-[9px] font-bold text-gray-400 uppercase mb-1">Date de l'achat</label>
-            <input id="date" type="date" class="w-full p-2 text-sm border-b outline-none">
-        </div>
-        <button onclick="addSale()" class="gold-gradient text-white w-full p-3 rounded-xl font-bold shadow-md active:scale-95 transition text-xs uppercase tracking-widest">
-            Enregistrer & Calculer Relance
-        </button>
-    </div>
+<!-- LOGIN MANAGER -->
+<div id="login" class="card">
+<input id="pass" type="password" placeholder="Mot de passe manager" class="border p-2 w-full mb-2">
+<button onclick="login()" class="bg-black text-white w-full p-2">Accéder</button>
+</div>
 
-    <div class="flex items-center justify-between mb-4 px-2">
-        <p class="text-xs font-bold text-gray-500 uppercase">Suivi Clientèle</p>
-        <span id="statTotal" class="bg-yellow-100 text-yellow-800 text-[10px] font-bold px-2 py-1 rounded-full">0 clients</span>
-    </div>
-    
-    <input id="searchBar" onkeyup="render()" placeholder="🔍 Chercher un nom ou produit..." class="card w-full mb-4 p-4 text-sm outline-none focus:border-yellow-600">
+<!-- APP -->
+<div id="app" style="display:none">
 
-    <div id="list"></div>
+<div class="card">
+<input id="consultant" placeholder="Consultante" class="border p-2 w-full mb-2">
+<input id="name" placeholder="Cliente" class="border p-2 w-full mb-2">
+<input id="product" placeholder="Produit" class="border p-2 w-full mb-2">
+<input id="price" type="number" placeholder="Prix (€)" class="border p-2 w-full mb-2">
+<input id="date" type="date" class="border p-2 w-full mb-2">
+
+<button onclick="addSale()" class="bg-yellow-500 text-white w-full p-2">Ajouter</button>
+</div>
+
+<!-- MANAGER STATS -->
+<div class="card">
+<h2 class="font-bold mb-2">📊 Performance équipe</h2>
+<div id="stats"></div>
+</div>
+
+<!-- LIST -->
+<div id="list"></div>
+
+</div>
+
 </div>
 
 <script>
+
+let PASSWORD = "1234"; // 🔥 change ici
 let sales = JSON.parse(localStorage.getItem("sales")) || [];
 
-// Liste des fêtes avec dates (pour l'année 2026/2027)
-const holidays = [
-    { name:"Fête des Pères", date:"2026-06-21", cat:"Homme" },
-    { name:"Saison Solaire", date:"2026-06-15", cat:"Été" },
-    { name:"Aïd el-Adha (Est.)", date:"2026-05-27", cat:"Spirituel" },
-    { name:"Fête des Mères", date:"2026-05-31", cat:"Femme" },
-    { name:"Black Friday", date:"2026-11-27", cat:"Promo" }
-];
-
-function renderCalendar(){
-    let html="";
-    const today = new Date();
-
-    holidays.forEach(h => {
-        const hDate = new Date(h.date);
-        const limitDate = new Date(hDate);
-        limitDate.setDate(limitDate.getDate() - 20);
-        
-        // Calcul pour la barre de progression
-        const totalDays = 60; // On regarde sur 2 mois
-        const diff = Math.ceil((limitDate - today) / (1000 * 60 * 60 * 24));
-        let progress = 100 - (diff / totalDays * 100);
-        if(progress > 100) progress = 100;
-        if(progress < 0) progress = 0;
-
-        const isLate = diff < 0;
-
-        html += `
-            <div class="mb-2">
-                <div class="flex justify-between text-[10px] font-bold uppercase mb-1">
-                    <span class="${isLate ? 'text-red-500' : 'text-gray-600'}">${h.name}</span>
-                    <span class="text-yellow-700 italic">${isLate ? 'URGENT' : 'J-' + diff}</span>
-                </div>
-                <div class="progress-bg">
-                    <div class="progress-fill" style="width: ${progress}%; background: ${isLate ? '#ef4444' : '#D4AF37'}"></div>
-                </div>
-                <p class="text-[8px] text-gray-400 mt-1 uppercase">Date limite commande : ${limitDate.toLocaleDateString('fr-FR')}</p>
-            </div>
-        `;
-    });
-    document.getElementById("calendar").innerHTML = html;
-}
-
-function addSale(){
-    let name = document.getElementById("name").value;
-    let product = document.getElementById("product").value;
-    let date = document.getElementById("date").value;
-
-    if(!name || !product || !date) return alert("Champs vides !");
-
-    let relance = new Date(date);
-    relance.setDate(relance.getDate() + 40);
-
-    sales.push({
-        id: Date.now(),
-        name: name,
-        product: product,
-        date: date,
-        relance: relance.toISOString().split("T")[0]
-    });
-
-    save();
-    document.getElementById("name").value = "";
-    document.getElementById("product").value = "";
-}
-
-function deleteSale(id){
-    if(confirm("Supprimer ce suivi ?")) {
-        sales = sales.filter(s => s.id !== id);
-        save();
-    }
-}
-
-function save(){
-    localStorage.setItem("sales", JSON.stringify(sales));
-    render();
-}
-
-function render(){
-    let html = "";
-    let searchQuery = document.getElementById("searchBar").value.toLowerCase();
-    let filtered = sales.filter(s => s.name.toLowerCase().includes(searchQuery) || s.product.toLowerCase().includes(searchQuery));
-
-    filtered.forEach(s => {
-        let rDate = new Date(s.relance);
-        let today = new Date();
-        today.setHours(0,0,0,0);
-        let diff = Math.ceil((rDate - today) / (1000*60*60*24));
-        
-        let statusClass = diff <= 3 ? "urgent" : "upcoming";
-        let msg = `Bonjour ${s.name} ✨\n\nJ’espère que tu vas bien. Je reviens vers toi pour ton ${s.product} 🌸\n\nIl doit être bientôt terminé. Veux-tu que je te commande le même pour la fête des pères ? 😊`;
-        let url = `https://wa.me/?text=${encodeURIComponent(msg)}`;
-
-        html += `
-        <div class="card ${statusClass} relative">
-            <button onclick="deleteSale(${s.id})" class="absolute top-4 right-4 text-gray-300"><i class="fa-solid fa-trash-can"></i></button>
-            <p class="font-luxury text-lg text-gray-800">${s.name}</p>
-            <p class="text-xs text-gray-500 mb-4 tracking-wide font-semibold">${s.product}</p>
-            
-            <div class="flex justify-between items-center bg-gray-50 p-3 rounded-xl">
-                <div class="text-[10px]">
-                    <p class="text-gray-400 uppercase font-bold">Relance dans</p>
-                    <p class="text-sm font-bold ${diff <= 3 ? 'text-red-600' : 'text-yellow-700'}">${diff} jours</p>
-                </div>
-                <a href="${url}" target="_blank" class="bg-green-500 text-white px-4 py-2 rounded-lg text-[10px] font-bold uppercase flex items-center gap-2">
-                    <i class="fa-brands fa-whatsapp text-lg"></i> Envoyer
-                </a>
-            </div>
-        </div>
-        `;
-    });
-
-    document.getElementById("list").innerHTML = html;
-    document.getElementById("statTotal").innerText = sales.length + " clients";
-}
-
-renderCalendar();
+/* LOGIN */
+function login(){
+if(document.getElementById("pass").value === PASSWORD){
+document.getElementById("login").style.display="none";
+document.getElementById("app").style.display="block";
 render();
+}else{
+alert("Mot de passe incorrect");
+}
+}
+
+/* ADD */
+function addSale(){
+let c = consultant.value;
+let n = name.value;
+let p = product.value;
+let price = parseFloat(document.getElementById("price").value);
+let d = date.value;
+
+if(!c||!n||!p||!price||!d) return alert("Champs requis");
+
+let relance = new Date(d);
+relance.setDate(relance.getDate()+40);
+
+sales.push({
+id: Date.now(),
+consultant:c,
+name:n,
+product:p,
+price:price,
+date:d,
+relance:relance.toISOString().split("T")[0]
+});
+
+save();
+}
+
+/* SAVE */
+function save(){
+localStorage.setItem("sales", JSON.stringify(sales));
+render();
+}
+
+/* RENDER */
+function render(){
+
+let html="";
+let stats={};
+
+sales.forEach(s=>{
+
+// stats
+if(!stats[s.consultant]){
+stats[s.consultant]={ca:0,total:0};
+}
+stats[s.consultant].ca += s.price;
+stats[s.consultant].total++;
+
+let msg = `Bonjour ${s.name} 😊
+
+Je reviens vers toi pour ton ${s.product} ✨
+
+Je peux te proposer un réassort si tu veux 💖`;
+
+let url = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+
+html += `
+<div class="card">
+<p><b>${s.consultant}</b></p>
+<p>${s.name} - ${s.product}</p>
+<p>${s.price} €</p>
+
+<a href="${url}" target="_blank" class="bg-green-500 text-white p-2 block text-center rounded">
+WhatsApp
+</a>
+</div>
+`;
+
+});
+
+// manager stats
+let statsHTML="";
+Object.keys(stats).forEach(c=>{
+statsHTML += `
+<div class="card">
+<p><b>${c}</b></p>
+<p>CA: ${stats[c].ca} €</p>
+<p>Ventes: ${stats[c].total}</p>
+</div>
+`;
+});
+
+document.getElementById("list").innerHTML = html;
+document.getElementById("stats").innerHTML = statsHTML;
+
+}
+
 </script>
 
 </body>
