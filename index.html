@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Limitless Elite - V5.7</title>
+    <title>Limitless Elite - V5.8</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -41,7 +41,7 @@
 
     <div class="card border-t-4 border-t-yellow-600">
         <h2 class="font-luxury text-sm font-bold mb-4 text-gray-800 uppercase text-center"><i class="fa-solid fa-calendar-check text-yellow-600 mr-2"></i>Calendrier Stratégique</h2>
-        <div id="calendar-box" class="max-h-80 overflow-y-auto px-1"></div>
+        <div id="calendar-box" class="max-h-96 overflow-y-auto px-1"></div>
     </div>
 
     <div class="card bg-gray-50 border-dashed border-2 border-gray-200">
@@ -73,72 +73,18 @@
         </div>
         <span class="label-gold">DATE DE L'ACHAT</span>
         <input id="saleDate" type="date">
-        <button onclick="saveSale()" class="gold-btn">Valider la transaction</button>
+        <button onclick="saveSale()" class="gold-btn">Enregistrer Transaction</button>
     </div>
 </div>
 
 <script>
-// Événements fixes
+// Agenda complet incluant toutes les dates validées
 const masterEvents = [
-    { n: "Épiphanie", d: "2026-01-06", t: "bg-cath", lbl: "Catho" },
     { n: "Soldes d'Hiver", d: "2026-01-10", t: "bg-comm", lbl: "Business" },
     { n: "Saint Valentin ❤️", d: "2026-02-14", t: "bg-comm", lbl: "Business" },
     { n: "Ramadan (Début)", d: "2026-02-18", t: "bg-mus", lbl: "Islam" },
     { n: "Aïd el-Fitr", d: "2026-03-20", t: "bg-mus", lbl: "Islam" },
     { n: "Pâques", d: "2026-04-05", t: "bg-cath", lbl: "Catho" },
-    { n: "Saison Solaire", d: "2026-04-15", t: "bg-saison", lbl: "Saison" },
-    { n: "Fête des Mères (FR)", d: "2026-05-31", t: "bg-comm", lbl: "Business" },
-    { n: "Noël 🎄", d: "2026-12-25", t: "bg-cath", lbl: "Catho" }
-];
-
-let customEvents = JSON.parse(localStorage.getItem("customEvents")) || [];
-
-function addEvent() {
-    const n = document.getElementById("evName").value, t = document.getElementById("evType").value, d = document.getElementById("evDate").value;
-    if(!n || !d) return alert("Champs obligatoires.");
-    customEvents.push({ n, t: "bg-comm", lbl: t, d });
-    localStorage.setItem("customEvents", JSON.stringify(customEvents));
-    refresh();
-}
-
-function saveSale() {
-    const client = document.getElementById("saleClient").value;
-    if(!client) return alert("Nom client requis.");
-    alert("Vente enregistrée avec succès !");
-}
-
-function refresh() {
-    const now = new Date(); now.setHours(0,0,0,0);
-    let all = [...masterEvents, ...customEvents];
-    
-    // Génération des rappels J-20
-    let prepas = [];
-    all.forEach(e => {
-        let pD = new Date(e.d); pD.setDate(pD.getDate() - 20);
-        prepas.push({ n: `STOCK : ${e.n}`, d: pD.toISOString().split('T')[0], t: "bg-prepa", lbl: "Rappel J-20" });
-    });
-    
-    all = [...all, ...prepas].sort((a,b) => new Date(a.d) - new Date(b.d));
-
-    let html = "";
-    all.forEach(i => {
-        let dObj = new Date(i.d);
-        let diff = Math.ceil((dObj - now) / 86400000);
-        if (diff < -5) return; // Cache les vieux événements (plus de 5 jours)
-        
-        html += `
-        <div class="agenda-row ${diff < 0 ? 'event-past' : ''}">
-            <div class="date-col">${dObj.toLocaleDateString('fr-FR', {day:'2-digit', month:'2-digit'})}</div>
-            <div class="agenda-info">
-                <span class="tag ${i.t}">${i.lbl}</span>
-                <span class="font-bold text-gray-700 uppercase text-[9px] tracking-tight">${i.n}</span>
-            </div>
-            <div class="j-col">${diff < 0 ? 'OK' : 'J-' + diff}</div>
-        </div>`;
-    });
-    document.getElementById("calendar-box").innerHTML = html;
-}
-refresh();
-</script>
-</body>
-</html>
+    { n: "Saison Solaire ☀️", d: "2026-04-15", t: "bg-saison", lbl: "Saison" },
+    { n: "Fête du Travail", d: "2026-05-01", t: "bg-comm", lbl: "Public" },
+    { n: "Pentecôte", d: "2026-05-24", t: "
