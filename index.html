@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Limitless Elite - Manager Pro V3.2</title>
+    <title>Limitless Elite - Manager Pro V3.3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -14,14 +14,13 @@
         .card { background:white; border-radius:20px; padding:18px; margin-bottom:15px; border: 1px solid rgba(212,175,55,0.15); box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
         
         .agenda-container { 
-            max-height: 300px; 
+            max-height: 350px; 
             overflow-y: auto; 
             padding-right: 10px;
             scrollbar-width: thin;
             scrollbar-color: #D4AF37 #f1f1f1;
         }
         .agenda-container::-webkit-scrollbar { width: 4px; }
-        .agenda-container::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
         .agenda-container::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 10px; }
 
         .event-past { opacity: 0.5; filter: grayscale(0.5); }
@@ -29,6 +28,12 @@
         input, select { border-bottom: 1px solid #eee !important; border: none; outline: none; transition: 0.3s; width: 100%; padding: 8px; margin-bottom: 10px; font-size: 14px; background: transparent; }
         .admin-only { display: none; }
         .label-style { font-size: 9px; font-weight: bold; color: #9ca3af; text-transform: uppercase; margin-left: 8px; margin-bottom: 2px; }
+        
+        .event-tag { font-size: 7px; padding: 2px 5px; border-radius: 4px; text-transform: uppercase; font-weight: bold; margin-right: 5px; color: white; }
+        .bg-vente { background: #3b82f6; } /* Bleu */
+        .bg-relance { background: #f59e0b; } /* Orange */
+        .bg-salon { background: #ef4444; } /* Rouge */
+        .bg-fete { background: #10b981; } /* Vert */
     </style>
 </head>
 <body class="p-4">
@@ -50,13 +55,13 @@
 
     <div class="card bg-yellow-50/30 border-yellow-200">
         <h2 class="font-luxury text-sm font-bold mb-3 text-yellow-800 uppercase flex items-center gap-2">
-            <i class="fa-solid fa-calendar-days"></i> Agenda Annuel 2026
+            <i class="fa-solid fa-calendar-check"></i> Planning Global 2026
         </h2>
-        <div id="calendar" class="agenda-container space-y-3 text-[10px]"></div>
+        <div id="calendar" class="agenda-container space-y-2 text-[10px]"></div>
     </div>
 
     <div class="card border-dashed border-2 border-yellow-200 bg-white">
-        <h2 class="font-luxury text-sm font-bold mb-3 text-gray-600 uppercase italic">Planifier un Événement</h2>
+        <h2 class="font-luxury text-sm font-bold mb-3 text-gray-600 uppercase italic">Organiser un événement</h2>
         <input id="evName" placeholder="Nom de l'événement">
         <select id="evType">
             <option value="Salon">Salon / Exposition</option>
@@ -64,12 +69,11 @@
             <option value="Réunion">Réunion à domicile</option>
             <option value="Atelier">Atelier Bien-être</option>
         </select>
-        <div class="flex flex-col">
+        <div class="flex flex-col mb-2">
             <label class="label-style">Sélectionner date</label>
             <input id="evDate" type="date">
         </div>
-        <input id="evFocus" placeholder="Produits à vendre">
-        <button onclick="addEvent()" class="bg-gray-800 text-white w-full p-3 rounded-xl text-[9px] font-bold uppercase tracking-widest active:scale-95 transition">Ajouter à l'agenda</button>
+        <button onclick="addEvent()" class="bg-gray-800 text-white w-full p-3 rounded-xl text-[9px] font-bold uppercase tracking-widest active:scale-95 transition">Ajouter au planning</button>
     </div>
 
     <div class="card shadow-lg">
@@ -88,39 +92,31 @@
             <label class="label-style">Sélectionner date</label>
             <input id="date" type="date">
         </div>
-        <button onclick="addSale()" class="gold-gradient text-white w-full p-4 rounded-2xl font-bold shadow-md active:scale-95 transition text-[10px] uppercase tracking-widest">Enregistrer Transaction</button>
-    </div>
-
-    <div id="adminStats" class="admin-only card bg-black text-white">
-        <h2 class="font-luxury text-[11px] font-bold mb-3 text-yellow-500 uppercase tracking-widest">Performance Équipe</h2>
-        <div id="teamStats" class="space-y-2"></div>
+        <button onclick="addSale()" class="gold-gradient text-white w-full p-4 rounded-2xl font-bold shadow-md active:scale-95 transition text-[10px] uppercase tracking-widest">Enregistrer</button>
     </div>
 
     <div class="flex items-center justify-between my-4 px-2">
-        <h2 class="font-luxury text-sm font-bold text-yellow-800 uppercase italic">Suivi des Relances</h2>
-        <input id="searchBar" onkeyup="render()" placeholder="Rechercher..." class="!mb-0 !p-1 !w-1/2 text-xs">
+        <h2 class="font-luxury text-sm font-bold text-yellow-800 uppercase italic">Fichier Client & Relances</h2>
+        <input id="searchBar" onkeyup="render()" placeholder="Filtrer..." class="!mb-0 !p-1 !w-1/2 text-xs">
     </div>
-
     <div id="list"></div>
 </div>
 
 <script>
-// Code JavaScript identique à la version précédente (logique de tri et stockage)
 let isAdmin = false;
 const ADMIN_ID = "ouadi.nej@gmail.com";
 const ADMIN_PASS = "1981";
+
 let sales = JSON.parse(localStorage.getItem("sales")) || [];
 let myEvents = JSON.parse(localStorage.getItem("myEvents")) || [];
 
 const fixedHolidays = [
-    { name:"Aïd el-Fitr", date:"2026-03-20", type:"Religieux" },
-    { name:"Aïd el-Adha", date:"2026-05-27", type:"Religieux" },
+    { name:"Aïd el-Fitr", date:"2026-03-20", type:"Fête" },
+    { name:"Aïd el-Adha", date:"2026-05-27", type:"Fête" },
     { name:"Fête des Mères", date:"2026-05-31", type:"Fête" },
-    { name:"Saison Solaire", date:"2026-06-15", type:"Fête" },
     { name:"Fête des Pères", date:"2026-06-21", type:"Fête" },
-    { name:"Mawlid", date:"2026-08-25", type:"Religieux" },
-    { name:"Black Friday", date:"2026-11-27", type:"Fête" },
-    { name:"Noël", date:"2026-12-25", type:"Fête" }
+    { name:"Mawlid", date:"2026-08-25", type:"Fête" },
+    { name:"Black Friday", date:"2026-11-27", type:"Fête" }
 ];
 
 function toggleLogin() { document.getElementById("loginForm").classList.toggle("hidden"); }
@@ -130,78 +126,114 @@ function checkAdmin() {
         isAdmin = true;
         document.getElementById("userBadge").innerText = "Mode Manager Actif";
         document.getElementById("loginSection").classList.add("hidden");
-        document.querySelectorAll(".admin-only").forEach(el => el.style.display = "block");
         render();
         renderCalendar();
-    } else { alert("Accès refusé"); }
+    }
 }
 
 function addEvent() {
     let name = document.getElementById("evName").value;
     let type = document.getElementById("evType").value;
     let date = document.getElementById("evDate").value;
-    if(!name || !date) return alert("Date et Nom requis");
-    myEvents.push({ id: Date.now(), name, type, date, focus: document.getElementById("evFocus").value });
+    if(!name || !date) return alert("Infos manquantes");
+    myEvents.push({ id: Date.now(), name, type, date });
     localStorage.setItem("myEvents", JSON.stringify(myEvents));
     renderCalendar();
 }
 
-function renderCalendar(){
-    let html="";
+function addSale() {
+    let c = document.getElementById("consultant").value;
+    let n = document.getElementById("name").value;
+    let p = document.getElementById("product").value;
+    let d = document.getElementById("date").value;
+    let pr = document.getElementById("price").value;
+    let cur = document.getElementById("currency").value;
+    if(!c || !n || !p || !d) return alert("Champs obligatoires");
+    
+    sales.push({ id: Date.now(), consultant: c, name: n, product: p, date: d, price: pr, currency: cur });
+    localStorage.setItem("sales", JSON.stringify(sales));
+    render();
+    renderCalendar();
+}
+
+function renderCalendar() {
+    let html = "";
     const today = new Date();
     today.setHours(0,0,0,0);
-    let allEvents = [...fixedHolidays, ...myEvents].sort((a,b) => new Date(a.date) - new Date(b.date));
-    allEvents.forEach(h => {
-        const hDate = new Date(h.date);
-        const diff = Math.ceil((hDate - today) / (1000 * 60 * 60 * 24));
-        const isPast = diff < 0;
-        html += `<div class="border-b border-yellow-100 py-2 ${isPast ? 'event-past' : ''}">
-            <div class="flex justify-between items-start">
-                <span class="font-bold text-gray-800">${h.name}</span>
-                <span class="font-bold text-yellow-700">${isPast ? 'PASSÉ' : 'J-' + diff}</span>
+
+    let allItems = [];
+    
+    // 1. Ajouter Fêtes
+    fixedHolidays.forEach(f => allItems.push({ name: f.name, date: f.date, tag: "bg-fete", type: "FÊTE" }));
+    
+    // 2. Ajouter Événements Perso
+    myEvents.forEach(e => allItems.push({ name: e.name, date: e.date, tag: "bg-salon", type: e.type }));
+    
+    // 3. Ajouter Ventes et calculer Relances
+    sales.forEach(s => {
+        // La Vente
+        allItems.push({ name: `Vente: ${s.name} (${s.product})`, date: s.date, tag: "bg-vente", type: "VENTE" });
+        
+        // La Relance (Date + 40 jours)
+        let rDate = new Date(s.date);
+        rDate.setDate(rDate.getDate() + 40);
+        let rDateStr = rDate.toISOString().split('T')[0];
+        allItems.push({ name: `RELANCE: ${s.name}`, date: rDateStr, tag: "bg-relance", type: "RAPPEL" });
+    });
+
+    allItems.sort((a,b) => new Date(a.date) - new Date(b.date));
+
+    allItems.forEach(item => {
+        let iDate = new Date(item.date);
+        let diff = Math.ceil((iDate - today) / (1000 * 60 * 60 * 24));
+        let isPast = diff < 0;
+
+        html += `
+        <div class="border-b border-gray-100 py-2 ${isPast ? 'event-past' : ''}">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <span class="event-tag ${item.tag}">${item.type}</span>
+                    <span class="font-bold text-gray-700">${item.name}</span>
+                </div>
+                <span class="font-bold text-gray-400 text-[9px]">${isPast ? 'FAIT' : 'J-' + diff}</span>
             </div>
-            <p class="text-[8px] text-gray-400 italic">${hDate.toLocaleDateString('fr-FR')}</p>
+            <p class="text-[8px] text-gray-400 mt-1">${iDate.toLocaleDateString('fr-FR')}</p>
         </div>`;
     });
     document.getElementById("calendar").innerHTML = html;
 }
 
-function addSale(){
-    let c = document.getElementById("consultant").value;
-    let n = document.getElementById("name").value;
-    let p = document.getElementById("product").value;
-    let pr = parseFloat(document.getElementById("price").value);
-    let cur = document.getElementById("currency").value;
-    let d = document.getElementById("date").value;
-    if(!c || !n || !p || isNaN(pr) || !d) return alert("Champs vides");
-    sales.push({ id: Date.now(), consultant: c, name: n, product: p, price: pr, currency: cur, date: d });
-    localStorage.setItem("sales", JSON.stringify(sales));
-    render();
-}
-
-function render(){
+function render() {
     let html = "";
-    let teamData = {};
     let query = document.getElementById("searchBar").value.toLowerCase();
-    sales.sort((a,b) => new Date(a.date) - new Date(b.date));
+    sales.sort((a,b) => new Date(a.date) - new Date(b.date)); // Du plus ancien au plus récent
+
     sales.forEach(s => {
-        if(!teamData[s.consultant]) teamData[s.consultant] = {caDA:0, caEUR:0, v:0};
-        s.currency === "DA" ? teamData[s.consultant].caDA += s.price : teamData[s.consultant].caEUR += s.price;
-        teamData[s.consultant].v++;
-        if(s.name.toLowerCase().includes(query) || s.consultant.toLowerCase().includes(query)){
+        if(s.name.toLowerCase().includes(query) || s.consultant.toLowerCase().includes(query)) {
             let diff = Math.floor((new Date() - new Date(s.date)) / (1000*60*60*24));
-            let alert = diff >= 40;
-            html += `<div class="card ${alert ? 'border-2 border-red-500' : 'border-l-4 border-yellow-500'}">
-                <p class="text-[9px] font-bold text-yellow-600">${s.consultant}</p>
-                <p class="text-[10px] font-bold ${alert ? 'text-red-600' : 'text-gray-400'}">${alert ? '⚠️ RELANCE : ' : 'Depuis : '} ${diff} Jours</p>
-                <p class="font-luxury text-lg">${s.name}</p>
-                <p class="text-xs text-gray-500">${s.product} — ${s.date}</p>
-                <a href="https://wa.me/?text=${encodeURIComponent('Bonjour ' + s.name + ' ✨...')}" class="gold-gradient text-white p-3 block text-center rounded-xl text-[10px] font-bold mt-2">Relancer Client</a>
+            let estDepasse = diff >= 40;
+            
+            let relanceD = new Date(s.date);
+            relanceD.setDate(relanceD.getDate() + 40);
+
+            html += `
+            <div class="card ${estDepasse ? 'border-2 border-red-500' : 'border-l-4 border-yellow-500'}">
+                <div class="flex justify-between items-start mb-1">
+                    <p class="text-[9px] font-bold text-yellow-600">${s.consultant}</p>
+                    <p class="text-[10px] font-bold ${estDepasse ? 'text-red-600' : 'text-gray-400'} uppercase">
+                        ${diff} JOURS
+                    </p>
+                </div>
+                <p class="font-luxury text-lg text-gray-800">${s.name}</p>
+                <p class="text-[10px] text-gray-500 mb-1">${s.product}</p>
+                <p class="text-[9px] text-gray-400 italic mb-3">Relance prévue le : ${relanceD.toLocaleDateString('fr-FR')}</p>
+                <button onclick="window.open('https://wa.me/?text=Bonjour...', '_blank')" class="gold-gradient text-white p-3 w-full rounded-xl text-[10px] font-bold uppercase">Relancer</button>
             </div>`;
         }
     });
     document.getElementById("list").innerHTML = html;
 }
+
 renderCalendar();
 render();
 </script>
