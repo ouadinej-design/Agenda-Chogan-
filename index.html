@@ -1,175 +1,212 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Limitless Team - Chogan CRM Elite</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@300;400;600&display=swap');
-        :root { --gold: #D4AF37; --luxury-white: #ffffff; }
-        body { font-family: 'Montserrat', sans-serif; background-color: #fafafa; color: #1a1a1a; }
-        .gold-gradient { background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%); }
-        .font-luxury { font-family: 'Playfair Display', serif; }
-        .card { background: white; border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 1.5rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); }
-        .btn-whatsapp { background-color: #25D366; color: white; transition: all 0.3s ease; }
-        .btn-whatsapp:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3); }
-        input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(48%) sepia(51%) saturate(542%) hue-rotate(1deg) brightness(93%) contrast(92%); }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chogan CRM Elite</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+body { background:#fafafa; font-family: Arial }
+.card { background:white; border-radius:16px; padding:12px; margin-bottom:10px; }
+</style>
 </head>
-<body class="min-h-screen pb-12">
 
-    <header class="gold-gradient text-white p-6 shadow-2xl sticky top-0 z-50">
-        <div class="max-w-md mx-auto flex justify-between items-center">
-            <div>
-                <h1 class="text-xl font-bold uppercase tracking-widest font-luxury">Limitless Team</h1>
-                <div class="flex items-center gap-2">
-                    <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                    <p class="text-[10px] opacity-90 uppercase tracking-tighter">S25 Elite Sync Active</p>
-                </div>
-            </div>
-            <div class="text-right bg-white/20 p-2 rounded-2xl px-5 border border-white/40">
-                <p class="text-[9px] font-bold uppercase">Points Elite</p>
-                <p id="totalPoints" class="text-xl font-bold">0</p>
-            </div>
-        </div>
-    </header>
+<body class="p-3">
 
-    <main class="max-w-md mx-auto p-4 space-y-6">
+<div class="max-w-md mx-auto">
 
-        <section>
-            <h2 class="text-md font-bold mb-3 flex items-center gap-2 font-luxury text-yellow-800 uppercase tracking-wide">
-                <i class="fa-solid fa-clock-rotate-left"></i> Alertes Stocks (J-20)
-            </h2>
-            <div id="holidayAlerts" class="grid grid-cols-2 gap-3">
-                </div>
-        </section>
+<h1 class="text-xl font-bold text-center mb-4">CRM ELITE</h1>
 
-        <section class="card p-5">
-            <h2 class="text-md font-bold mb-4 font-luxury text-yellow-700 border-b border-yellow-100 pb-2 italic">Nouvelle Vente</h2>
-            <div class="space-y-4">
-                <div>
-                    <label class="text-[10px] font-bold text-gray-400 uppercase">Cliente</label>
-                    <input id="clientName" type="text" placeholder="Ex: Nadara" class="w-full border-b border-gray-200 py-2 outline-none focus:border-yellow-600 bg-transparent">
-                </div>
-                <div>
-                    <label class="text-[10px] font-bold text-gray-400 uppercase">Produit Chogan</label>
-                    <input id="productName" type="text" placeholder="Ex: Parfum N°55 Luxe" class="w-full border-b border-gray-200 py-2 outline-none focus:border-yellow-600 bg-transparent">
-                </div>
-                <div>
-                    <label class="text-[10px] font-bold text-gray-400 uppercase">Date de la transaction</label>
-                    <input id="saleDate" type="date" class="w-full border-b border-gray-200 py-2 outline-none focus:border-yellow-600 bg-transparent">
-                </div>
-                <button onclick="addSale()" class="w-full mt-4 gold-gradient text-white font-bold py-4 rounded-2xl shadow-lg uppercase text-xs tracking-widest active:scale-95 transition">
-                    Enregistrer la vente (+10 pts)
-                </button>
-            </div>
-        </section>
+<!-- FORM -->
+<div class="card">
+<input id="name" placeholder="Cliente" class="border p-2 w-full mb-2">
+<input id="product" placeholder="Produit" class="border p-2 w-full mb-2">
+<input id="date" type="date" class="border p-2 w-full mb-2">
 
-        <section class="card overflow-hidden">
-            <div class="p-4 bg-yellow-50/50 border-b border-yellow-100 flex justify-between items-center">
-                <h2 class="font-bold font-luxury text-yellow-800 text-sm">Prochaines Relances (J+40)</h2>
-            </div>
-            <div class="max-h-[400px] overflow-y-auto">
-                <div id="salesList" class="divide-y divide-gray-100">
-                    </div>
-            </div>
-        </section>
+<button onclick="addSale()" class="bg-yellow-500 text-white w-full p-2 rounded">
+Ajouter vente
+</button>
+</div>
 
-    </main>
+<!-- STAT MANAGER -->
+<div class="card">
+<h2 class="font-bold mb-2">📊 Stats Consultantes</h2>
+<div id="stats"></div>
+</div>
 
-    <script>
-        let points = parseInt(localStorage.getItem('choganPoints')) || 0;
-        let sales = JSON.parse(localStorage.getItem('choganSales')) || [];
+<!-- FETES ANNUELLES -->
+<div class="card">
+<h2 class="font-bold mb-2">📅 Vision Année (Fêtes)</h2>
+<div id="calendar"></div>
+</div>
 
-        const holidays = [
-            { name: "Aïd el-Fitr", date: "2027-03-10", badge: "Luxe" },
-            { name: "Fête des Mères", date: "2026-05-31", badge: "Cadeau" },
-            { name: "Solaire / Été", date: "2026-06-15", badge: "Saison" },
-            { name: "Black Friday", date: "2026-11-27", badge: "Flash" }
-        ];
+<!-- SALES -->
+<div id="list"></div>
 
-        function init() {
-            updatePoints();
-            renderHolidays();
-            renderSales();
-        }
+</div>
 
-        function renderHolidays() {
-            const container = document.getElementById('holidayAlerts');
-            holidays.forEach(h => {
-                const limit = new Date(h.date);
-                limit.setDate(limit.getDate() - 20);
-                container.innerHTML += `
-                    <div class="bg-white p-3 border border-yellow-100 rounded-2xl shadow-sm">
-                        <span class="text-[8px] bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full font-bold uppercase">${h.badge}</span>
-                        <h3 class="font-bold text-gray-800 text-xs mt-1">${h.name}</h3>
-                        <p class="text-[9px] text-red-500 font-bold mt-1 uppercase">Stock J-20 : ${limit.toLocaleDateString('fr-FR')}</p>
-                    </div>`;
-            });
-        }
+<script>
 
-        function addSale() {
-            const name = document.getElementById('clientName').value;
-            const product = document.getElementById('productName').value;
-            const dateStr = document.getElementById('saleDate').value;
+let sales = JSON.parse(localStorage.getItem("sales")) || [];
 
-            if(!name || !product || !dateStr) return alert("Champs manquants !");
+/* =======================
+   WHATSAPP MESSAGE TEMPLATE
+======================= */
+function whatsappMsg(name, product){
+return `Bonjour ${name} ✨
 
-            const relanceDate = new Date(dateStr);
-            relanceDate.setDate(relanceDate.getDate() + 40);
+J’espère que tu vas bien.
 
-            sales.push({ id: Date.now(), name, product, date: dateStr, relance: relanceDate.toISOString().split('T')[0] });
-            points += 10;
-            save();
-            
-            // Effacer formulaire
-            document.getElementById('clientName').value = "";
-            document.getElementById('productName').value = "";
-        }
+Je reviens vers toi concernant ton ${product} 🌸
 
-        function renderSales() {
-            const list = document.getElementById('salesList');
-            list.innerHTML = "";
-            
-            if(sales.length === 0) {
-                list.innerHTML = "<p class='p-8 text-center text-gray-400 text-xs italic'>Aucune vente enregistrée.</p>";
-                return;
-            }
+Après quelques semaines, il est peut-être bientôt terminé ou tu commences à t’y habituer.
 
-            sales.sort((a,b) => new Date(a.relance) - new Date(b.relance));
+Je peux te proposer un réassort ou un produit équivalent adapté à ton besoin 💖
 
-            sales.forEach(s => {
-                const relanceDisplay = new Date(s.relance).toLocaleDateString('fr-FR');
-                const msg = `Bonjour ${s.name} ! C'est Marie de Chogan ✨. Ton ${s.product} doit être presque fini après ces 40 jours. On prévoit ton réapprovisionnement ensemble ?`;
-                const waUrl = `https://wa.me/?text=${encodeURIComponent(msg)}`;
-                
-                list.innerHTML += `
-                    <div class="p-4 flex justify-between items-center bg-white">
-                        <div>
-                            <p class="font-bold text-sm text-gray-800">${s.name}</p>
-                            <p class="text-[10px] text-gray-400">${s.product} - Achat: ${new Date(s.date).toLocaleDateString('fr-FR')}</p>
-                            <p class="text-[10px] font-bold text-yellow-600 mt-1">Relance : ${relanceDisplay}</p>
-                        </div>
-                        <a href="${waUrl}" target="_blank" onclick="points+=15;save()" class="btn-whatsapp px-4 py-2 rounded-xl text-[10px] font-bold uppercase flex items-center gap-1 shadow-sm">
-                            <i class="fa-brands fa-whatsapp text-sm"></i> Relancer
-                        </a>
-                    </div>`;
-            });
-        }
+Dis-moi si tu veux que je te conseille 😊`;
+}
 
-        function save() {
-            localStorage.setItem('choganPoints', points);
-            localStorage.setItem('choganSales', JSON.stringify(sales));
-            updatePoints();
-            renderSales();
-        }
+/* =======================
+   FÊTES ANNUELLES (COMPLET)
+======================= */
+const holidays = [
+{ name:"Nouvel An", date:"01-01" },
+{ name:"Aïd el-Fitr", date:"variable" },
+{ name:"Aïd el-Adha", date:"variable" },
+{ name:"Fête du Travail", date:"05-01" },
+{ name:"Fête de l’Indépendance", date:"07-05" },
+{ name:"Achoura", date:"variable" },
+{ name:"Rentrée Septembre", date:"09-01" },
+{ name:"Halloween", date:"10-31" },
+{ name:"Black Friday", date:"11-28" },
+{ name:"Noël", date:"12-25" }
+];
 
-        function updatePoints() { document.getElementById('totalPoints').innerText = points; }
+function renderCalendar(){
+let html="";
+holidays.forEach(h=>{
+html+=`<p>📌 ${h.name} → ${h.date}</p>`;
+});
+document.getElementById("calendar").innerHTML=html;
+}
 
-        init();
-    </script>
+/* =======================
+   ADD SALE
+======================= */
+function addSale(){
+let name=document.getElementById("name").value;
+let product=document.getElementById("product").value;
+let date=document.getElementById("date").value;
+
+if(!name||!product||!date) return alert("Remplir tous les champs");
+
+let relance=new Date(date);
+relance.setDate(relance.getDate()+40);
+
+sales.push({
+id:Date.now(),
+name,
+product,
+date,
+relance:relance.toISOString().split("T")[0],
+consultant:"ouadi.nej@gmail.com"
+});
+
+save();
+}
+
+/* =======================
+   SAVE
+======================= */
+function save(){
+localStorage.setItem("sales",JSON.stringify(sales));
+render();
+}
+
+/* =======================
+   STATS MANAGER
+======================= */
+function renderStats(){
+
+let total=sales.length;
+let urgent=0;
+
+sales.forEach(s=>{
+let r=new Date(s.relance);
+let today=new Date();
+let diff=(r-today)/(1000*60*60*24);
+if(diff<=3) urgent++;
+});
+
+document.getElementById("stats").innerHTML=`
+<p>Total ventes: ${total}</p>
+<p>Urgent (J-3): ${urgent}</p>
+<p>Manager: ouadi.nej@gmail.com</p>
+`;
+}
+
+/* =======================
+   NOTIFICATIONS (J-20 / J+40)
+======================= */
+function notify(){
+if(Notification.permission!=="granted"){
+Notification.requestPermission();
+return;
+}
+
+sales.forEach(s=>{
+let r=new Date(s.relance);
+let today=new Date();
+let diff=Math.floor((r-today)/(1000*60*60*24));
+
+if(diff<=20 && diff>=0){
+new Notification("🔔 Relance cliente",{
+body:`${s.name} - ${s.product} à relancer`
+});
+}
+});
+}
+
+/* =======================
+   RENDER SALES
+======================= */
+function render(){
+let html="";
+
+sales.forEach(s=>{
+
+let msg=whatsappMsg(s.name,s.product);
+let url=`https://wa.me/?text=${encodeURIComponent(msg)}`;
+
+html+=`
+<div class="card">
+<p><b>${s.name}</b></p>
+<p>${s.product}</p>
+<p>Relance: ${s.relance}</p>
+
+<a href="${url}" target="_blank"
+class="bg-green-500 text-white p-2 block text-center rounded mt-2">
+📲 Envoyer WhatsApp
+</a>
+</div>
+`;
+});
+
+document.getElementById("list").innerHTML=html;
+
+renderStats();
+notify();
+}
+
+/* INIT */
+renderCalendar();
+render();
+setInterval(notify,60000);
+
+</script>
+
 </body>
 </html>
-
