@@ -4,281 +4,762 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Limitless Elite — Manager Pro</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
-:root{--gold:#C9A84C;--gold-l:#E8CF82;--gold-d:#8B6914;--dark:#0D0F14;--surf:#161921;--surf2:#1E2230;--border:rgba(201,168,76,0.15);--text:#E2D9C8;--muted:#6B7280;}
+/* ══════════════════════════════════════
+   TOKENS — Monday-inspired dark workspace
+══════════════════════════════════════ */
+:root{
+  --bg:       #1C1F2E;
+  --surface:  #252A3D;
+  --surface2: #2E3450;
+  --surface3: #363D5A;
+  --border:   rgba(255,255,255,0.07);
+  --text:     #D0D5E8;
+  --muted:    #6B738F;
+  --gold:     #C9A84C;
+  --gold-l:   #E8D080;
+  --gold-d:   #8B6914;
+  /* Status colors (Monday palette) */
+  --green:    #00CA72;
+  --orange:   #FF7B00;
+  --red:      #E44258;
+  --blue:     #579BFC;
+  --purple:   #A25DDC;
+  --pink:     #FF44CC;
+  --teal:     #03C4C4;
+  /* Category colors */
+  --mus:      #00CA72;
+  --cath:     #579BFC;
+  --comm:     #FF7B00;
+  --saison:   #FF44CC;
+  --prepa:    #A25DDC;
+  --perso:    #03C4C4;
+}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-body{background:var(--dark);color:var(--text);font-family:'Jost',sans-serif;min-height:100vh;overflow-x:hidden;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;font-size:13px;}
 .lux{font-family:'Cormorant Garamond',serif;}
 
-/* SCREENS */
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:4px;}
+
+/* ── SCREENS ── */
 .screen{display:none;min-height:100vh;}
 .screen.on{display:block;}
 
-/* ─── LOGIN ─── */
+/* ══════════════════════════════════════
+   LOGIN — Monday workspace picker style
+══════════════════════════════════════ */
 #sLogin{
-  background:linear-gradient(160deg,#08090D 0%,#0D0F14 50%,#120E08 100%);
-  display:none;flex-direction:column;justify-content:center;align-items:center;padding:30px 20px;
+  background:linear-gradient(145deg,#12152A 0%,#1C1F2E 60%,#1A1510 100%);
+  display:none;flex-direction:column;justify-content:center;align-items:center;
+  padding:32px 20px;min-height:100vh;
 }
 #sLogin.on{display:flex;}
-.login-logo-ring{width:88px;height:88px;border-radius:50%;border:1px solid var(--gold);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;position:relative;}
-.login-logo-ring::before{content:'';position:absolute;inset:-6px;border-radius:50%;border:1px solid rgba(201,168,76,0.2);}
-.lcard{background:rgba(255,255,255,0.025);border:1px solid var(--border);border-radius:24px;padding:28px 22px;width:100%;max-width:380px;backdrop-filter:blur(20px);}
-.role-btn{background:rgba(255,255,255,0.03);border:1px solid rgba(201,168,76,0.22);border-radius:16px;padding:16px;width:100%;text-align:left;cursor:pointer;transition:all 0.25s;margin-bottom:10px;display:flex;align-items:center;gap:14px;color:var(--text);}
-.role-btn:hover{background:rgba(201,168,76,0.08);border-color:rgba(201,168,76,0.45);transform:translateY(-2px);}
-.role-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
-.fi{background:linear-gradient(135deg,rgba(201,168,76,0.15),rgba(201,168,76,0.05));}
-.ai{background:linear-gradient(135deg,rgba(139,105,20,0.4),rgba(201,168,76,0.15));}
-.form-back{background:rgba(255,255,255,0.025);border:1px solid var(--border);border-radius:14px;padding:18px;margin-top:14px;}
 
-/* ─── INPUTS ─── */
-.inp{background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.2);border-radius:12px;color:var(--text);padding:11px 14px;width:100%;font-size:13px;font-family:'Jost',sans-serif;outline:none;transition:border-color 0.2s;margin-bottom:10px;}
+.ws-logo{
+  width:64px;height:64px;border-radius:18px;
+  background:linear-gradient(135deg,#C9A84C,#8B6914);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 16px;
+  box-shadow:0 8px 32px rgba(201,168,76,0.3);
+}
+.ws-card{
+  background:rgba(37,42,61,0.9);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:16px;padding:24px 20px;
+  width:100%;max-width:380px;
+  backdrop-filter:blur(20px);
+}
+.ws-btn{
+  background:var(--surface2);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:10px;padding:13px 14px;width:100%;
+  text-align:left;cursor:pointer;transition:all 0.2s;
+  margin-bottom:8px;display:flex;align-items:center;gap:12px;
+  color:var(--text);font-family:'Inter',sans-serif;
+}
+.ws-btn:hover{background:var(--surface3);border-color:rgba(201,168,76,0.3);transform:translateX(2px);}
+.ws-icon{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.form-panel{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-top:12px;}
+
+/* ── INPUTS ── */
+.inp{
+  background:var(--surface3);border:1.5px solid rgba(255,255,255,0.08);
+  border-radius:8px;color:var(--text);padding:10px 12px;width:100%;
+  font-size:13px;font-family:'Inter',sans-serif;outline:none;
+  transition:border-color 0.15s;margin-bottom:8px;
+}
 .inp:focus{border-color:var(--gold);background:rgba(201,168,76,0.04);}
-.inp::placeholder{color:#3D4451;}
-select.inp option{background:#1E2230;}
-.lbl{font-size:8px;font-weight:600;color:var(--gold);text-transform:uppercase;letter-spacing:1.5px;display:block;margin-bottom:5px;}
+.inp::placeholder{color:var(--muted);}
+select.inp option{background:#252A3D;}
+textarea.inp{resize:none;}
+.lbl{font-size:10px;font-weight:600;color:var(--muted);letter-spacing:0.5px;display:block;margin-bottom:5px;}
 
-/* ─── BUTTONS ─── */
-.btn-g{background:linear-gradient(135deg,#C9A84C 0%,#E8CF82 50%,#8B6914 100%);color:#080A0E;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:1.5px;border-radius:13px;padding:14px 20px;width:100%;cursor:pointer;border:none;font-family:'Jost',sans-serif;transition:opacity 0.2s,transform 0.1s;}
-.btn-g:hover{opacity:0.9;transform:translateY(-1px);}
-.btn-g:active{transform:translateY(0);}
-.btn-o{background:transparent;border:1px solid rgba(201,168,76,0.35);color:var(--gold);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:1px;border-radius:10px;padding:9px 14px;cursor:pointer;font-family:'Jost',sans-serif;}
-.btn-sm{padding:8px 14px;font-size:9px;border-radius:9px;width:auto;}
+/* ── BUTTONS ── */
+.btn-primary{
+  background:linear-gradient(135deg,#C9A84C,#A07A28);
+  color:#0D0F1A;font-weight:700;font-size:12px;letter-spacing:0.3px;
+  border-radius:8px;padding:12px 20px;width:100%;cursor:pointer;
+  border:none;font-family:'Inter',sans-serif;transition:all 0.2s;
+}
+.btn-primary:hover{filter:brightness(1.1);transform:translateY(-1px);}
+.btn-primary:active{transform:translateY(0);}
+.btn-ghost{
+  background:transparent;border:1.5px solid rgba(255,255,255,0.1);
+  color:var(--muted);font-weight:500;font-size:11px;
+  border-radius:8px;padding:10px 16px;cursor:pointer;
+  font-family:'Inter',sans-serif;width:100%;margin-top:6px;
+}
+.btn-ghost:hover{border-color:rgba(255,255,255,0.2);color:var(--text);}
+.btn-add{
+  display:flex;align-items:center;gap:6px;
+  background:transparent;border:none;
+  color:var(--muted);font-size:11px;font-weight:500;
+  cursor:pointer;padding:8px 4px;font-family:'Inter',sans-serif;
+  transition:color 0.2s;
+}
+.btn-add:hover{color:var(--gold);}
 
-/* ─── APP ─── */
-#sApp{background:var(--dark);padding-bottom:78px;}
+/* ══════════════════════════════════════
+   APP LAYOUT
+══════════════════════════════════════ */
+#sApp{background:var(--bg);padding-bottom:68px;}
 
-/* HEADER */
-.app-hdr{background:rgba(10,11,15,0.97);border-bottom:1px solid var(--border);padding:13px 16px;position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:space-between;}
-.hdr-logo{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:700;background:linear-gradient(135deg,#C9A84C,#E8CF82);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+/* ── TOPBAR (Monday-style workspace header) ── */
+.topbar{
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:0 16px;height:52px;
+  position:sticky;top:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:10px;
+}
+.topbar-left{display:flex;align-items:center;gap:10px;}
+.workspace-icon{
+  width:30px;height:30px;border-radius:8px;
+  background:linear-gradient(135deg,#C9A84C,#8B6914);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;color:#0D0F1A;font-weight:800;flex-shrink:0;
+}
+.workspace-name{font-weight:700;font-size:14px;color:#E8D8A0;font-family:'Cormorant Garamond',serif;letter-spacing:0.5px;}
+.workspace-role{font-size:9px;color:var(--muted);font-weight:500;margin-top:1px;}
+.topbar-right{display:flex;align-items:center;gap:8px;}
+.icon-btn{
+  width:32px;height:32px;border-radius:8px;
+  background:transparent;border:1px solid var(--border);
+  color:var(--muted);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:13px;
+  transition:all 0.2s;
+}
+.icon-btn:hover{background:var(--surface2);color:var(--text);}
+.admin-chip{
+  background:linear-gradient(135deg,#C9A84C,#8B6914);
+  color:#0D0F1A;font-size:8px;font-weight:800;
+  letter-spacing:0.5px;padding:3px 8px;border-radius:20px;
+  text-transform:uppercase;
+}
 
-/* BOTTOM NAV */
-.bnav{position:fixed;bottom:0;left:0;right:0;background:rgba(8,9,12,0.98);border-top:1px solid var(--border);display:flex;z-index:200;backdrop-filter:blur(20px);}
-.ni{flex:1;padding:9px 3px;text-align:center;cursor:pointer;font-size:9px;color:var(--muted);transition:all 0.2s;letter-spacing:0.5px;text-transform:uppercase;font-weight:500;}
-.ni.on{color:var(--gold);}
-.ni i{display:block;font-size:17px;margin-bottom:3px;}
+/* ── PAGE TITLE BAR (Monday board title style) ── */
+.page-title{
+  padding:16px 16px 0;display:flex;align-items:center;
+  justify-content:space-between;margin-bottom:8px;
+}
+.page-title h2{font-size:18px;font-weight:700;color:#fff;letter-spacing:-0.3px;}
+.page-title-actions{display:flex;gap:6px;}
 
-/* VIEWS */
-.view{display:none;padding:14px;}
+/* ── SEARCH BAR ── */
+.search-wrap{padding:0 16px 10px;position:relative;}
+.search-inp{
+  background:var(--surface2);border:1.5px solid var(--border);
+  border-radius:8px;color:var(--text);padding:9px 12px 9px 34px;
+  width:100%;font-size:12px;font-family:'Inter',sans-serif;outline:none;
+  transition:border-color 0.15s;
+}
+.search-inp:focus{border-color:rgba(201,168,76,0.4);}
+.search-inp::placeholder{color:var(--muted);}
+.search-icon{position:absolute;left:28px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12px;pointer-events:none;}
+
+/* ── VIEWS ── */
+.view{display:none;}
 .view.on{display:block;}
 
-/* CARDS */
-.card{background:var(--surf);border:1px solid var(--border);border-radius:20px;padding:16px;margin-bottom:14px;}
-.card-hdr{font-family:'Cormorant Garamond',serif;font-size:13px;font-weight:600;color:var(--gold-l);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:13px;display:flex;align-items:center;gap:8px;}
+/* ── FILTER CHIPS (Monday filter bar) ── */
+.filter-bar{
+  display:flex;gap:6px;padding:0 16px 12px;
+  overflow-x:auto;
+}
+.filter-bar::-webkit-scrollbar{height:0;}
+.chip{
+  padding:5px 12px;border-radius:20px;font-size:10px;font-weight:600;
+  cursor:pointer;color:var(--muted);border:1.5px solid var(--border);
+  white-space:nowrap;transition:all 0.15s;background:transparent;
+  font-family:'Inter',sans-serif;letter-spacing:0.2px;
+}
+.chip.on{
+  background:rgba(201,168,76,0.12);
+  border-color:rgba(201,168,76,0.4);color:var(--gold-l);
+}
 
-/* AGENDA */
-.ev-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
-.ev-row:last-child{border-bottom:none;}
-.ev-past{opacity:0.2;filter:grayscale(1) brightness(0.7);}
-.ev-today{background:rgba(201,168,76,0.06);border-radius:10px;padding:9px 8px;margin:2px -5px;}
-.ev-soon{position:relative;}
-.ev-soon::before{content:'';position:absolute;left:-10px;top:50%;transform:translateY(-50%);width:3px;height:26px;background:var(--gold);border-radius:3px;}
-.tag{font-size:6.5px;padding:2px 7px;border-radius:20px;text-transform:uppercase;font-weight:700;color:white;white-space:nowrap;}
-.bg-mus{background:#059669;}
-.bg-cath{background:#2563EB;}
-.bg-comm{background:#D97706;}
-.bg-saison{background:#DB2777;}
-.bg-prepa{background:#7C3AED;}
-.bg-perso{background:#0891B2;}
-.date-col{font-size:9px;color:var(--muted);font-weight:600;min-width:50px;line-height:1.3;}
-.j-badge{font-size:8px;font-weight:700;min-width:38px;text-align:right;}
-.j-future{color:var(--gold);}
-.j-past{color:var(--muted);}
-.j-zero{color:#10B981;font-size:9px;}
+/* ══════════════════════════════════════
+   BOARD VIEW — Monday.com board style
+══════════════════════════════════════ */
+.board{padding:0 12px 16px;}
 
-/* STATS */
-.stat-box{background:var(--surf2);border:1px solid var(--border);border-radius:15px;padding:15px;text-align:center;}
-.stat-val{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:700;color:var(--gold-l);line-height:1;}
-.stat-lbl{font-size:7.5px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:4px;}
+/* Group = Monday "group" */
+.group{margin-bottom:16px;border-radius:10px;overflow:hidden;}
+.group-header{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 12px;cursor:pointer;user-select:none;
+}
+.group-dot{width:14px;height:14px;border-radius:4px;flex-shrink:0;}
+.group-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;}
+.group-count{
+  margin-left:auto;background:rgba(255,255,255,0.08);
+  border-radius:20px;padding:2px 8px;font-size:9px;
+  color:var(--muted);font-weight:600;
+}
+.group-toggle{color:var(--muted);font-size:10px;transition:transform 0.2s;}
+.group-toggle.collapsed{transform:rotate(-90deg);}
 
-/* CLIENT CARDS */
-.c-card{background:var(--surf);border:1px solid var(--border);border-radius:15px;padding:13px;margin-bottom:9px;cursor:pointer;transition:border-color 0.2s,transform 0.1s;}
-.c-card:hover{border-color:rgba(201,168,76,0.35);transform:translateY(-1px);}
-.pb{background:rgba(255,255,255,0.05);border-radius:10px;height:4px;overflow:hidden;margin-top:7px;}
-.pf{height:100%;background:linear-gradient(90deg,#C9A84C,#E8CF82);border-radius:10px;transition:width 0.6s;}
+/* Column headers */
+.col-headers{
+  display:flex;align-items:center;gap:0;
+  background:var(--surface2);
+  border-bottom:1px solid var(--border);
+  padding:5px 12px;
+}
+.col-hdr{font-size:9px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;}
 
-/* RELANCE */
-.relance{background:linear-gradient(135deg,rgba(201,168,76,0.08),rgba(201,168,76,0.03));border:1px solid rgba(201,168,76,0.25);border-radius:13px;padding:11px 13px;margin-bottom:9px;display:flex;align-items:center;gap:10px;}
-.relance.urgent{border-color:rgba(239,68,68,0.35);background:rgba(239,68,68,0.05);}
-.relance.warn{border-color:rgba(245,158,11,0.35);background:rgba(245,158,11,0.05);}
+/* Pulse = Monday "item/row" */
+.pulse{
+  display:flex;align-items:center;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:9px 12px;gap:8px;
+  transition:background 0.15s;
+  cursor:pointer;position:relative;
+}
+.pulse:last-child{border-bottom:none;border-radius:0 0 10px 10px;}
+.pulse:hover{background:var(--surface2);}
+.pulse-past{opacity:0.22;filter:grayscale(0.8);}
+.pulse-today{background:rgba(201,168,76,0.06)!important;}
+.pulse-soon .pulse-left-bar{background:var(--gold);}
+.pulse-left-bar{
+  width:3px;height:28px;border-radius:2px;
+  background:transparent;flex-shrink:0;
+  transition:background 0.2s;
+}
+.pulse:hover .pulse-left-bar{background:var(--gold);}
 
-/* MODAL */
-.mo{position:fixed;inset:0;background:rgba(0,0,0,0.82);z-index:500;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(8px);}
-.mo.open{display:flex;}
-.mc{background:var(--surf);border:1px solid var(--border);border-top-left-radius:24px;border-top-right-radius:24px;padding:20px;width:100%;max-height:80vh;overflow-y:auto;}
+/* Pulse columns */
+.p-name{flex:1;min-width:0;}
+.p-name-text{font-size:11px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.p-date{font-size:9px;color:var(--muted);margin-top:1px;}
+.p-cat{width:90px;flex-shrink:0;}
+.p-status{width:68px;flex-shrink:0;text-align:right;}
 
-/* TOAST */
-#toast{position:fixed;bottom:92px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surf2);border:1px solid rgba(201,168,76,0.3);border-radius:12px;padding:10px 20px;font-size:12px;color:var(--gold-l);z-index:1000;opacity:0;transition:all 0.3s;white-space:nowrap;pointer-events:none;}
+/* Status pill — Monday signature */
+.status-pill{
+  display:inline-block;padding:3px 8px;border-radius:4px;
+  font-size:9px;font-weight:700;text-align:center;
+  text-transform:uppercase;letter-spacing:0.3px;color:#fff;
+  white-space:nowrap;
+}
+.cat-pill{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 7px;border-radius:4px;
+  font-size:8.5px;font-weight:600;
+  white-space:nowrap;
+}
+.s-green{background:var(--green);}
+.s-gold{background:linear-gradient(135deg,#C9A84C,#8B6914);}
+.s-orange{background:var(--orange);}
+.s-red{background:var(--red);}
+.s-blue{background:var(--blue);}
+.s-purple{background:var(--prepa);}
+.s-pink{background:var(--saison);}
+.s-teal{background:var(--teal);}
+.s-muted{background:rgba(255,255,255,0.1);color:var(--muted);}
+
+/* ── Group history label (dimmed, separate) ── */
+.history-header{
+  display:flex;align-items:center;gap:8px;padding:10px 12px 6px;
+}
+
+/* ══════════════════════════════════════
+   CARDS — for forms and stats
+══════════════════════════════════════ */
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;margin:0 12px 12px;overflow:hidden;
+}
+.card-hdr-bar{
+  display:flex;align-items:center;gap:8px;
+  padding:12px 14px;border-bottom:1px solid var(--border);
+}
+.card-hdr-title{font-size:12px;font-weight:700;color:var(--text);letter-spacing:-0.2px;}
+.card-body{padding:14px;}
+
+/* ══════════════════════════════════════
+   SALES TABLE (Monday-style board)
+══════════════════════════════════════ */
+.sale-row{
+  display:flex;align-items:center;gap:8px;
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:9px 12px;transition:background 0.15s;
+}
+.sale-row:hover{background:var(--surface2);}
+.sale-row:last-child{border-bottom:none;}
+
+/* ══════════════════════════════════════
+   CLIENT ITEMS
+══════════════════════════════════════ */
+.client-pulse{
+  display:flex;align-items:center;gap:10px;
+  background:var(--surface);border-bottom:1px solid var(--border);
+  padding:11px 12px;transition:background 0.15s;cursor:pointer;
+}
+.client-pulse:hover{background:var(--surface2);}
+.client-pulse:last-child{border-bottom:none;border-radius:0 0 10px 10px;}
+.avatar{
+  width:32px;height:32px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;color:#fff;flex-shrink:0;
+}
+.prog-wrap{background:rgba(255,255,255,0.06);border-radius:3px;height:3px;margin-top:4px;}
+.prog-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--gold),var(--gold-l));}
+
+/* ══════════════════════════════════════
+   STATS / KPI WIDGETS
+══════════════════════════════════════ */
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 12px 12px;}
+.kpi{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;padding:14px;position:relative;overflow:hidden;
+}
+.kpi::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--gold),var(--gold-l));
+}
+.kpi-val{font-size:24px;font-weight:800;color:#fff;line-height:1.1;font-family:'Cormorant Garamond',serif;}
+.kpi-lbl{font-size:9px;color:var(--muted);font-weight:600;margin-top:3px;text-transform:uppercase;letter-spacing:0.5px;}
+.kpi-trend{font-size:9px;font-weight:700;margin-top:4px;}
+.trend-up{color:var(--green);}
+.trend-dn{color:var(--red);}
+
+/* BAR CHART */
+.chart-wrap{padding:0 12px 4px;height:90px;display:flex;align-items:flex-end;gap:5px;}
+.b-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;}
+.b-bar{
+  width:100%;border-radius:3px 3px 0 0;min-height:3px;
+  background:linear-gradient(180deg,var(--gold-l),var(--gold-d));
+}
+.b-lbl{font-size:7px;color:var(--muted);text-align:center;}
+.b-val{font-size:7px;color:var(--gold);font-weight:700;}
+
+/* PROGRESS BAR for categories */
+.cat-bar-wrap{padding:0 12px;}
+.cat-bar-row{margin-bottom:10px;}
+.cat-bar-labels{display:flex;justify-content:space-between;font-size:9px;margin-bottom:3px;}
+.cat-bar-track{background:rgba(255,255,255,0.06);border-radius:3px;height:4px;overflow:hidden;}
+.cat-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--gold),var(--gold-l));}
+
+/* ══════════════════════════════════════
+   MODAL (bottom sheet)
+══════════════════════════════════════ */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.7);
+  z-index:500;display:none;align-items:flex-end;
+  backdrop-filter:blur(6px);
+}
+.modal-overlay.open{display:flex;}
+.modal-sheet{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-top-left-radius:18px;border-top-right-radius:18px;
+  padding:0 0 20px;width:100%;max-height:85vh;overflow-y:auto;
+}
+.modal-handle{
+  width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,0.15);
+  margin:10px auto 0;
+}
+.modal-header{
+  padding:14px 16px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.modal-title{font-size:14px;font-weight:700;color:#fff;}
+.modal-close{
+  width:28px;height:28px;border-radius:6px;background:var(--surface2);
+  border:none;color:var(--muted);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:12px;
+}
+.modal-body{padding:16px;}
+
+/* ══════════════════════════════════════
+   BOTTOM NAV — Monday sidebar adapted for mobile
+══════════════════════════════════════ */
+.bnav{
+  position:fixed;bottom:0;left:0;right:0;
+  background:var(--surface);border-top:1px solid var(--border);
+  display:flex;z-index:200;
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+.ni{
+  flex:1;padding:8px 2px;text-align:center;cursor:pointer;
+  color:var(--muted);transition:color 0.2s;position:relative;
+}
+.ni.on{color:var(--gold);}
+.ni.on::before{
+  content:'';position:absolute;top:0;left:20%;right:20%;height:2px;
+  background:var(--gold);border-radius:0 0 3px 3px;
+}
+.ni i{display:block;font-size:16px;margin-bottom:2px;}
+.ni span{font-size:8px;font-weight:600;letter-spacing:0.3px;}
+
+/* FAB */
+.fab{
+  position:fixed;bottom:80px;right:16px;z-index:300;
+  width:46px;height:46px;border-radius:13px;
+  background:linear-gradient(135deg,#C9A84C,#8B6914);
+  color:#0D0F1A;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+  box-shadow:0 6px 20px rgba(201,168,76,0.35);
+  transition:transform 0.2s,box-shadow 0.2s;
+}
+.fab:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(201,168,76,0.4);}
+.fab:active{transform:scale(0.95);}
+.fab.hidden{display:none;}
+
+/* ══════════════════════════════════════
+   RELANCE ALERT BANNER
+══════════════════════════════════════ */
+.alert-banner{
+  margin:0 12px 10px;border-radius:10px;
+  border:1px solid;padding:11px 13px;
+  display:flex;align-items:center;gap:10px;cursor:pointer;
+}
+.alert-gold{border-color:rgba(201,168,76,0.3);background:rgba(201,168,76,0.06);}
+.alert-red{border-color:rgba(228,66,88,0.35);background:rgba(228,66,88,0.06);}
+.alert-orange{border-color:rgba(255,123,0,0.35);background:rgba(255,123,0,0.06);}
+
+/* ── DIVIDER ── */
+.divider{
+  display:flex;align-items:center;gap:8px;
+  padding:12px 12px 6px;
+}
+.divider-line{flex:1;height:1px;background:var(--border);}
+.divider-text{font-size:8px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;white-space:nowrap;}
+
+/* ── TOAST ── */
+#toast{
+  position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(16px);
+  background:var(--surface3);border:1px solid rgba(201,168,76,0.25);
+  border-radius:8px;padding:9px 18px;font-size:12px;font-weight:500;
+  color:var(--gold-l);z-index:1000;opacity:0;transition:all 0.25s;
+  white-space:nowrap;pointer-events:none;
+}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
-/* ADMIN BADGE */
-.abadge{background:linear-gradient(135deg,#C9A84C,#8B6914);color:#080A0E;font-size:6.5px;font-weight:800;text-transform:uppercase;letter-spacing:0.8px;padding:2px 7px;border-radius:20px;}
+/* ── EMPTY STATE ── */
+.empty-state{text-align:center;padding:36px 20px;color:var(--muted);}
+.empty-state i{font-size:32px;margin-bottom:10px;opacity:0.25;display:block;}
+.empty-state p{font-size:11px;}
 
-/* CHART CSS */
-.bar-chart{display:flex;align-items:flex-end;gap:6px;height:80px;padding:0 4px;}
-.bar-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;}
-.bar{width:100%;background:linear-gradient(180deg,var(--gold-l),var(--gold-d));border-radius:4px 4px 0 0;min-height:4px;transition:height 0.6s;}
-.bar-lbl{font-size:7px;color:var(--muted);text-align:center;letter-spacing:0.5px;}
-.bar-val{font-size:8px;color:var(--gold);font-weight:600;}
+/* Currency toggle */
+.cur-toggle{
+  display:flex;background:var(--surface3);
+  border-radius:8px;overflow:hidden;border:1px solid var(--border);
+}
+.cur-opt{
+  flex:1;padding:10px 8px;text-align:center;cursor:pointer;
+  font-size:11px;font-weight:600;color:var(--muted);transition:all 0.15s;
+  font-family:'Inter',sans-serif;
+}
+.cur-opt.on{background:linear-gradient(135deg,#C9A84C,#8B6914);color:#0D0F1A;}
 
-/* SALE HISTORY ITEM */
-.sh-item{background:var(--surf2);border-radius:10px;padding:10px;margin-bottom:7px;}
+/* Delete btn */
+.del-btn{background:transparent;border:none;color:var(--muted);cursor:pointer;padding:4px;font-size:11px;transition:color 0.15s;flex-shrink:0;}
+.del-btn:hover{color:var(--red);}
 
-/* SCROLLBAR */
-::-webkit-scrollbar{width:3px;}
-::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:rgba(201,168,76,0.2);border-radius:10px;}
+/* Group colors per type */
+.gc-future{background:rgba(0,202,114,0.06);}
+.gc-history{background:transparent;}
 
-/* ANIMATION */
-@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
-.fu{animation:fadeUp 0.35s ease forwards;}
+/* ── Consultant team card ── */
+.team-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:10px;margin:0 12px 10px;overflow:hidden;
+}
+.team-card-header{
+  padding:12px;display:flex;align-items:center;gap:10px;
+  border-bottom:1px solid var(--border);
+}
 
-/* DIVIDER */
-.div{display:flex;align-items:center;gap:10px;margin:16px 0;}
-.div::before,.div::after{content:'';flex:1;height:1px;background:var(--border);}
-.div span{font-size:7.5px;color:var(--muted);text-transform:uppercase;letter-spacing:2px;}
+@keyframes slideUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.slide-up{animation:slideUp 0.25s ease forwards;}
 
-/* KPI CARD */
-.kpi{background:var(--surf2);border:1px solid var(--border);border-radius:14px;padding:14px 12px;position:relative;overflow:hidden;}
-.kpi::before{content:'';position:absolute;top:-20px;right:-20px;width:60px;height:60px;border-radius:50%;background:radial-gradient(circle,rgba(201,168,76,0.08),transparent);}
-.kpi-val{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:var(--gold-l);}
-.kpi-lbl{font-size:7.5px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
-.kpi-trend{font-size:9px;font-weight:600;margin-top:4px;}
-.up{color:#10B981;}.down{color:#EF4444;}.neu{color:var(--muted);}
-
-/* ACTIVE TAB INDICATOR */
-.tab-bar{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px;}
-.tab-bar::-webkit-scrollbar{height:0;}
-.t-tab{padding:6px 14px;border-radius:20px;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;cursor:pointer;color:var(--muted);border:1px solid transparent;white-space:nowrap;transition:all 0.2s;}
-.t-tab.on{background:rgba(201,168,76,0.12);border-color:rgba(201,168,76,0.3);color:var(--gold);}
-
-/* EMPTY STATE */
-.empty{text-align:center;padding:40px 20px;color:var(--muted);}
-.empty i{font-size:36px;margin-bottom:12px;opacity:0.3;}
-.empty p{font-size:12px;}
-
-/* PRODUCT BADGE */
-.prod-tag{background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.2);border-radius:20px;padding:2px 9px;font-size:8px;color:var(--gold-l);display:inline-block;margin:2px;}
-
-/* DELETE */
-.del-btn{background:transparent;border:none;color:#3D4451;cursor:pointer;padding:4px;font-size:11px;transition:color 0.2s;}
-.del-btn:hover{color:#EF4444;}
+/* Pulse dot */
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);display:inline-block;margin-right:3px;animation:pulse-dot 2s infinite;}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(0.8);}}
 </style>
 </head>
 <body>
 
-<!-- TOAST -->
 <div id="toast"></div>
 
 <!-- ══════════════════════════════════════
-     LOGIN SCREEN
+     LOGIN
 ══════════════════════════════════════ -->
 <div id="sLogin" class="screen on">
-  <div style="text-align:center;margin-bottom:28px;">
-    <div class="login-logo-ring">
-      <i class="fa-solid fa-crown" style="font-size:28px;background:linear-gradient(135deg,#C9A84C,#E8CF82);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;"></i>
-    </div>
-    <h1 class="lux" style="font-size:28px;font-weight:700;background:linear-gradient(135deg,#C9A84C,#E8CF82);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:1px;">LIMITLESS ELITE</h1>
-    <p style="font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:3px;margin-top:5px;">Édition Manager Pro</p>
+  <div style="text-align:center;margin-bottom:24px;">
+    <div class="ws-logo"><i class="fa-solid fa-crown" style="font-size:24px;color:#0D0F1A;"></i></div>
+    <h1 class="lux" style="font-size:26px;font-weight:700;color:#E8D080;letter-spacing:0.5px;">LIMITLESS ELITE</h1>
+    <p style="font-size:9px;color:var(--muted);letter-spacing:2.5px;margin-top:4px;text-transform:uppercase;">Manager Pro · Workspace</p>
   </div>
 
-  <div class="lcard">
-    <p style="font-size:10px;color:var(--muted);text-align:center;margin-bottom:16px;text-transform:uppercase;letter-spacing:1.5px;">Sélectionnez votre espace</p>
+  <div class="ws-card">
+    <p style="font-size:10px;color:var(--muted);margin-bottom:14px;font-weight:500;">Choisissez votre espace de travail</p>
 
-    <!-- CONSULTANT BUTTON -->
-    <button class="role-btn" onclick="showLoginForm('consultant')">
-      <div class="role-icon fi"><i class="fa-solid fa-user" style="color:var(--gold);"></i></div>
-      <div>
-        <div style="font-weight:600;font-size:13px;">Espace Consultante</div>
-        <div style="font-size:9px;color:var(--muted);margin-top:2px;">Agenda · Ventes · Clients</div>
+    <button class="ws-btn" onclick="showLoginForm('consultant')">
+      <div class="ws-icon" style="background:rgba(0,202,114,0.12);"><i class="fa-solid fa-user" style="color:var(--green);"></i></div>
+      <div style="flex:1;">
+        <div style="font-weight:600;font-size:13px;color:var(--text);">Espace Consultante</div>
+        <div style="font-size:9px;color:var(--muted);margin-top:1px;">Agenda · Ventes · Clients · Stats</div>
       </div>
-      <i class="fa-solid fa-chevron-right" style="color:var(--muted);font-size:10px;margin-left:auto;"></i>
+      <i class="fa-solid fa-chevron-right" style="color:var(--muted);font-size:10px;"></i>
     </button>
 
-    <!-- ADMIN BUTTON -->
-    <button class="role-btn" onclick="showLoginForm('admin')">
-      <div class="role-icon ai"><i class="fa-solid fa-shield-halved" style="color:var(--gold);"></i></div>
-      <div>
-        <div style="font-weight:600;font-size:13px;">Espace Manager <span class="abadge" style="margin-left:5px;">ADMIN</span></div>
-        <div style="font-size:9px;color:var(--muted);margin-top:2px;">Dashboard · Équipe · Statistiques</div>
+    <button class="ws-btn" onclick="showLoginForm('admin')">
+      <div class="ws-icon" style="background:rgba(201,168,76,0.12);"><i class="fa-solid fa-shield-halved" style="color:var(--gold);"></i></div>
+      <div style="flex:1;">
+        <div style="font-weight:600;font-size:13px;color:var(--text);">Espace Manager <span style="background:linear-gradient(135deg,#C9A84C,#8B6914);color:#0D0F1A;font-size:7px;font-weight:800;padding:2px 6px;border-radius:3px;margin-left:5px;vertical-align:middle;">ADMIN</span></div>
+        <div style="font-size:9px;color:var(--muted);margin-top:1px;">Dashboard · Équipe · Rapports</div>
       </div>
-      <i class="fa-solid fa-chevron-right" style="color:var(--muted);font-size:10px;margin-left:auto;"></i>
+      <i class="fa-solid fa-chevron-right" style="color:var(--muted);font-size:10px;"></i>
     </button>
 
-    <!-- CONSULTANT FORM -->
-    <div id="f-consultant" style="display:none;" class="form-back fu">
-      <div class="div"><span>Connexion Consultante</span></div>
+    <div id="f-consultant" style="display:none;" class="form-panel slide-up">
+      <div class="divider" style="padding:0 0 10px;"><div class="divider-line"></div><span class="divider-text">Connexion</span><div class="divider-line"></div></div>
       <label class="lbl">Votre prénom / nom</label>
-      <input id="cName" class="inp" placeholder="Ex: Sarah Dupont" type="text">
-      <button class="btn-g" onclick="loginConsultant()">Accéder à mon espace</button>
-      <button class="btn-o" style="width:100%;margin-top:8px;" onclick="hideLoginForms()">Retour</button>
+      <input id="cName" class="inp" placeholder="Ex: Sarah Dupont" type="text" onkeydown="if(event.key==='Enter')loginConsultant()">
+      <button class="btn-primary" onclick="loginConsultant()">Accéder à mon espace →</button>
+      <button class="btn-ghost" onclick="hideLoginForms()">Retour</button>
     </div>
 
-    <!-- ADMIN FORM -->
-    <div id="f-admin" style="display:none;" class="form-back fu">
-      <div class="div"><span>Connexion Manager</span></div>
-      <label class="lbl">Email Manager</label>
-      <input id="aEmail" class="inp" placeholder="Email" type="email">
+    <div id="f-admin" style="display:none;" class="form-panel slide-up">
+      <div class="divider" style="padding:0 0 10px;"><div class="divider-line"></div><span class="divider-text">Authentification</span><div class="divider-line"></div></div>
+      <label class="lbl">Email</label>
+      <input id="aEmail" class="inp" placeholder="Email manager" type="email">
       <label class="lbl">Mot de passe</label>
       <input id="aPass" class="inp" placeholder="••••••••" type="password" onkeydown="if(event.key==='Enter')loginAdmin()">
-      <button class="btn-g" onclick="loginAdmin()">Accéder au tableau de bord</button>
-      <button class="btn-o" style="width:100%;margin-top:8px;" onclick="hideLoginForms()">Retour</button>
+      <button class="btn-primary" onclick="loginAdmin()">Accéder au dashboard →</button>
+      <button class="btn-ghost" onclick="hideLoginForms()">Retour</button>
     </div>
   </div>
 
-  <p style="font-size:8px;color:rgba(107,114,128,0.5);text-align:center;margin-top:24px;">Limitless Elite © 2026 — Données sécurisées localement</p>
+  <p style="font-size:8px;color:rgba(107,115,143,0.4);text-align:center;margin-top:20px;">Limitless Elite © 2026 · Données stockées localement</p>
 </div>
 
 <!-- ══════════════════════════════════════
-     APP SCREEN
+     APP
 ══════════════════════════════════════ -->
 <div id="sApp" class="screen">
 
-  <!-- HEADER -->
-  <div class="app-hdr">
-    <div>
-      <div class="hdr-logo">✦ LIMITLESS ELITE</div>
-      <div style="font-size:8px;color:var(--muted);margin-top:1px;" id="hdr-sub"></div>
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="workspace-icon">L</div>
+      <div>
+        <div class="workspace-name">Limitless Elite</div>
+        <div class="workspace-role" id="hdr-sub"></div>
+      </div>
     </div>
-    <div style="display:flex;align-items:center;gap:10px;">
+    <div class="topbar-right">
       <div id="hdr-badge"></div>
-      <button onclick="logout()" style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:9px;padding:7px 11px;font-size:9px;color:var(--muted);cursor:pointer;font-family:'Jost',sans-serif;">
-        <i class="fa-solid fa-right-from-bracket"></i>
-      </button>
+      <button class="icon-btn" onclick="logout()" title="Déconnexion"><i class="fa-solid fa-right-from-bracket"></i></button>
     </div>
   </div>
 
-  <!-- ── AGENDA VIEW ── -->
+  <!-- ══════════════════════════════════════
+       VIEW — AGENDA
+  ══════════════════════════════════════ -->
   <div id="view-agenda" class="view on">
-    <!-- Today Relances -->
-    <div id="agenda-relances" class="card" style="display:none;">
-      <div class="card-hdr"><i class="fa-solid fa-bell text-amber-400"></i> Relances du Jour</div>
-      <div id="relances-list"></div>
+    <div class="page-title">
+      <h2><i class="fa-solid fa-calendar-check" style="font-size:15px;color:var(--gold);margin-right:8px;"></i>Agenda</h2>
+      <div style="font-size:9px;color:var(--muted);" id="today-date-label"></div>
     </div>
 
-    <!-- Calendar -->
+    <!-- Alert banners -->
+    <div id="agenda-alerts"></div>
+
+    <!-- Filters -->
+    <div class="filter-bar">
+      <div class="chip on" onclick="filterCal('all',this)">Tout</div>
+      <div class="chip" onclick="filterCal('mus',this)">Islam</div>
+      <div class="chip" onclick="filterCal('cath',this)">Catho</div>
+      <div class="chip" onclick="filterCal('comm',this)">Business</div>
+      <div class="chip" onclick="filterCal('saison',this)">Saison</div>
+      <div class="chip" onclick="filterCal('prepa',this)">Pré-commandes</div>
+      <div class="chip" onclick="filterCal('perso',this)">Perso</div>
+    </div>
+
+    <!-- Board -->
+    <div class="board" id="agenda-board"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       VIEW — VENTE
+  ══════════════════════════════════════ -->
+  <div id="view-vente" class="view">
+    <div class="page-title">
+      <h2><i class="fa-solid fa-bag-shopping" style="font-size:15px;color:var(--gold);margin-right:8px;"></i>Ventes</h2>
+    </div>
+
+    <!-- Form card -->
     <div class="card">
-      <div class="card-hdr"><i class="fa-solid fa-calendar-star" style="color:var(--gold);"></i> Calendrier Stratégique</div>
-
-      <!-- Filter tabs -->
-      <div class="tab-bar">
-        <div class="t-tab on" onclick="filterCal('all',this)">Tous</div>
-        <div class="t-tab" onclick="filterCal('mus',this)">Islam</div>
-        <div class="t-tab" onclick="filterCal('cath',this)">Catho</div>
-        <div class="t-tab" onclick="filterCal('comm',this)">Business</div>
-        <div class="t-tab" onclick="filterCal('saison',this)">Saison</div>
-        <div class="t-tab" onclick="filterCal('prepa',this)">Pré-commandes</div>
-        <div class="t-tab" onclick="filterCal('perso',this)">Perso</div>
+      <div class="card-hdr-bar">
+        <div style="width:10px;height:10px;border-radius:3px;background:var(--gold);"></div>
+        <span class="card-hdr-title">Nouvelle transaction</span>
       </div>
+      <div class="card-body">
+        <div id="admin-consultant-field" style="display:none;">
+          <label class="lbl">Consultante</label>
+          <input id="sConsultant" class="inp" placeholder="Nom de la consultante" list="dl-consultants">
+          <datalist id="dl-consultants"></datalist>
+        </div>
 
-      <div id="cal-box" style="max-height:520px;overflow-y:auto;padding-right:2px;"></div>
+        <label class="lbl">Cliente</label>
+        <input id="sClient" class="inp" placeholder="Nom de la cliente" list="dl-clients">
+        <datalist id="dl-clients"></datalist>
+
+        <label class="lbl">Produit Chogan</label>
+        <input id="sProd" class="inp" placeholder="Ex: Parfum N°197, Crème Royale...">
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div>
+            <label class="lbl">Quantité</label>
+            <input id="sQty" class="inp" type="number" min="1" value="1">
+          </div>
+          <div>
+            <label class="lbl">Catégorie</label>
+            <select id="sCat" class="inp" style="margin-bottom:0;">
+              <option value="Parfum">Parfum</option>
+              <option value="Soin visage">Soin visage</option>
+              <option value="Soin corps">Soin corps</option>
+              <option value="Maquillage">Maquillage</option>
+              <option value="Coffret">Coffret</option>
+              <option value="Autre">Autre</option>
+            </select>
+          </div>
+        </div>
+
+        <label class="lbl" style="margin-top:8px;">Montant</label>
+        <div style="display:flex;gap:8px;align-items:flex-start;">
+          <input id="sAmt" class="inp" type="number" placeholder="0.00" style="margin-bottom:0;flex:1;">
+          <div class="cur-toggle" style="flex-shrink:0;min-width:86px;">
+            <div class="cur-opt on" id="cur-DA" onclick="setCur('DA')">DA</div>
+            <div class="cur-opt" id="cur-EU" onclick="setCur('€')">€</div>
+          </div>
+        </div>
+
+        <label class="lbl" style="margin-top:8px;">Date d'achat</label>
+        <input id="sDate" class="inp" type="date">
+
+        <label class="lbl">Notes & Commentaires</label>
+        <textarea id="sNote" class="inp" rows="2" placeholder="Préférences, allergies, prochaine commande..."></textarea>
+
+        <button onclick="saveSale()" class="btn-primary">✦ Valider la transaction</button>
+      </div>
     </div>
 
-    <!-- Add personal event -->
-    <div class="card" style="border-style:dashed;border-color:rgba(201,168,76,0.2);">
-      <div class="card-hdr"><i class="fa-solid fa-plus-circle" style="color:var(--gold);"></i> Ajouter un événement</div>
+    <!-- Recent sales board -->
+    <div class="card" style="margin-top:0;">
+      <div class="card-hdr-bar">
+        <div style="width:10px;height:10px;border-radius:3px;background:var(--blue);"></div>
+        <span class="card-hdr-title">Dernières ventes</span>
+      </div>
+      <!-- col headers -->
+      <div class="col-headers">
+        <div class="col-hdr" style="flex:1;">Cliente · Produit</div>
+        <div class="col-hdr" style="width:70px;text-align:right;">Montant</div>
+        <div class="col-hdr" style="width:50px;text-align:right;">Date</div>
+        <div style="width:24px;"></div>
+      </div>
+      <div id="recent-sales"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       VIEW — CLIENTS
+  ══════════════════════════════════════ -->
+  <div id="view-clients" class="view">
+    <div class="page-title">
+      <h2><i class="fa-solid fa-users" style="font-size:15px;color:var(--gold);margin-right:8px;"></i>Clients</h2>
+    </div>
+
+    <div class="search-wrap">
+      <i class="fa-solid fa-magnifying-glass search-icon"></i>
+      <input class="search-inp" id="client-search" placeholder="Rechercher un client..." oninput="renderClients()">
+    </div>
+
+    <div class="filter-bar" style="padding-top:0;">
+      <div class="chip on" onclick="filterClients('all',this)">Tous</div>
+      <div class="chip" onclick="filterClients('recent',this)">Récents</div>
+      <div class="chip" onclick="filterClients('warn',this)">À relancer</div>
+      <div class="chip" onclick="filterClients('urgent',this)">Urgents</div>
+    </div>
+
+    <div class="board" id="clients-board" style="padding:0 12px 16px;"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       VIEW — STATS
+  ══════════════════════════════════════ -->
+  <div id="view-stats" class="view">
+    <div class="page-title"><h2><i class="fa-solid fa-chart-line" style="font-size:15px;color:var(--gold);margin-right:8px;"></i>Statistiques</h2></div>
+    <div id="stats-content"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       VIEW — DASHBOARD (ADMIN)
+  ══════════════════════════════════════ -->
+  <div id="view-dashboard" class="view">
+    <div class="page-title"><h2><i class="fa-solid fa-gauge-high" style="font-size:15px;color:var(--gold);margin-right:8px;"></i>Dashboard</h2></div>
+    <div id="dashboard-content"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       VIEW — ÉQUIPE (ADMIN)
+  ══════════════════════════════════════ -->
+  <div id="view-equipe" class="view">
+    <div class="page-title"><h2><i class="fa-solid fa-people-group" style="font-size:15px;color:var(--gold);margin-right:8px;"></i>Équipe</h2></div>
+    <div id="equipe-content"></div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bnav" id="bottom-nav"></nav>
+
+  <!-- FAB -->
+  <button class="fab" id="fab-btn" onclick="openFab()" title="Ajouter">
+    <i class="fa-solid fa-plus"></i>
+  </button>
+</div>
+
+<!-- ══════════════════════════════════════
+     MODAL — Add Event
+══════════════════════════════════════ -->
+<div id="modal-event" class="modal-overlay" onclick="if(event.target===this)closeModal('modal-event')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <span class="modal-title">Nouvel Événement</span>
+      <button class="modal-close" onclick="closeModal('modal-event')">✕</button>
+    </div>
+    <div class="modal-body">
       <label class="lbl">Titre</label>
       <input id="evName" class="inp" placeholder="Ex: Salon de Beauté, Brocante...">
       <label class="lbl">Type</label>
@@ -293,121 +774,22 @@ select.inp option{background:#1E2230;}
       </select>
       <label class="lbl">Date</label>
       <input id="evDate" class="inp" type="date">
-      <button onclick="addCustomEvent()" class="btn-g">Enregistrer l'événement</button>
+      <button onclick="addCustomEvent()" class="btn-primary">Enregistrer l'événement</button>
     </div>
-  </div>
-
-  <!-- ── VENTE VIEW ── -->
-  <div id="view-vente" class="view">
-    <div class="card">
-      <div class="card-hdr"><i class="fa-solid fa-bag-shopping" style="color:var(--gold);"></i> Nouvelle Transaction</div>
-
-      <div id="admin-consultant-field" style="display:none;">
-        <label class="lbl">Consultante</label>
-        <input id="sConsultant" class="inp" placeholder="Nom de la consultante" list="dl-consultants">
-        <datalist id="dl-consultants"></datalist>
-      </div>
-
-      <label class="lbl">Nom de la Cliente</label>
-      <input id="sClient" class="inp" placeholder="Nom de la cliente" list="dl-clients">
-      <datalist id="dl-clients"></datalist>
-
-      <label class="lbl">Produit Chogan</label>
-      <input id="sProd" class="inp" placeholder="Ex: Parfum N°197, Crème Royale...">
-
-      <label class="lbl">Quantité</label>
-      <input id="sQty" class="inp" type="number" min="1" value="1" placeholder="1">
-
-      <label class="lbl">Montant &amp; Devise</label>
-      <div style="display:flex;gap:8px;align-items:center;">
-        <input id="sAmt" class="inp" type="number" placeholder="0.00" style="margin-bottom:0;flex:1;">
-        <div style="display:flex;background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.2);border-radius:12px;overflow:hidden;min-width:88px;">
-          <div class="t-cur on" id="cur-DA" onclick="setCur('DA')" style="flex:1;padding:11px 8px;text-align:center;cursor:pointer;font-size:11px;font-weight:600;transition:all 0.2s;">DA</div>
-          <div class="t-cur" id="cur-EU" onclick="setCur('€')" style="flex:1;padding:11px 8px;text-align:center;cursor:pointer;font-size:11px;font-weight:600;color:var(--muted);transition:all 0.2s;">€</div>
-        </div>
-      </div>
-
-      <label class="lbl" style="margin-top:10px;">Catégorie Produit</label>
-      <select id="sCat" class="inp">
-        <option value="Parfum">Parfum</option>
-        <option value="Soin visage">Soin visage</option>
-        <option value="Soin corps">Soin corps</option>
-        <option value="Maquillage">Maquillage</option>
-        <option value="Coffret">Coffret / Cadeau</option>
-        <option value="Autre">Autre</option>
-      </select>
-
-      <label class="lbl">Date d'achat</label>
-      <input id="sDate" class="inp" type="date">
-
-      <label class="lbl">Notes / Commentaires</label>
-      <textarea id="sNote" class="inp" rows="2" placeholder="Préférences, allergies, prochaine commande souhaitée..." style="resize:none;"></textarea>
-
-      <button onclick="saveSale()" class="btn-g">✦ Valider la transaction</button>
-    </div>
-
-    <!-- Recent sales -->
-    <div class="card">
-      <div class="card-hdr"><i class="fa-solid fa-clock-rotate-left" style="color:var(--gold);"></i> Dernières ventes</div>
-      <div id="recent-sales"></div>
-    </div>
-  </div>
-
-  <!-- ── CLIENTS VIEW ── -->
-  <div id="view-clients" class="view">
-    <div style="display:flex;gap:8px;margin-bottom:12px;">
-      <input id="client-search" class="inp" style="margin-bottom:0;" placeholder="🔍  Rechercher un client..." oninput="renderClients()">
-    </div>
-
-    <!-- Filter tabs -->
-    <div class="tab-bar">
-      <div class="t-tab on" onclick="filterClients('all',this)">Tous</div>
-      <div class="t-tab" onclick="filterClients('recent',this)">Récents</div>
-      <div class="t-tab" onclick="filterClients('warn',this)">À relancer</div>
-      <div class="t-tab" onclick="filterClients('urgent',this)">Urgents</div>
-    </div>
-
-    <div id="clients-list"></div>
-  </div>
-
-  <!-- ── STATS VIEW ── -->
-  <div id="view-stats" class="view">
-    <div id="stats-content"></div>
-  </div>
-
-  <!-- ── DASHBOARD VIEW (ADMIN) ── -->
-  <div id="view-dashboard" class="view">
-    <div id="dashboard-content"></div>
-  </div>
-
-  <!-- ── ÉQUIPE VIEW (ADMIN) ── -->
-  <div id="view-equipe" class="view">
-    <div id="equipe-content"></div>
-  </div>
-
-  <!-- BOTTOM NAV -->
-  <nav class="bnav" id="bottom-nav"></nav>
-</div>
-
-<!-- ── CLIENT MODAL ── -->
-<div id="modal-client" class="mo" onclick="if(event.target===this)closeModal('modal-client')">
-  <div class="mc">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-      <h3 class="lux" style="font-size:16px;color:var(--gold-l);" id="mc-name">Client</h3>
-      <button onclick="closeModal('modal-client')" style="background:rgba(255,255,255,0.06);border:none;border-radius:8px;padding:6px 10px;color:var(--muted);cursor:pointer;font-size:12px;">✕</button>
-    </div>
-    <div id="mc-body"></div>
   </div>
 </div>
 
-<!-- ── SALE MODAL ── -->
-<div id="modal-sale" class="mo" onclick="if(event.target===this)closeModal('modal-sale')">
-  <div class="mc">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-      <h3 class="lux" style="font-size:15px;color:var(--gold-l);">Détail vente</h3>
-      <button onclick="closeModal('modal-sale')" style="background:rgba(255,255,255,0.06);border:none;border-radius:8px;padding:6px 10px;color:var(--muted);cursor:pointer;font-size:12px;">✕</button>
+<!-- ══════════════════════════════════════
+     MODAL — Client detail
+══════════════════════════════════════ -->
+<div id="modal-client" class="modal-overlay" onclick="if(event.target===this)closeModal('modal-client')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <span class="modal-title" id="mc-name">Client</span>
+      <button class="modal-close" onclick="closeModal('modal-client')">✕</button>
     </div>
-    <div id="ms-body"></div>
+    <div class="modal-body" id="mc-body"></div>
   </div>
 </div>
 
@@ -419,104 +801,98 @@ const ADMIN_EMAIL = "ouadi.nej@gmail.com";
 const ADMIN_PASS  = "1981";
 
 const MASTER_EVENTS = [
-  // ── ISLAMIQUES 2025-2026 ──
-  {n:"Ramadan (Début)",        d:"2025-03-01", t:"bg-mus", lbl:"Islam"},
-  {n:"Aïd el-Fitr 🌙",         d:"2025-03-30", t:"bg-mus", lbl:"Islam"},
-  {n:"Aïd el-Adha 🐑",         d:"2025-06-07", t:"bg-mus", lbl:"Islam"},
-  {n:"Achoura",                d:"2025-07-06", t:"bg-mus", lbl:"Islam"},
-  {n:"Nouvel An Hégire 1447",  d:"2025-06-27", t:"bg-mus", lbl:"Islam"},
-  {n:"Mawlid (Naissance Prophète)",d:"2025-09-05",t:"bg-mus",lbl:"Islam"},
-  {n:"Ramadan (Début)",        d:"2026-02-18", t:"bg-mus", lbl:"Islam"},
-  {n:"Aïd el-Fitr 🌙",         d:"2026-03-20", t:"bg-mus", lbl:"Islam"},
-  {n:"Aïd el-Adha 🐑",         d:"2026-05-27", t:"bg-mus", lbl:"Islam"},
-  {n:"Nouvel An Hégire 1448",  d:"2026-07-17", t:"bg-mus", lbl:"Islam"},
-  {n:"Achoura",                d:"2026-07-25", t:"bg-mus", lbl:"Islam"},
-  {n:"Mawlid (Naissance Prophète)",d:"2026-09-15",t:"bg-mus",lbl:"Islam"},
-  // ── CATHOLIQUES ──
-  {n:"Épiphanie",              d:"2026-01-06", t:"bg-cath", lbl:"Catho"},
-  {n:"Pâques 🐣",              d:"2026-04-05", t:"bg-cath", lbl:"Catho"},
-  {n:"Ascension",              d:"2026-05-14", t:"bg-cath", lbl:"Catho"},
-  {n:"Pentecôte",              d:"2026-05-24", t:"bg-cath", lbl:"Catho"},
-  {n:"Assomption",             d:"2026-08-15", t:"bg-cath", lbl:"Catho"},
-  {n:"Toussaint",              d:"2026-11-01", t:"bg-cath", lbl:"Catho"},
-  {n:"Noël 🎄",                d:"2026-12-25", t:"bg-cath", lbl:"Catho"},
-  {n:"Épiphanie",              d:"2025-01-06", t:"bg-cath", lbl:"Catho"},
-  {n:"Pâques 🐣",              d:"2025-04-20", t:"bg-cath", lbl:"Catho"},
-  {n:"Ascension",              d:"2025-05-29", t:"bg-cath", lbl:"Catho"},
-  {n:"Toussaint",              d:"2025-11-01", t:"bg-cath", lbl:"Catho"},
-  {n:"Noël 🎄",                d:"2025-12-25", t:"bg-cath", lbl:"Catho"},
-  // ── COMMERCIALES ──
-  {n:"Soldes d'Hiver",         d:"2025-01-08", t:"bg-comm", lbl:"Business"},
-  {n:"Saint-Valentin ❤️",      d:"2025-02-14", t:"bg-comm", lbl:"Business"},
-  {n:"Fête des Mères 🌹",      d:"2025-05-25", t:"bg-comm", lbl:"Business"},
-  {n:"Fête des Pères 👔",      d:"2025-06-15", t:"bg-comm", lbl:"Business"},
-  {n:"Soldes d'Été",           d:"2025-06-25", t:"bg-comm", lbl:"Business"},
-  {n:"Rentrée Scolaire 🎒",    d:"2025-09-03", t:"bg-comm", lbl:"Business"},
-  {n:"Black Friday 🖤",        d:"2025-11-28", t:"bg-comm", lbl:"Business"},
-  {n:"Cyber Monday",           d:"2025-12-01", t:"bg-comm", lbl:"Business"},
-  {n:"Noël Commercial 🎁",     d:"2025-12-20", t:"bg-comm", lbl:"Business"},
-  {n:"Soldes d'Hiver",         d:"2026-01-10", t:"bg-comm", lbl:"Business"},
-  {n:"Saint-Valentin ❤️",      d:"2026-02-14", t:"bg-comm", lbl:"Business"},
-  {n:"Fête des Mères 🌹",      d:"2026-05-31", t:"bg-comm", lbl:"Business"},
-  {n:"Fête des Pères 👔",      d:"2026-06-21", t:"bg-comm", lbl:"Business"},
-  {n:"Soldes d'Été",           d:"2026-06-27", t:"bg-comm", lbl:"Business"},
-  {n:"Rentrée Scolaire 🎒",    d:"2026-09-03", t:"bg-comm", lbl:"Business"},
-  {n:"Black Friday 🖤",        d:"2026-11-27", t:"bg-comm", lbl:"Business"},
-  {n:"Cyber Monday",           d:"2026-11-30", t:"bg-comm", lbl:"Business"},
-  // ── SAISONNIÈRES ──
-  {n:"Saison Solaire ☀️",      d:"2025-04-15", t:"bg-saison", lbl:"Saison"},
-  {n:"Rentrée Automne 🍂",     d:"2025-09-15", t:"bg-saison", lbl:"Saison"},
-  {n:"Fêtes Fin d'Année ✨",   d:"2025-12-01", t:"bg-saison", lbl:"Saison"},
-  {n:"Saison Solaire ☀️",      d:"2026-04-15", t:"bg-saison", lbl:"Saison"},
-  {n:"Rentrée Automne 🍂",     d:"2026-09-15", t:"bg-saison", lbl:"Saison"},
-  {n:"Fêtes Fin d'Année ✨",   d:"2026-12-01", t:"bg-saison", lbl:"Saison"},
+  {n:"Ramadan (Début)",            d:"2025-03-01", t:"mus",    lbl:"Islam"},
+  {n:"Aïd el-Fitr 🌙",             d:"2025-03-30", t:"mus",    lbl:"Islam"},
+  {n:"Aïd el-Adha 🐑",             d:"2025-06-07", t:"mus",    lbl:"Islam"},
+  {n:"Achoura",                    d:"2025-07-06", t:"mus",    lbl:"Islam"},
+  {n:"Nouvel An Hégire 1447",      d:"2025-06-27", t:"mus",    lbl:"Islam"},
+  {n:"Mawlid",                     d:"2025-09-05", t:"mus",    lbl:"Islam"},
+  {n:"Ramadan (Début)",            d:"2026-02-18", t:"mus",    lbl:"Islam"},
+  {n:"Aïd el-Fitr 🌙",             d:"2026-03-20", t:"mus",    lbl:"Islam"},
+  {n:"Aïd el-Adha 🐑",             d:"2026-05-27", t:"mus",    lbl:"Islam"},
+  {n:"Nouvel An Hégire 1448",      d:"2026-07-17", t:"mus",    lbl:"Islam"},
+  {n:"Achoura",                    d:"2026-07-25", t:"mus",    lbl:"Islam"},
+  {n:"Mawlid",                     d:"2026-09-15", t:"mus",    lbl:"Islam"},
+  {n:"Épiphanie",                  d:"2026-01-06", t:"cath",   lbl:"Catho"},
+  {n:"Pâques 🐣",                  d:"2026-04-05", t:"cath",   lbl:"Catho"},
+  {n:"Ascension",                  d:"2026-05-14", t:"cath",   lbl:"Catho"},
+  {n:"Pentecôte",                  d:"2026-05-24", t:"cath",   lbl:"Catho"},
+  {n:"Assomption",                 d:"2026-08-15", t:"cath",   lbl:"Catho"},
+  {n:"Toussaint",                  d:"2026-11-01", t:"cath",   lbl:"Catho"},
+  {n:"Noël 🎄",                    d:"2026-12-25", t:"cath",   lbl:"Catho"},
+  {n:"Pâques 🐣",                  d:"2025-04-20", t:"cath",   lbl:"Catho"},
+  {n:"Ascension",                  d:"2025-05-29", t:"cath",   lbl:"Catho"},
+  {n:"Toussaint",                  d:"2025-11-01", t:"cath",   lbl:"Catho"},
+  {n:"Noël 🎄",                    d:"2025-12-25", t:"cath",   lbl:"Catho"},
+  {n:"Soldes d'Hiver",             d:"2025-01-08", t:"comm",   lbl:"Business"},
+  {n:"Saint-Valentin ❤️",          d:"2025-02-14", t:"comm",   lbl:"Business"},
+  {n:"Fête des Mères 🌹",          d:"2025-05-25", t:"comm",   lbl:"Business"},
+  {n:"Fête des Pères 👔",          d:"2025-06-15", t:"comm",   lbl:"Business"},
+  {n:"Soldes d'Été",               d:"2025-06-25", t:"comm",   lbl:"Business"},
+  {n:"Rentrée Scolaire 🎒",        d:"2025-09-03", t:"comm",   lbl:"Business"},
+  {n:"Black Friday 🖤",            d:"2025-11-28", t:"comm",   lbl:"Business"},
+  {n:"Cyber Monday",               d:"2025-12-01", t:"comm",   lbl:"Business"},
+  {n:"Noël Commercial 🎁",         d:"2025-12-20", t:"comm",   lbl:"Business"},
+  {n:"Soldes d'Hiver",             d:"2026-01-10", t:"comm",   lbl:"Business"},
+  {n:"Saint-Valentin ❤️",          d:"2026-02-14", t:"comm",   lbl:"Business"},
+  {n:"Fête des Mères 🌹",          d:"2026-05-31", t:"comm",   lbl:"Business"},
+  {n:"Fête des Pères 👔",          d:"2026-06-21", t:"comm",   lbl:"Business"},
+  {n:"Soldes d'Été",               d:"2026-06-27", t:"comm",   lbl:"Business"},
+  {n:"Rentrée Scolaire 🎒",        d:"2026-09-03", t:"comm",   lbl:"Business"},
+  {n:"Black Friday 🖤",            d:"2026-11-27", t:"comm",   lbl:"Business"},
+  {n:"Cyber Monday",               d:"2026-11-30", t:"comm",   lbl:"Business"},
+  {n:"Saison Solaire ☀️",          d:"2025-04-15", t:"saison", lbl:"Saison"},
+  {n:"Rentrée Automne 🍂",         d:"2025-09-15", t:"saison", lbl:"Saison"},
+  {n:"Fêtes Fin d'Année ✨",       d:"2025-12-01", t:"saison", lbl:"Saison"},
+  {n:"Saison Solaire ☀️",          d:"2026-04-15", t:"saison", lbl:"Saison"},
+  {n:"Rentrée Automne 🍂",         d:"2026-09-15", t:"saison", lbl:"Saison"},
+  {n:"Fêtes Fin d'Année ✨",       d:"2026-12-01", t:"saison", lbl:"Saison"},
 ];
 
-// ══════════════════════════════════════
-//  STATE
-// ══════════════════════════════════════
-let USER = null; // {role, name}
-let CUR_FILTER_CAL = 'all';
-let CUR_FILTER_CLI = 'all';
-let CUR_CUR = 'DA';
+// Colors per type
+const TYPE_COLOR={
+  mus:'#00CA72', cath:'#579BFC', comm:'#FF7B00',
+  saison:'#FF44CC', prepa:'#A25DDC', perso:'#03C4C4'
+};
+const TYPE_CLASS={
+  mus:'s-green', cath:'s-blue', comm:'s-orange',
+  saison:'s-pink', prepa:'s-purple', perso:'s-teal'
+};
 
-function getSales(){ return JSON.parse(localStorage.getItem('le_sales')||'[]'); }
-function putSales(d){ localStorage.setItem('le_sales', JSON.stringify(d)); }
-function getEvents(){ return JSON.parse(localStorage.getItem('le_cevents')||'[]'); }
-function putEvents(d){ localStorage.setItem('le_cevents', JSON.stringify(d)); }
+// ── STATE
+let USER=null, CUR_FILTER_CAL='all', CUR_FILTER_CLI='all', CUR_CUR='DA';
+let CURRENT_TAB='agenda';
 
-function mySales(){
-  const s = getSales();
-  if(!USER) return s;
-  if(USER.role==='admin') return s;
+const getSales=()=>JSON.parse(localStorage.getItem('le_sales')||'[]');
+const putSales=d=>localStorage.setItem('le_sales',JSON.stringify(d));
+const getEvents=()=>JSON.parse(localStorage.getItem('le_cevents')||'[]');
+const putEvents=d=>localStorage.setItem('le_cevents',JSON.stringify(d));
+const mySales=()=>{
+  const s=getSales();
+  if(!USER||USER.role==='admin') return s;
   return s.filter(x=>x.consultant===USER.name);
-}
+};
 
-// ══════════════════════════════════════
-//  AUTH
-// ══════════════════════════════════════
-function showLoginForm(role){
+// ── AUTH
+function showLoginForm(r){
   document.getElementById('f-consultant').style.display='none';
   document.getElementById('f-admin').style.display='none';
-  if(role==='consultant') document.getElementById('f-consultant').style.display='block';
-  else document.getElementById('f-admin').style.display='block';
+  document.getElementById(r==='consultant'?'f-consultant':'f-admin').style.display='block';
 }
 function hideLoginForms(){
   document.getElementById('f-consultant').style.display='none';
   document.getElementById('f-admin').style.display='none';
 }
 function loginConsultant(){
-  const n = document.getElementById('cName').value.trim();
+  const n=document.getElementById('cName').value.trim();
   if(!n){toast('⚠️ Entrez votre prénom');return;}
-  USER = {role:'consultant', name:n};
-  startApp();
+  USER={role:'consultant',name:n};startApp();
 }
 function loginAdmin(){
-  const e = document.getElementById('aEmail').value.trim();
-  const p = document.getElementById('aPass').value.trim();
+  const e=document.getElementById('aEmail').value.trim();
+  const p=document.getElementById('aPass').value.trim();
   if(e!==ADMIN_EMAIL||p!==ADMIN_PASS){toast('❌ Identifiants incorrects');return;}
-  USER = {role:'admin', name:'Manager'};
-  startApp();
+  USER={role:'admin',name:'Manager'};startApp();
 }
 function logout(){
   USER=null;
@@ -528,283 +904,234 @@ function logout(){
   document.getElementById('aPass').value='';
 }
 
-// ══════════════════════════════════════
-//  START APP
-// ══════════════════════════════════════
+// ── START APP
 function startApp(){
   document.getElementById('sLogin').classList.remove('on');
   document.getElementById('sLogin').style.display='none';
   document.getElementById('sApp').classList.add('on');
   document.getElementById('sApp').style.display='block';
 
-  // Header
-  document.getElementById('hdr-sub').textContent = USER.name + ' · ' + (USER.role==='admin'?'Administrateur':'Consultante');
-  if(USER.role==='admin'){
-    document.getElementById('hdr-badge').innerHTML='<span class="abadge">ADMIN</span>';
-  } else {
-    document.getElementById('hdr-badge').innerHTML='';
-  }
+  document.getElementById('hdr-sub').textContent=USER.name+' · '+(USER.role==='admin'?'Administrateur':'Consultante');
+  document.getElementById('hdr-badge').innerHTML=USER.role==='admin'?'<span class="admin-chip">ADMIN</span>':'';
+  document.getElementById('admin-consultant-field').style.display=USER.role==='admin'?'block':'none';
 
-  // Admin fields
-  document.getElementById('admin-consultant-field').style.display = USER.role==='admin'?'block':'none';
+  // Today date label
+  const now=new Date();
+  document.getElementById('today-date-label').textContent=now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
 
-  // Build nav
+  // Today in inputs
+  const today=now.toISOString().split('T')[0];
+  document.getElementById('evDate').value=today;
+  document.getElementById('sDate').value=today;
+
   buildNav();
-
-  // Set default date
-  const today = new Date().toISOString().split('T')[0];
-  document.getElementById('evDate').value = today;
-  document.getElementById('sDate').value = today;
-
-  // Initial renders
+  setCur('DA');
   showTab('agenda');
 }
 
 function buildNav(){
-  const tabs = [
-    {id:'agenda', icon:'fa-calendar-check', lbl:'Agenda'},
-    {id:'vente',  icon:'fa-bag-shopping',   lbl:'Vente'},
-    {id:'clients',icon:'fa-users',           lbl:'Clients'},
-    {id:'stats',  icon:'fa-chart-line',      lbl:'Stats'},
+  const tabs=[
+    {id:'agenda',icon:'fa-calendar-check',lbl:'Agenda'},
+    {id:'vente', icon:'fa-bag-shopping',  lbl:'Vente'},
+    {id:'clients',icon:'fa-users',        lbl:'Clients'},
+    {id:'stats', icon:'fa-chart-line',    lbl:'Stats'},
   ];
   if(USER.role==='admin'){
     tabs.push({id:'dashboard',icon:'fa-gauge-high',  lbl:'Dashboard'});
-    tabs.push({id:'equipe',   icon:'fa-people-group',lbl:'Équipe'});
+    tabs.push({id:'equipe',  icon:'fa-people-group', lbl:'Équipe'});
   }
-  const nav = document.getElementById('bottom-nav');
-  nav.innerHTML = tabs.map(t=>`
-    <div class="ni ${t.id==='agenda'?'on':''}" id="ni-${t.id}" onclick="showTab('${t.id}')">
-      <i class="fa-solid ${t.icon}"></i>${t.lbl}
+  document.getElementById('bottom-nav').innerHTML=tabs.map(t=>`
+    <div class="ni" id="ni-${t.id}" onclick="showTab('${t.id}')">
+      <i class="fa-solid ${t.icon}"></i><span>${t.lbl}</span>
     </div>`).join('');
 }
 
 function showTab(tab){
+  CURRENT_TAB=tab;
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
-  const v = document.getElementById('view-'+tab);
+  const v=document.getElementById('view-'+tab);
   if(v) v.classList.add('on');
-  const ni = document.getElementById('ni-'+tab);
+  const ni=document.getElementById('ni-'+tab);
   if(ni) ni.classList.add('on');
 
-  // Render on demand
+  // FAB visibility
+  const fab=document.getElementById('fab-btn');
+  fab.style.display=(tab==='agenda')?'flex':'none';
+
   if(tab==='agenda')    renderAgenda();
   if(tab==='vente')     renderRecentSales();
   if(tab==='clients')   renderClients();
   if(tab==='stats')     renderStats();
   if(tab==='dashboard') renderDashboard();
   if(tab==='equipe')    renderEquipe();
-
-  // Populate datalists
   populateDatalist();
 }
 
-// ══════════════════════════════════════
-//  CURRENCY
-// ══════════════════════════════════════
+function openFab(){
+  // Open add event modal
+  openModal('modal-event');
+}
+
+// ── CURRENCY
 function setCur(c){
   CUR_CUR=c;
-  document.getElementById('cur-DA').style.cssText = c==='DA'
-    ? 'flex:1;padding:11px 8px;text-align:center;cursor:pointer;font-size:11px;font-weight:700;background:linear-gradient(135deg,#C9A84C,#8B6914);color:#080A0E;transition:all 0.2s;'
-    : 'flex:1;padding:11px 8px;text-align:center;cursor:pointer;font-size:11px;font-weight:600;color:var(--muted);transition:all 0.2s;';
-  document.getElementById('cur-EU').style.cssText = c==='€'
-    ? 'flex:1;padding:11px 8px;text-align:center;cursor:pointer;font-size:11px;font-weight:700;background:linear-gradient(135deg,#C9A84C,#8B6914);color:#080A0E;transition:all 0.2s;'
-    : 'flex:1;padding:11px 8px;text-align:center;cursor:pointer;font-size:11px;font-weight:600;color:var(--muted);transition:all 0.2s;';
+  const on='background:linear-gradient(135deg,#C9A84C,#8B6914);color:#0D0F1A;';
+  const off='color:var(--muted);';
+  document.getElementById('cur-DA').style.cssText=(c==='DA'?on:off)+'flex:1;padding:10px 8px;text-align:center;cursor:pointer;font-size:11px;font-weight:600;transition:all 0.15s;font-family:Inter,sans-serif;';
+  document.getElementById('cur-EU').style.cssText=(c==='€'?on:off)+'flex:1;padding:10px 8px;text-align:center;cursor:pointer;font-size:11px;font-weight:600;transition:all 0.15s;font-family:Inter,sans-serif;';
 }
 
 // ══════════════════════════════════════
-//  AGENDA RENDER
+//  AGENDA — Monday board render
 // ══════════════════════════════════════
-function filterCal(f, el){
-  CUR_FILTER_CAL = f;
-  document.querySelectorAll('.t-tab').forEach(t=>{
-    if(t.closest('#view-agenda')) t.classList.remove('on');
-  });
+function filterCal(f,el){
+  CUR_FILTER_CAL=f;
+  document.querySelectorAll('#view-agenda .chip').forEach(c=>c.classList.remove('on'));
   el.classList.add('on');
   renderAgenda();
 }
 
 function renderAgenda(){
-  const now = new Date(); now.setHours(0,0,0,0);
-  const customEvs = getEvents();
+  const now=new Date(); now.setHours(0,0,0,0);
+  let all=[...MASTER_EVENTS];
+  getEvents().forEach(e=>all.push({n:e.n,d:e.d,t:'perso',lbl:e.lbl,id:e.id,custom:true}));
 
-  // ── 1. Construire tous les événements
-  let all = [...MASTER_EVENTS];
-  customEvs.forEach(e=>{
-    all.push({n:e.n, d:e.d, t:'bg-perso', lbl:e.lbl, id:e.id, custom:true});
+  // Generate pré-commandes J-20
+  [...all].forEach(e=>{
+    const pd=new Date(e.d); pd.setDate(pd.getDate()-20);
+    all.push({n:'🛒 Pré-commande : '+e.n, d:pd.toISOString().split('T')[0], t:'prepa', lbl:'Pré-commande', isPrep:true});
   });
 
-  // ── 2. Générer les rappels J-20
-  const base = [...all];
-  base.forEach(e=>{
-    const pd = new Date(e.d);
-    pd.setDate(pd.getDate()-20);
-    all.push({n:'🛒 Pré-commande : '+e.n, d:pd.toISOString().split('T')[0], t:'bg-prepa', lbl:'Pré-commande', isPrep:true});
+  // Filter by category
+  const f=CUR_FILTER_CAL;
+  if(f!=='all') all=all.filter(e=>f==='prepa'?e.t==='prepa':f==='perso'?e.t==='perso':e.t===f);
+
+  // Split future / past
+  const futurs=all.filter(e=>Math.ceil((new Date(e.d)-now)/86400000)>=0)
+                  .sort((a,b)=>new Date(a.d)-new Date(b.d));
+  const passes=all.filter(e=>Math.ceil((new Date(e.d)-now)/86400000)<0)
+                  .sort((a,b)=>new Date(b.d)-new Date(a.d));
+
+  // Build alerts
+  let alertsHTML='';
+  let todayEvs=futurs.filter(e=>Math.ceil((new Date(e.d)-now)/86400000)<=1&&!e.isPrep);
+  todayEvs.forEach(e=>{
+    const diff=Math.ceil((new Date(e.d)-now)/86400000);
+    const c=TYPE_COLOR[e.t]||'#C9A84C';
+    alertsHTML+=`<div class="alert-banner alert-gold" style="border-color:${c}30;background:${c}08;">
+      <div style="width:8px;height:8px;border-radius:50%;background:${c};flex-shrink:0;"></div>
+      <div style="flex:1;">
+        <div style="font-size:10px;font-weight:700;color:#fff;">${e.n}</div>
+        <div style="font-size:8px;color:var(--muted);">${diff===0?"Aujourd'hui !":'Demain'}</div>
+      </div>
+      <span class="status-pill" style="background:${c};font-size:8px;">${diff===0?"Auj.":"J-1"}</span>
+    </div>`;
   });
 
-  // ── 3. Filtrer par catégorie
-  const f = CUR_FILTER_CAL;
-  if(f!=='all'){
-    all = all.filter(e=>{
-      if(f==='prepa') return e.t==='bg-prepa';
-      if(f==='perso') return e.t==='bg-perso';
-      return e.t==='bg-'+f;
-    });
-  }
-
-  // ── 4. Séparer futurs et passés
-  const futurs = all
-    .filter(e=> Math.ceil((new Date(e.d)-now)/86400000) >= 0)
-    .sort((a,b)=>new Date(a.d)-new Date(b.d));   // chronologique ↑
-
-  const passes = all
-    .filter(e=> Math.ceil((new Date(e.d)-now)/86400000) < 0)
-    .sort((a,b)=>new Date(b.d)-new Date(a.d));   // anti-chronologique ↓ (plus récent en premier)
-
-  // ── 5. Construire le HTML
-  let relancesHTML='';
-  let hasRelances=false;
-
-  function buildRow(ev){
-    const dObj = new Date(ev.d);
-    const diff = Math.ceil((dObj-now)/86400000);
-    const dStr = dObj.toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'2-digit'});
-    const isPast  = diff < 0;
-    const isToday = diff === 0;
-    const isSoon  = diff > 0 && diff <= 5;
-
-    // Badge J-X
-    let jBadge='';
-    if(isPast){
-      const abs=Math.abs(diff);
-      const label = abs===1?'Hier': abs<365? abs+'j' : Math.floor(abs/365)+'an';
-      jBadge=`<span class="j-badge j-past">${label}</span>`;
-    } else if(isToday){
-      jBadge=`<span class="j-badge j-zero">Auj. !</span>`;
-    } else {
-      jBadge=`<span class="j-badge j-future">J-${diff}</span>`;
-    }
-
-    // Classes
-    let rowClass='ev-row';
-    if(isPast)              rowClass+=' ev-past';
-    if(isToday)             rowClass+=' ev-today';
-    if(isSoon && !isPast)   rowClass+=' ev-soon';
-
-    // Bouton suppression (événements perso seulement)
-    const delBtn = ev.custom
-      ? `<button class="del-btn" onclick="deleteEvent('${ev.id}')"><i class="fa-solid fa-trash-can"></i></button>`
-      : '';
-
-    // Relances du jour
-    if(!isPast && diff<=1 && !ev.isPrep){
-      hasRelances=true;
-      relancesHTML+=`<div class="relance">
-        <span class="tag ${ev.t}" style="flex-shrink:0;">${ev.lbl}</span>
-        <div style="flex:1;">
-          <div style="font-size:10px;font-weight:600;">${ev.n}</div>
-          <div style="font-size:8px;color:var(--muted);">${isToday?"Aujourd'hui !":'Dans '+diff+' jour(s)'}</div>
-        </div>
-        <i class="fa-solid fa-bell" style="color:var(--gold);font-size:12px;"></i>
+  // Client alerts
+  const cMap=buildClientsMap(mySales());
+  Object.values(cMap).forEach(c=>{
+    const d=Math.floor((now-new Date(c.lastDate))/86400000);
+    if(d>=60){
+      alertsHTML+=`<div class="alert-banner alert-red" onclick="openClientModal('${esc(c.name)}')">
+        <i class="fa-solid fa-triangle-exclamation" style="color:var(--red);font-size:13px;flex-shrink:0;"></i>
+        <div style="flex:1;"><div style="font-size:10px;font-weight:700;">${c.name}</div><div style="font-size:8px;color:var(--muted);">Inactif ${d}j — Relance urgente</div></div>
+        <i class="fa-solid fa-chevron-right" style="color:var(--muted);font-size:10px;"></i>
+      </div>`;
+    } else if(d>=30){
+      alertsHTML+=`<div class="alert-banner alert-orange" onclick="openClientModal('${esc(c.name)}')">
+        <i class="fa-solid fa-clock" style="color:var(--orange);font-size:13px;flex-shrink:0;"></i>
+        <div style="flex:1;"><div style="font-size:10px;font-weight:700;">${c.name}</div><div style="font-size:8px;color:var(--muted);">À relancer — ${d} jours</div></div>
+        <i class="fa-solid fa-chevron-right" style="color:var(--muted);font-size:10px;"></i>
       </div>`;
     }
-
-    return `<div class="${rowClass}">
-      <div class="date-col">${dStr}</div>
-      <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;">
-        <span class="tag ${ev.t}">${ev.lbl}</span>
-        <span style="font-size:9px;font-weight:600;color:#C8BFA8;letter-spacing:0.3px;">${ev.n}</span>
-      </div>
-      ${jBadge}${delBtn}
-    </div>`;
-  }
-
-  // ── BLOC FUTURS
-  let html = '';
-
-  if(futurs.length){
-    html += `<div style="display:flex;align-items:center;gap:8px;padding:4px 0 10px;">
-      <div style="flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,0.5));"></div>
-      <span style="font-size:7.5px;color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:2px;white-space:nowrap;">✦ Prochains événements</span>
-      <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(201,168,76,0.5),transparent);"></div>
-    </div>`;
-    futurs.forEach(ev=>{ html+=buildRow(ev); });
-  } else {
-    html += `<div class="empty"><i class="fa-solid fa-calendar-check"></i><p>Aucun événement à venir</p></div>`;
-  }
-
-  // ── BLOC PASSÉS (en dessous, bien visibles mais assombris)
-  if(passes.length){
-    html += `<div style="display:flex;align-items:center;gap:8px;padding:18px 0 10px;">
-      <div style="flex:1;height:1px;background:rgba(255,255,255,0.06);"></div>
-      <span style="font-size:7px;color:rgba(107,114,128,0.6);font-weight:600;text-transform:uppercase;letter-spacing:2px;white-space:nowrap;">📁 Historique</span>
-      <div style="flex:1;height:1px;background:rgba(255,255,255,0.06);"></div>
-    </div>`;
-    passes.forEach(ev=>{ html+=buildRow(ev); });
-  }
-
-  // ── Injecter
-  document.getElementById('cal-box').innerHTML = html;
-
-  // ── Relances & clients
-  const rBox=document.getElementById('agenda-relances');
-  if(hasRelances){
-    rBox.style.display='block';
-    document.getElementById('relances-list').innerHTML=relancesHTML;
-  } else {
-    rBox.style.display='none';
-  }
-  renderClientRelances();
-}
-
-function renderClientRelances(){
-  const sales = mySales();
-  const now = new Date(); now.setHours(0,0,0,0);
-  const clients = buildClientsMap(sales);
-  const urgent=[], warn=[];
-
-  Object.values(clients).forEach(c=>{
-    const last=new Date(c.lastDate);
-    const days=Math.floor((now-last)/86400000);
-    if(days>=60) urgent.push({...c,days});
-    else if(days>=30) warn.push({...c,days});
   });
 
-  if(urgent.length===0&&warn.length===0) return;
+  document.getElementById('agenda-alerts').innerHTML=alertsHTML;
+
+  // Build board
+  function buildPulse(ev){
+    const dObj=new Date(ev.d);
+    const diff=Math.ceil((dObj-now)/86400000);
+    const dStr=dObj.toLocaleDateString('fr-FR',{day:'2-digit',month:'short'});
+    const isPast=diff<0, isToday=diff===0, isSoon=diff>0&&diff<=5;
+    const color=TYPE_COLOR[ev.t]||'#C9A84C';
+    const cls=TYPE_CLASS[ev.t]||'s-gold';
+
+    let statusPill='';
+    if(isPast){
+      const abs=Math.abs(diff);
+      statusPill=`<span class="status-pill s-muted" style="font-size:8px;">${abs===1?'Hier':abs<365?abs+'j':Math.floor(abs/365)+'an'}</span>`;
+    } else if(isToday){
+      statusPill=`<span class="status-pill" style="background:var(--green);font-size:8px;">Auj. !</span>`;
+    } else if(isSoon){
+      statusPill=`<span class="status-pill s-gold" style="font-size:8px;">J-${diff}</span>`;
+    } else {
+      statusPill=`<span class="status-pill" style="background:rgba(255,255,255,0.08);color:var(--muted);font-size:8px;">J-${diff}</span>`;
+    }
+
+    const delBtn=ev.custom?`<button class="del-btn" onclick="event.stopPropagation();deleteEvent('${ev.id}')"><i class="fa-solid fa-trash-can"></i></button>`:'';
+
+    return `<div class="pulse ${isPast?'pulse-past':''} ${isToday?'pulse-today':''} ${isSoon&&!isPast?'pulse-soon':''}">
+      <div class="pulse-left-bar" style="${isPast?'':`background:${color}22;`}"></div>
+      <div class="p-name">
+        <div class="p-name-text">${ev.n}</div>
+        <div class="p-date">${dStr}</div>
+      </div>
+      <div class="p-cat">
+        <span class="cat-pill ${cls}" style="background:${color}18;color:${color};font-size:8px;">${ev.lbl}</span>
+      </div>
+      <div class="p-status">${statusPill}</div>
+      ${delBtn}
+    </div>`;
+  }
 
   let html='';
-  urgent.forEach(c=>{
-    html+=`<div class="relance urgent" onclick="openClientModal('${c.name}')">
-      <i class="fa-solid fa-triangle-exclamation" style="color:#EF4444;font-size:14px;flex-shrink:0;"></i>
-      <div style="flex:1;">
-        <div style="font-size:10px;font-weight:600;">${c.name}</div>
-        <div style="font-size:8px;color:#F87171;">Inactif depuis ${c.days} jours — Relance URGENTE</div>
-      </div>
-      <i class="fa-solid fa-chevron-right" style="color:var(--muted);font-size:10px;"></i>
-    </div>`;
-  });
-  warn.forEach(c=>{
-    html+=`<div class="relance warn" onclick="openClientModal('${c.name}')">
-      <i class="fa-solid fa-clock" style="color:#F59E0B;font-size:14px;flex-shrink:0;"></i>
-      <div style="flex:1;">
-        <div style="font-size:10px;font-weight:600;">${c.name}</div>
-        <div style="font-size:8px;color:#FCD34D;">À relancer — ${c.days} jours d'inactivité</div>
-      </div>
-      <i class="fa-solid fa-chevron-right" style="color:var(--muted);font-size:10px;"></i>
-    </div>`;
-  });
 
-  if(html){
-    const rBox=document.getElementById('agenda-relances');
-    rBox.style.display='block';
-    document.getElementById('relances-list').innerHTML += `
-      <div class="div" style="margin:12px 0 8px;"><span>Clients à relancer</span></div>
-      ${html}`;
+  // FUTURE GROUP
+  if(futurs.length){
+    html+=`<div class="group">
+      <div class="group-header">
+        <div class="group-dot" style="background:var(--green);"></div>
+        <span class="group-title" style="color:var(--green);">Prochains événements</span>
+        <span class="group-count">${futurs.length}</span>
+      </div>
+      <div style="border-radius:0 0 10px 10px;overflow:hidden;border:1px solid var(--border);border-top:2px solid var(--green);">
+        <div class="col-headers">
+          <div class="col-hdr" style="flex:1;">Événement</div>
+          <div class="col-hdr" style="width:90px;">Catégorie</div>
+          <div class="col-hdr" style="width:68px;text-align:right;">Statut</div>
+        </div>
+        ${futurs.map(buildPulse).join('')}
+      </div>
+    </div>`;
+  } else {
+    html+=`<div class="empty-state"><i class="fa-solid fa-calendar-check"></i><p>Aucun événement à venir</p></div>`;
   }
+
+  // HISTORY GROUP
+  if(passes.length){
+    html+=`<div class="group" style="margin-top:4px;">
+      <div class="group-header">
+        <div class="group-dot" style="background:var(--muted);opacity:0.4;"></div>
+        <span class="group-title" style="color:var(--muted);">📁 Historique</span>
+        <span class="group-count">${passes.length}</span>
+      </div>
+      <div style="border-radius:0 0 10px 10px;overflow:hidden;border:1px solid rgba(255,255,255,0.04);border-top:2px solid rgba(255,255,255,0.06);">
+        <div class="col-headers">
+          <div class="col-hdr" style="flex:1;">Événement</div>
+          <div class="col-hdr" style="width:90px;">Catégorie</div>
+          <div class="col-hdr" style="width:68px;text-align:right;">Il y a</div>
+        </div>
+        ${passes.map(buildPulse).join('')}
+      </div>
+    </div>`;
+  }
+
+  document.getElementById('agenda-board').innerHTML=html;
 }
 
-// ══════════════════════════════════════
-//  CUSTOM EVENTS
-// ══════════════════════════════════════
 function addCustomEvent(){
   const n=document.getElementById('evName').value.trim();
   const t=document.getElementById('evType').value;
@@ -814,6 +1141,7 @@ function addCustomEvent(){
   evs.push({id:Date.now().toString(),n,lbl:t,d});
   putEvents(evs);
   document.getElementById('evName').value='';
+  closeModal('modal-event');
   toast('✦ Événement ajouté !');
   renderAgenda();
 }
@@ -821,7 +1149,7 @@ function addCustomEvent(){
 function deleteEvent(id){
   if(!confirm('Supprimer cet événement ?')) return;
   putEvents(getEvents().filter(e=>e.id!==id));
-  toast('Événement supprimé');
+  toast('Supprimé');
   renderAgenda();
 }
 
@@ -829,29 +1157,21 @@ function deleteEvent(id){
 //  SALES
 // ══════════════════════════════════════
 function saveSale(){
-  const consultant = USER.role==='admin'
-    ? (document.getElementById('sConsultant').value.trim()||'Admin')
-    : USER.name;
-  const client = document.getElementById('sClient').value.trim();
-  const prod   = document.getElementById('sProd').value.trim();
-  const qty    = parseInt(document.getElementById('sQty').value)||1;
-  const amt    = parseFloat(document.getElementById('sAmt').value)||0;
-  const cat    = document.getElementById('sCat').value;
-  const date   = document.getElementById('sDate').value;
-  const note   = document.getElementById('sNote').value.trim();
+  const consultant=USER.role==='admin'?(document.getElementById('sConsultant').value.trim()||'Manager'):USER.name;
+  const client=document.getElementById('sClient').value.trim();
+  const prod=document.getElementById('sProd').value.trim();
+  const qty=parseInt(document.getElementById('sQty').value)||1;
+  const amt=parseFloat(document.getElementById('sAmt').value)||0;
+  const cat=document.getElementById('sCat').value;
+  const date=document.getElementById('sDate').value;
+  const note=document.getElementById('sNote').value.trim();
 
   if(!client||!prod||!date){toast('⚠️ Client, produit et date requis');return;}
 
   const sales=getSales();
-  sales.push({
-    id:Date.now().toString(),
-    consultant, client, product:prod, qty, amount:amt,
-    currency:CUR_CUR, category:cat, date, note,
-    createdAt:new Date().toISOString()
-  });
+  sales.push({id:Date.now().toString(),consultant,client,product:prod,qty,amount:amt,currency:CUR_CUR,category:cat,date,note,createdAt:new Date().toISOString()});
   putSales(sales);
 
-  // Reset
   document.getElementById('sClient').value='';
   document.getElementById('sProd').value='';
   document.getElementById('sQty').value='1';
@@ -859,30 +1179,31 @@ function saveSale(){
   document.getElementById('sNote').value='';
   if(USER.role==='admin') document.getElementById('sConsultant').value='';
 
-  toast('✦ Vente enregistrée avec succès !');
+  toast('✦ Vente enregistrée !');
   renderRecentSales();
   populateDatalist();
 }
 
 function deleteSale(id){
-  if(!confirm('Supprimer cette vente ?')) return;
+  if(!confirm('Supprimer ?')) return;
   putSales(getSales().filter(s=>s.id!==id));
-  toast('Vente supprimée');
+  toast('Supprimé');
   renderRecentSales();
   renderClients();
 }
 
 function renderRecentSales(){
-  const sales = mySales().sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,10);
+  const sales=mySales().sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,15);
   const box=document.getElementById('recent-sales');
-  if(!sales.length){box.innerHTML='<div class="empty"><i class="fa-solid fa-bag-shopping"></i><p>Aucune vente enregistrée</p></div>';return;}
+  if(!sales.length){box.innerHTML='<div class="empty-state"><i class="fa-solid fa-bag-shopping"></i><p>Aucune vente</p></div>';return;}
   box.innerHTML=sales.map(s=>`
-    <div class="sh-item" style="display:flex;align-items:center;gap:10px;">
-      <div style="flex:1;">
-        <div style="font-size:11px;font-weight:600;color:var(--gold-l);">${s.client}</div>
-        <div style="font-size:9px;color:var(--muted);">${s.product} · ${s.qty}x · <strong style="color:var(--gold);">${s.amount} ${s.currency}</strong></div>
-        <div style="font-size:8px;color:var(--muted);margin-top:2px;">${fmtDate(s.date)}${s.consultant&&USER.role==='admin'?' · '+s.consultant:''}</div>
+    <div class="sale-row">
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:11px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.client}</div>
+        <div style="font-size:9px;color:var(--muted);">${s.product} · ×${s.qty}${s.consultant&&USER.role==='admin'?' · '+s.consultant:''}</div>
       </div>
+      <div style="width:70px;text-align:right;font-size:11px;font-weight:700;color:var(--gold-l);">${s.amount} ${s.currency}</div>
+      <div style="width:50px;text-align:right;font-size:9px;color:var(--muted);">${fmtDateShort(s.date)}</div>
       <button class="del-btn" onclick="deleteSale('${s.id}')"><i class="fa-solid fa-trash-can"></i></button>
     </div>`).join('');
 }
@@ -893,9 +1214,7 @@ function renderRecentSales(){
 function buildClientsMap(sales){
   const m={};
   sales.forEach(s=>{
-    if(!m[s.client]) m[s.client]={
-      name:s.client, purchases:[], total:0, lastDate:'', topProd:{}, consultant:s.consultant
-    };
+    if(!m[s.client]) m[s.client]={name:s.client,purchases:[],total:0,lastDate:'',topProd:{},consultant:s.consultant};
     m[s.client].purchases.push(s);
     m[s.client].total+=s.amount;
     if(!m[s.client].lastDate||s.date>m[s.client].lastDate) m[s.client].lastDate=s.date;
@@ -904,109 +1223,128 @@ function buildClientsMap(sales){
   return m;
 }
 
+function filterClients(f,el){
+  CUR_FILTER_CLI=f;
+  document.querySelectorAll('#view-clients .chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  renderClients();
+}
+
+const AVATAR_COLORS=['#00CA72','#579BFC','#FF7B00','#A25DDC','#FF44CC','#03C4C4','#E44258'];
+
 function renderClients(){
   const sales=mySales();
   const search=(document.getElementById('client-search')||{}).value||'';
   const now=new Date(); now.setHours(0,0,0,0);
-  let clients=Object.values(buildClientsMap(sales));
+  const maxTotal=Math.max(...Object.values(buildClientsMap(sales)).map(c=>c.total),1);
 
-  // Filter by status
-  clients = clients.filter(c=>{
-    const days=Math.floor((now-new Date(c.lastDate))/86400000);
-    if(CUR_FILTER_CLI==='recent') return days<30;
-    if(CUR_FILTER_CLI==='warn') return days>=30&&days<60;
-    if(CUR_FILTER_CLI==='urgent') return days>=60;
+  let clients=Object.values(buildClientsMap(sales)).filter(c=>{
+    const d=Math.floor((now-new Date(c.lastDate))/86400000);
+    if(CUR_FILTER_CLI==='recent') return d<30;
+    if(CUR_FILTER_CLI==='warn') return d>=30&&d<60;
+    if(CUR_FILTER_CLI==='urgent') return d>=60;
     return true;
   });
 
-  // Search
   if(search) clients=clients.filter(c=>c.name.toLowerCase().includes(search.toLowerCase()));
-
-  // Sort by last date
   clients.sort((a,b)=>new Date(b.lastDate)-new Date(a.lastDate));
 
-  const maxTotal = Math.max(...clients.map(c=>c.total),1);
-  const box=document.getElementById('clients-list');
-  if(!clients.length){box.innerHTML='<div class="empty"><i class="fa-solid fa-user-slash"></i><p>Aucun client trouvé</p></div>';return;}
+  const box=document.getElementById('clients-board');
+  if(!clients.length){box.innerHTML='<div class="empty-state"><i class="fa-solid fa-user-slash"></i><p>Aucun client trouvé</p></div>';return;}
 
-  box.innerHTML = clients.map(c=>{
-    const days=Math.floor((now-new Date(c.lastDate))/86400000);
-    let status='', statusColor='';
-    if(days<30){status='Client récent';statusColor='#10B981';}
-    else if(days<60){status='À relancer';statusColor='#F59E0B';}
-    else{status='Relance urgente';statusColor='#EF4444';}
-    const topProd=Object.entries(c.topProd).sort((a,b)=>b[1]-a[1])[0];
+  // Group by status
+  const grRecent=clients.filter(c=>Math.floor((now-new Date(c.lastDate))/86400000)<30);
+  const grWarn=clients.filter(c=>{const d=Math.floor((now-new Date(c.lastDate))/86400000);return d>=30&&d<60;});
+  const grUrgent=clients.filter(c=>Math.floor((now-new Date(c.lastDate))/86400000)>=60);
+
+  function buildClientPulse(c,i){
+    const d=Math.floor((now-new Date(c.lastDate))/86400000);
     const pct=Math.round((c.total/maxTotal)*100);
-    return `<div class="c-card" onclick="openClientModal('${esc(c.name)}')">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-        <div>
-          <div style="font-weight:600;font-size:13px;">${c.name}</div>
-          <div style="font-size:8px;color:${statusColor};margin-top:2px;font-weight:600;">${status} · ${days}j</div>
-        </div>
-        <div style="text-align:right;">
-          <div style="font-size:10px;font-weight:700;color:var(--gold);">${c.total.toFixed(0)} ${c.purchases[0]?.currency||'DA'}</div>
-          <div style="font-size:8px;color:var(--muted);">${c.purchases.length} achat(s)</div>
-        </div>
+    const color=AVATAR_COLORS[i%AVATAR_COLORS.length];
+    const initials=c.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+    const topProd=Object.entries(c.topProd).sort((a,b)=>b[1]-a[1])[0];
+    return `<div class="client-pulse" onclick="openClientModal('${esc(c.name)}')">
+      <div class="avatar" style="background:${color};">${initials}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:11px;font-weight:600;color:#fff;">${c.name}</div>
+        <div style="font-size:8.5px;color:var(--muted);">${topProd?topProd[0]:''} · ${c.purchases.length} achat(s)</div>
+        <div class="prog-wrap"><div class="prog-fill" style="width:${pct}%;"></div></div>
       </div>
-      ${topProd?`<div style="margin-top:6px;"><span class="prod-tag">${topProd[0]}</span></div>`:''}
-      <div class="pb"><div class="pf" style="width:${pct}%;"></div></div>
+      <div style="text-align:right;flex-shrink:0;">
+        <div style="font-size:10px;font-weight:700;color:var(--gold-l);">${c.total.toFixed(0)} ${c.purchases[0]?.currency||'DA'}</div>
+        <div style="font-size:8px;color:var(--muted);margin-top:1px;">${d===0?'Auj.':d+'j'}</div>
+      </div>
+      <i class="fa-solid fa-chevron-right" style="color:var(--muted);font-size:10px;margin-left:8px;"></i>
     </div>`;
-  }).join('');
-}
+  }
 
-function filterClients(f,el){
-  CUR_FILTER_CLI=f;
-  document.querySelectorAll('#view-clients .t-tab').forEach(t=>t.classList.remove('on'));
-  el.classList.add('on');
-  renderClients();
+  function buildGroup(title,color,borderColor,items,offset=0){
+    if(!items.length) return '';
+    return `<div class="group" style="margin-bottom:12px;">
+      <div class="group-header">
+        <div class="group-dot" style="background:${color};"></div>
+        <span class="group-title" style="color:${color};">${title}</span>
+        <span class="group-count">${items.length}</span>
+      </div>
+      <div style="border-radius:0 0 10px 10px;overflow:hidden;border:1px solid var(--border);border-top:2px solid ${borderColor};">
+        ${items.map((c,i)=>buildClientPulse(c,i+offset)).join('')}
+      </div>
+    </div>`;
+  }
+
+  // Show filtered or grouped
+  if(CUR_FILTER_CLI!=='all'){
+    const color=CUR_FILTER_CLI==='recent'?'var(--green)':CUR_FILTER_CLI==='warn'?'var(--orange)':'var(--red)';
+    const label=CUR_FILTER_CLI==='recent'?'Clients récents':CUR_FILTER_CLI==='warn'?'À relancer':'Urgents';
+    box.innerHTML=buildGroup(label,color,color,clients);
+  } else {
+    box.innerHTML=
+      buildGroup('Clients récents','var(--green)','var(--green)',grRecent,0)+
+      buildGroup('À relancer','var(--orange)','var(--orange)',grWarn,grRecent.length)+
+      buildGroup('Relance urgente','var(--red)','var(--red)',grUrgent,grRecent.length+grWarn.length)||
+      '<div class="empty-state"><i class="fa-solid fa-user-slash"></i><p>Aucun client</p></div>';
+  }
 }
 
 function openClientModal(name){
   const sales=mySales().filter(s=>s.client===name).sort((a,b)=>new Date(b.date)-new Date(a.date));
   if(!sales.length) return;
   const now=new Date(); now.setHours(0,0,0,0);
-  const lastDate=new Date(sales[0].date);
-  const days=Math.floor((now-lastDate)/86400000);
-  const total=sales.reduce((s,x)=>s+x.amount,0);
+  const days=Math.floor((now-new Date(sales[0].date))/86400000);
+  const total=sales.reduce((t,s)=>t+s.amount,0);
   const prods={};
   sales.forEach(s=>{prods[s.product]=(prods[s.product]||0)+s.qty;});
-
-  let statusMsg='', statusColor='';
-  if(days<30){statusMsg='Client récent ✓';statusColor='#10B981';}
-  else if(days<60){statusMsg='⚠️ À relancer bientôt';statusColor='#F59E0B';}
-  else{statusMsg='🚨 Relance urgente !';statusColor='#EF4444';}
+  const statusColor=days<30?'var(--green)':days<60?'var(--orange)':'var(--red)';
+  const statusTxt=days<30?'Client récent ✓':days<60?'⚠️ À relancer':'🚨 Relance urgente !';
 
   document.getElementById('mc-name').textContent=name;
   document.getElementById('mc-body').innerHTML=`
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
-      <div class="stat-box"><div class="stat-val">${sales.length}</div><div class="stat-lbl">Achats</div></div>
-      <div class="stat-box"><div class="stat-val">${total.toFixed(0)}</div><div class="stat-lbl">${sales[0]?.currency||'DA'} dépensé</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:14px;">
+      <div class="kpi" style="padding:10px;"><div class="kpi-val" style="font-size:20px;">${sales.length}</div><div class="kpi-lbl">Achats</div></div>
+      <div class="kpi" style="padding:10px;"><div class="kpi-val" style="font-size:16px;">${total.toFixed(0)}</div><div class="kpi-lbl">${sales[0]?.currency||'DA'}</div></div>
+      <div class="kpi" style="padding:10px;"><div class="kpi-val" style="font-size:20px;">${days}</div><div class="kpi-lbl">Jours</div></div>
     </div>
-    <div style="background:rgba(255,255,255,0.03);border-radius:12px;padding:10px;margin-bottom:12px;">
-      <div style="font-size:9px;color:var(--muted);">Statut</div>
-      <div style="font-size:11px;font-weight:600;color:${statusColor};margin-top:2px;">${statusMsg}</div>
-      <div style="font-size:9px;color:var(--muted);margin-top:2px;">Dernier achat : ${fmtDate(sales[0].date)} (il y a ${days}j)</div>
+    <div style="background:var(--surface2);border-radius:8px;padding:10px;margin-bottom:12px;">
+      <div style="font-size:10px;font-weight:700;color:${statusColor};">${statusTxt}</div>
+      <div style="font-size:9px;color:var(--muted);margin-top:2px;">Dernier achat : ${fmtDate(sales[0].date)}</div>
     </div>
     <div style="margin-bottom:12px;">
-      <div style="font-size:8px;color:var(--gold);font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Produits préférés</div>
-      <div>${Object.entries(prods).sort((a,b)=>b[1]-a[1]).map(([p,q])=>`<span class="prod-tag">${p} ×${q}</span>`).join('')}</div>
+      <div style="font-size:9px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Produits préférés</div>
+      <div>${Object.entries(prods).sort((a,b)=>b[1]-a[1]).map(([p,q])=>`<span style="background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.2);border-radius:4px;padding:2px 8px;font-size:8px;color:var(--gold-l);display:inline-block;margin:2px;">${p} ×${q}</span>`).join('')}</div>
     </div>
-    <div>
-      <div style="font-size:8px;color:var(--gold);font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Historique des achats</div>
-      ${sales.map(s=>`<div class="sh-item">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-          <div>
-            <div style="font-size:10px;font-weight:600;">${s.product}</div>
-            <div style="font-size:8px;color:var(--muted);">${s.category} · Qté ${s.qty}</div>
-            ${s.note?`<div style="font-size:8px;color:#8B8070;margin-top:3px;font-style:italic;">"${s.note}"</div>`:''}
-          </div>
-          <div style="text-align:right;flex-shrink:0;">
-            <div style="font-size:10px;font-weight:700;color:var(--gold);">${s.amount} ${s.currency}</div>
-            <div style="font-size:8px;color:var(--muted);">${fmtDate(s.date)}</div>
-          </div>
+    <div style="font-size:9px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Historique</div>
+    ${sales.map(s=>`<div style="background:var(--surface2);border-radius:8px;padding:10px;margin-bottom:6px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div><div style="font-size:11px;font-weight:600;">${s.product}</div>
+          <div style="font-size:8.5px;color:var(--muted);">${s.category} · Qté ${s.qty}</div>
+          ${s.note?`<div style="font-size:8px;color:#8B8070;margin-top:3px;font-style:italic;">"${s.note}"</div>`:''}
         </div>
-      </div>`).join('')}
-    </div>`;
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-size:11px;font-weight:700;color:var(--gold-l);">${s.amount} ${s.currency}</div>
+          <div style="font-size:8px;color:var(--muted);">${fmtDate(s.date)}</div>
+        </div>
+      </div>
+    </div>`).join('')}`;
   openModal('modal-client');
 }
 
@@ -1017,81 +1355,89 @@ function renderStats(){
   const sales=mySales();
   const now=new Date();
   const thisMonth=sales.filter(s=>{const d=new Date(s.date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
-  const lastMonth=sales.filter(s=>{const d=new Date(s.date);const lm=new Date(now.getFullYear(),now.getMonth()-1,1);return d.getMonth()===lm.getMonth()&&d.getFullYear()===lm.getFullYear();});
-  const totalCA=sales.reduce((t,s)=>t+s.amount,0);
+  const lastMonth=sales.filter(s=>{const d=new Date(s.date),lm=new Date(now.getFullYear(),now.getMonth()-1,1);return d.getMonth()===lm.getMonth()&&d.getFullYear()===lm.getFullYear();});
   const thisCA=thisMonth.reduce((t,s)=>t+s.amount,0);
   const lastCA=lastMonth.reduce((t,s)=>t+s.amount,0);
+  const totalCA=sales.reduce((t,s)=>t+s.amount,0);
   const clients=new Set(sales.map(s=>s.client)).size;
+  const trend=lastCA>0?Math.round(((thisCA-lastCA)/lastCA)*100):null;
 
-  // By category
-  const byCat={};
-  sales.forEach(s=>{byCat[s.category]=(byCat[s.category]||0)+s.amount;});
-  const maxCat=Math.max(...Object.values(byCat),1);
-
-  // Monthly last 6 months
+  // Monthly 6M
   const monthly={};
   for(let i=5;i>=0;i--){
     const d=new Date(now.getFullYear(),now.getMonth()-i,1);
     const key=d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0');
     monthly[key]={label:d.toLocaleDateString('fr-FR',{month:'short'}),val:0};
   }
-  sales.forEach(s=>{
-    const key=s.date.substring(0,7);
-    if(monthly[key]) monthly[key].val+=s.amount;
-  });
+  sales.forEach(s=>{const k=s.date.substring(0,7);if(monthly[k])monthly[k].val+=s.amount;});
   const mVals=Object.values(monthly);
   const maxM=Math.max(...mVals.map(m=>m.val),1);
 
-  const trend=lastCA>0?Math.round(((thisCA-lastCA)/lastCA)*100):null;
+  // By category
+  const byCat={};
+  sales.forEach(s=>{byCat[s.category]=(byCat[s.category]||0)+s.amount;});
+  const maxCat=Math.max(...Object.values(byCat),1);
 
   document.getElementById('stats-content').innerHTML=`
+  <div class="kpi-grid">
+    <div class="kpi"><div class="kpi-val">${sales.length}</div><div class="kpi-lbl">Total ventes</div></div>
+    <div class="kpi"><div class="kpi-val">${clients}</div><div class="kpi-lbl">Clients</div></div>
+    <div class="kpi">
+      <div class="kpi-val" style="font-size:18px;">${thisCA.toFixed(0)}</div>
+      <div class="kpi-lbl">CA ce mois</div>
+      ${trend!==null?`<div class="kpi-trend ${trend>=0?'trend-up':'trend-dn'}">${trend>=0?'↑':'↓'} ${Math.abs(trend)}% vs M-1</div>`:''}
+    </div>
+    <div class="kpi"><div class="kpi-val" style="font-size:18px;">${totalCA.toFixed(0)}</div><div class="kpi-lbl">CA Total</div></div>
+  </div>
+
   <div class="card">
-    <div class="card-hdr"><i class="fa-solid fa-chart-line" style="color:var(--gold);"></i> Mes performances</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
-      <div class="stat-box"><div class="stat-val">${sales.length}</div><div class="stat-lbl">Total ventes</div></div>
-      <div class="stat-box"><div class="stat-val">${clients}</div><div class="stat-lbl">Clients</div></div>
-      <div class="stat-box"><div class="stat-val">${thisMonth.length}</div><div class="stat-lbl">Ventes ce mois</div></div>
-      <div class="stat-box">
-        <div class="stat-val" style="font-size:20px;">${thisCA.toFixed(0)}</div>
-        <div class="stat-lbl">CA ce mois · DA</div>
-        ${trend!==null?`<div style="font-size:9px;font-weight:600;color:${trend>=0?'#10B981':'#EF4444'};margin-top:2px;">${trend>=0?'↑':'↓'} ${Math.abs(trend)}% vs M-1</div>`:''}
+    <div class="card-hdr-bar">
+      <div style="width:10px;height:10px;border-radius:3px;background:var(--gold);"></div>
+      <span class="card-hdr-title">CA mensuel — 6 mois</span>
+    </div>
+    <div class="card-body" style="padding:10px 10px 14px;">
+      <div class="chart-wrap">
+        ${mVals.map(m=>`<div class="b-item">
+          <div class="b-val">${m.val>0?m.val.toFixed(0):''}</div>
+          <div class="b-bar" style="height:${Math.max(Math.round((m.val/maxM)*64),3)}px;"></div>
+          <div class="b-lbl">${m.label}</div>
+        </div>`).join('')}
       </div>
     </div>
   </div>
 
   <div class="card">
-    <div class="card-hdr"><i class="fa-solid fa-chart-bar" style="color:var(--gold);"></i> CA mensuel (6 mois)</div>
-    <div class="bar-chart">
-      ${mVals.map(m=>`<div class="bar-item">
-        <div class="bar-val">${m.val>0?m.val.toFixed(0):''}</div>
-        <div class="bar" style="height:${Math.max(Math.round((m.val/maxM)*64),4)}px;"></div>
-        <div class="bar-lbl">${m.label}</div>
-      </div>`).join('')}
+    <div class="card-hdr-bar">
+      <div style="width:10px;height:10px;border-radius:3px;background:var(--blue);"></div>
+      <span class="card-hdr-title">Par catégorie</span>
+    </div>
+    <div class="card-body cat-bar-wrap" style="padding:14px;">
+      ${Object.entries(byCat).sort((a,b)=>b[1]-a[1]).map(([cat,val])=>`
+        <div class="cat-bar-row">
+          <div class="cat-bar-labels">
+            <span style="color:var(--text);font-weight:500;">${cat}</span>
+            <span style="color:var(--gold);font-weight:700;">${val.toFixed(0)} DA</span>
+          </div>
+          <div class="cat-bar-track"><div class="cat-bar-fill" style="width:${Math.round((val/maxCat)*100)}%;"></div></div>
+        </div>`).join('')}
+      ${!Object.keys(byCat).length?'<div class="empty-state" style="padding:16px;"><p>Aucune vente</p></div>':''}
     </div>
   </div>
 
   <div class="card">
-    <div class="card-hdr"><i class="fa-solid fa-tag" style="color:var(--gold);"></i> Par catégorie</div>
-    ${Object.entries(byCat).sort((a,b)=>b[1]-a[1]).map(([cat,val])=>`
-      <div style="margin-bottom:10px;">
-        <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:4px;">
-          <span style="color:var(--text);">${cat}</span>
-          <span style="color:var(--gold);font-weight:600;">${val.toFixed(0)} DA</span>
-        </div>
-        <div class="pb"><div class="pf" style="width:${Math.round((val/maxCat)*100)}%;"></div></div>
-      </div>`).join('')}
-    ${!Object.keys(byCat).length?'<div class="empty"><p>Aucune vente</p></div>':''}
-  </div>
-
-  <div class="card">
-    <div class="card-hdr"><i class="fa-solid fa-trophy" style="color:var(--gold);"></i> Top clients</div>
-    ${Object.values(buildClientsMap(sales)).sort((a,b)=>b.total-a.total).slice(0,5).map((c,i)=>`
-      <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
-        <div style="width:22px;height:22px;border-radius:50%;background:${i===0?'linear-gradient(135deg,#C9A84C,#8B6914)':'rgba(255,255,255,0.06)'};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:${i===0?'#080A0E':'var(--muted)'};">${i+1}</div>
-        <div style="flex:1;font-size:11px;">${c.name}</div>
-        <div style="font-size:10px;font-weight:600;color:var(--gold);">${c.total.toFixed(0)} DA</div>
-      </div>`).join('')}
-    ${!Object.keys(buildClientsMap(sales)).length?'<div class="empty"><p>Aucune vente</p></div>':''}
+    <div class="card-hdr-bar">
+      <div style="width:10px;height:10px;border-radius:3px;background:var(--orange);"></div>
+      <span class="card-hdr-title">🏆 Top Clients</span>
+    </div>
+    <div>
+      ${Object.values(buildClientsMap(sales)).sort((a,b)=>b.total-a.total).slice(0,5).map((c,i)=>`
+        <div class="sale-row" style="cursor:pointer;" onclick="openClientModal('${esc(c.name)}')">
+          <div style="width:22px;height:22px;border-radius:6px;background:${i===0?'linear-gradient(135deg,#C9A84C,#8B6914)':'var(--surface3)'};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:${i===0?'#0D0F1A':'var(--muted)'};flex-shrink:0;">${i+1}</div>
+          <div style="flex:1;font-size:11px;font-weight:500;">${c.name}</div>
+          <div style="font-size:10px;font-weight:700;color:var(--gold-l);">${c.total.toFixed(0)} DA</div>
+        </div>`).join('')}
+      ${!Object.keys(buildClientsMap(sales)).length?'<div class="empty-state" style="padding:20px;"><p>Aucune vente</p></div>':''}
+    </div>
   </div>`;
 }
 
@@ -1099,23 +1445,13 @@ function renderStats(){
 //  ADMIN DASHBOARD
 // ══════════════════════════════════════
 function renderDashboard(){
-  const allSales=getSales();
+  const all=getSales();
   const now=new Date();
-  const thisMonth=allSales.filter(s=>{const d=new Date(s.date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
-  const totalCA=allSales.reduce((t,s)=>t+s.amount,0);
+  const thisMonth=all.filter(s=>{const d=new Date(s.date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
+  const totalCA=all.reduce((t,s)=>t+s.amount,0);
   const thisCA=thisMonth.reduce((t,s)=>t+s.amount,0);
-  const allClients=new Set(allSales.map(s=>s.client)).size;
-  const consultants=new Set(allSales.map(s=>s.consultant)).size;
-
-  // Top consultants
-  const byConsultant={};
-  allSales.forEach(s=>{
-    if(!byConsultant[s.consultant]) byConsultant[s.consultant]={name:s.consultant,sales:0,ca:0};
-    byConsultant[s.consultant].sales++;
-    byConsultant[s.consultant].ca+=s.amount;
-  });
-  const topConsultants=Object.values(byConsultant).sort((a,b)=>b.ca-a.ca);
-  const maxCA=Math.max(...topConsultants.map(c=>c.ca),1);
+  const allClients=new Set(all.map(s=>s.client)).size;
+  const consultants=new Set(all.map(s=>s.consultant));
 
   // Monthly
   const monthly={};
@@ -1124,180 +1460,191 @@ function renderDashboard(){
     const key=d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0');
     monthly[key]={label:d.toLocaleDateString('fr-FR',{month:'short'}),val:0};
   }
-  allSales.forEach(s=>{const key=s.date.substring(0,7);if(monthly[key])monthly[key].val+=s.amount;});
+  all.forEach(s=>{const k=s.date.substring(0,7);if(monthly[k])monthly[k].val+=s.amount;});
   const mVals=Object.values(monthly);
   const maxM=Math.max(...mVals.map(m=>m.val),1);
 
-  // Client status
-  const cMap=buildClientsMap(allSales);
-  let recent=0,warn=0,urgent=0;
+  // By consultant
+  const byC={};
+  all.forEach(s=>{
+    if(!byC[s.consultant]) byC[s.consultant]={name:s.consultant,sales:0,ca:0};
+    byC[s.consultant].sales++; byC[s.consultant].ca+=s.amount;
+  });
+  const topC=Object.values(byC).sort((a,b)=>b.ca-a.ca);
+  const maxCA=Math.max(...topC.map(c=>c.ca),1);
+
+  // Client health
+  const cMap=buildClientsMap(all);
+  let rec=0,warn=0,urg=0;
   Object.values(cMap).forEach(c=>{
     const d=Math.floor((now-new Date(c.lastDate))/86400000);
-    if(d<30)recent++;else if(d<60)warn++;else urgent++;
+    if(d<30)rec++;else if(d<60)warn++;else urg++;
   });
 
   document.getElementById('dashboard-content').innerHTML=`
+  <div class="kpi-grid">
+    <div class="kpi"><div class="kpi-val">${all.length}</div><div class="kpi-lbl">Total ventes</div></div>
+    <div class="kpi"><div class="kpi-val">${allClients}</div><div class="kpi-lbl">Clients</div></div>
+    <div class="kpi"><div class="kpi-val">${consultants.size}</div><div class="kpi-lbl">Consultantes</div></div>
+    <div class="kpi"><div class="kpi-val" style="font-size:17px;">${totalCA.toFixed(0)}</div><div class="kpi-lbl">CA Total DA</div></div>
+  </div>
+
   <div class="card">
-    <div class="card-hdr"><i class="fa-solid fa-gauge-high" style="color:var(--gold);"></i> Vue Globale</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-      <div class="kpi"><div class="kpi-val">${allSales.length}</div><div class="kpi-lbl">Total ventes</div></div>
-      <div class="kpi"><div class="kpi-val">${allClients}</div><div class="kpi-lbl">Clients actifs</div></div>
-      <div class="kpi"><div class="kpi-val">${consultants}</div><div class="kpi-lbl">Consultantes</div></div>
-      <div class="kpi"><div class="kpi-val" style="font-size:18px;">${totalCA.toFixed(0)}</div><div class="kpi-lbl">CA Total (DA)</div></div>
+    <div class="card-hdr-bar">
+      <div style="width:10px;height:10px;border-radius:3px;background:var(--gold);"></div>
+      <span class="card-hdr-title">CA Équipe — 6 mois</span>
+    </div>
+    <div class="card-body" style="padding:10px 10px 14px;">
+      <div class="chart-wrap">
+        ${mVals.map(m=>`<div class="b-item">
+          <div class="b-val">${m.val>0?m.val.toFixed(0):''}</div>
+          <div class="b-bar" style="height:${Math.max(Math.round((m.val/maxM)*64),3)}px;"></div>
+          <div class="b-lbl">${m.label}</div>
+        </div>`).join('')}
+      </div>
     </div>
   </div>
 
   <div class="card">
-    <div class="card-hdr"><i class="fa-solid fa-chart-bar" style="color:var(--gold);"></i> CA Mensuel Équipe</div>
-    <div class="bar-chart">
-      ${mVals.map(m=>`<div class="bar-item">
-        <div class="bar-val" style="font-size:7px;">${m.val>0?m.val.toFixed(0):''}</div>
-        <div class="bar" style="height:${Math.max(Math.round((m.val/maxM)*64),4)}px;"></div>
-        <div class="bar-lbl">${m.label}</div>
-      </div>`).join('')}
+    <div class="card-hdr-bar">
+      <div style="width:10px;height:10px;border-radius:3px;background:var(--purple);"></div>
+      <span class="card-hdr-title">Classement Consultantes</span>
     </div>
-  </div>
-
-  <div class="card">
-    <div class="card-hdr"><i class="fa-solid fa-users" style="color:var(--gold);"></i> Classement Consultantes</div>
-    ${topConsultants.map((c,i)=>`
-      <div style="margin-bottom:10px;">
-        <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:4px;align-items:center;">
-          <div style="display:flex;align-items:center;gap:7px;">
-            <span style="width:18px;height:18px;border-radius:50%;background:${i===0?'linear-gradient(135deg,#C9A84C,#8B6914)':i===1?'rgba(192,192,192,0.2)':i===2?'rgba(205,127,50,0.2)':'rgba(255,255,255,0.05)'};display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:${i<3?'var(--gold-l)':'var(--muted)'};">${i+1}</span>
-            <span style="font-weight:600;">${c.name}</span>
+    <div>
+      ${topC.map((c,i)=>`
+        <div class="sale-row">
+          <div style="width:22px;height:22px;border-radius:6px;background:${i===0?'linear-gradient(135deg,#C9A84C,#8B6914)':i===1?'rgba(192,192,192,0.15)':i===2?'rgba(205,127,50,0.15)':'var(--surface3)'};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:${i<3?'var(--gold-l)':'var(--muted)'};flex-shrink:0;">${i+1}</div>
+          <div style="flex:1;">
+            <div style="font-size:11px;font-weight:600;">${c.name}</div>
+            <div class="cat-bar-track" style="margin-top:4px;width:100%;"><div class="cat-bar-fill" style="width:${Math.round((c.ca/maxCA)*100)}%;"></div></div>
           </div>
-          <span style="color:var(--gold);font-weight:700;">${c.ca.toFixed(0)} DA · ${c.sales} vte(s)</span>
-        </div>
-        <div class="pb"><div class="pf" style="width:${Math.round((c.ca/maxCA)*100)}%;"></div></div>
-      </div>`).join('')}
-    ${!topConsultants.length?'<div class="empty"><p>Aucune vente enregistrée</p></div>':''}
+          <div style="text-align:right;flex-shrink:0;">
+            <div style="font-size:10px;font-weight:700;color:var(--gold-l);">${c.ca.toFixed(0)} DA</div>
+            <div style="font-size:8px;color:var(--muted);">${c.sales} vente(s)</div>
+          </div>
+        </div>`).join('')}
+      ${!topC.length?'<div class="empty-state" style="padding:20px;"><p>Aucune donnée</p></div>':''}
+    </div>
   </div>
 
   <div class="card">
-    <div class="card-hdr"><i class="fa-solid fa-bell" style="color:var(--gold);"></i> État des Clients</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
-      <div class="stat-box"><div class="stat-val" style="color:#10B981;font-size:24px;">${recent}</div><div class="stat-lbl">Récents</div></div>
-      <div class="stat-box"><div class="stat-val" style="color:#F59E0B;font-size:24px;">${warn}</div><div class="stat-lbl">À relancer</div></div>
-      <div class="stat-box"><div class="stat-val" style="color:#EF4444;font-size:24px;">${urgent}</div><div class="stat-lbl">Urgents</div></div>
+    <div class="card-hdr-bar">
+      <div style="width:10px;height:10px;border-radius:3px;background:var(--green);"></div>
+      <span class="card-hdr-title">Santé du portefeuille</span>
+    </div>
+    <div class="card-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;">
+        <div style="background:rgba(0,202,114,0.08);border:1px solid rgba(0,202,114,0.2);border-radius:8px;padding:12px;text-align:center;">
+          <div style="font-size:22px;font-weight:800;color:var(--green);font-family:'Cormorant Garamond',serif;">${rec}</div>
+          <div style="font-size:8px;color:var(--muted);margin-top:2px;">Récents</div>
+        </div>
+        <div style="background:rgba(255,123,0,0.08);border:1px solid rgba(255,123,0,0.2);border-radius:8px;padding:12px;text-align:center;">
+          <div style="font-size:22px;font-weight:800;color:var(--orange);font-family:'Cormorant Garamond',serif;">${warn}</div>
+          <div style="font-size:8px;color:var(--muted);margin-top:2px;">À relancer</div>
+        </div>
+        <div style="background:rgba(228,66,88,0.08);border:1px solid rgba(228,66,88,0.2);border-radius:8px;padding:12px;text-align:center;">
+          <div style="font-size:22px;font-weight:800;color:var(--red);font-family:'Cormorant Garamond',serif;">${urg}</div>
+          <div style="font-size:8px;color:var(--muted);margin-top:2px;">Urgents</div>
+        </div>
+      </div>
     </div>
   </div>`;
 }
 
 // ══════════════════════════════════════
-//  ÉQUIPE (ADMIN)
+//  ÉQUIPE
 // ══════════════════════════════════════
 function renderEquipe(){
-  const allSales=getSales();
+  const all=getSales();
   const now=new Date();
-  const byConsultant={};
-  allSales.forEach(s=>{
-    if(!byConsultant[s.consultant]) byConsultant[s.consultant]={name:s.consultant,sales:[],clients:new Set()};
-    byConsultant[s.consultant].sales.push(s);
-    byConsultant[s.consultant].clients.add(s.client);
+  const byC={};
+  all.forEach(s=>{
+    if(!byC[s.consultant]) byC[s.consultant]={name:s.consultant,sales:[],clients:new Set()};
+    byC[s.consultant].sales.push(s); byC[s.consultant].clients.add(s.client);
   });
-
-  const sorted=Object.values(byConsultant).sort((a,b)=>{
-    const aCA=a.sales.reduce((t,s)=>t+s.amount,0);
-    const bCA=b.sales.reduce((t,s)=>t+s.amount,0);
-    return bCA-aCA;
-  });
+  const sorted=Object.values(byC).sort((a,b)=>b.sales.reduce((t,s)=>t+s.amount,0)-a.sales.reduce((t,s)=>t+s.amount,0));
 
   let html='';
-  sorted.forEach(c=>{
+  sorted.forEach((c,i)=>{
     const ca=c.sales.reduce((t,s)=>t+s.amount,0);
     const thisM=c.sales.filter(s=>{const d=new Date(s.date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
-    const lastSale=c.sales.sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
-    html+=`<div class="c-card">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
-        <div>
-          <div style="font-weight:700;font-size:13px;color:var(--gold-l);">${c.name}</div>
-          <div style="font-size:8px;color:var(--muted);margin-top:1px;">${c.clients.size} client(s) · ${c.sales.length} vente(s)</div>
+    const last=c.sales.sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+    const color=AVATAR_COLORS[i%AVATAR_COLORS.length];
+    const initials=c.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+
+    html+=`<div class="team-card">
+      <div class="team-card-header">
+        <div class="avatar" style="background:${color};font-size:12px;">${initials}</div>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:700;color:#fff;">${c.name}</div>
+          <div style="font-size:9px;color:var(--muted);">${c.clients.size} client(s) · ${c.sales.length} vente(s)</div>
         </div>
         <div style="text-align:right;">
-          <div style="font-size:11px;font-weight:700;color:var(--gold);">${ca.toFixed(0)} DA</div>
+          <div style="font-size:12px;font-weight:700;color:var(--gold-l);">${ca.toFixed(0)} DA</div>
           <div style="font-size:8px;color:var(--muted);">CA total</div>
         </div>
       </div>
-      <div style="display:flex;gap:8px;">
-        <div style="flex:1;background:rgba(255,255,255,0.03);border-radius:8px;padding:7px;text-align:center;">
-          <div style="font-size:14px;font-weight:700;color:var(--gold-l);">${thisM.length}</div>
-          <div style="font-size:7px;color:var(--muted);">Ventes ce mois</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;border-top:1px solid var(--border);">
+        <div style="padding:10px;text-align:center;border-right:1px solid var(--border);">
+          <div style="font-size:16px;font-weight:700;color:#fff;">${thisM.length}</div>
+          <div style="font-size:7.5px;color:var(--muted);">Ce mois</div>
         </div>
-        <div style="flex:1;background:rgba(255,255,255,0.03);border-radius:8px;padding:7px;text-align:center;">
-          <div style="font-size:11px;font-weight:700;color:var(--gold-l);">${thisM.reduce((t,s)=>t+s.amount,0).toFixed(0)}</div>
-          <div style="font-size:7px;color:var(--muted);">DA ce mois</div>
+        <div style="padding:10px;text-align:center;border-right:1px solid var(--border);">
+          <div style="font-size:13px;font-weight:700;color:var(--gold-l);">${thisM.reduce((t,s)=>t+s.amount,0).toFixed(0)}</div>
+          <div style="font-size:7.5px;color:var(--muted);">DA ce mois</div>
         </div>
-        <div style="flex:1;background:rgba(255,255,255,0.03);border-radius:8px;padding:7px;text-align:center;">
-          <div style="font-size:9px;font-weight:600;color:var(--text);">${lastSale?fmtDate(lastSale.date):'-'}</div>
-          <div style="font-size:7px;color:var(--muted);">Dernière vente</div>
+        <div style="padding:10px;text-align:center;">
+          <div style="font-size:10px;font-weight:600;color:var(--text);">${last?fmtDateShort(last.date):'-'}</div>
+          <div style="font-size:7.5px;color:var(--muted);">Dernière vente</div>
         </div>
       </div>
-      <div style="margin-top:8px;">
-        <div style="font-size:7px;color:var(--muted);margin-bottom:4px;">Dernières ventes :</div>
+      <div style="padding:10px;border-top:1px solid var(--border);">
+        <div style="font-size:8px;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px;">Dernières ventes</div>
         ${c.sales.sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,3).map(s=>`
-          <div style="font-size:8px;color:#8B8070;margin-bottom:2px;">• ${s.client} — ${s.product} — ${s.amount} ${s.currency} (${fmtDate(s.date)})</div>
-        `).join('')}
+          <div style="font-size:9px;color:var(--muted);margin-bottom:3px;display:flex;justify-content:space-between;">
+            <span>${s.client} — ${s.product}</span>
+            <span style="color:var(--gold-l);font-weight:600;">${s.amount} ${s.currency}</span>
+          </div>`).join('')}
       </div>
     </div>`;
   });
 
-  document.getElementById('equipe-content').innerHTML=`
-    <div class="card">
-      <div class="card-hdr"><i class="fa-solid fa-people-group" style="color:var(--gold);"></i> Mon Équipe (${sorted.length} consultante(s))</div>
-      ${html||'<div class="empty"><i class="fa-solid fa-user-plus"></i><p>Aucune consultante enregistrée.<br>Les consultantes apparaissent dès leur première vente.</p></div>'}
-    </div>`;
+  document.getElementById('equipe-content').innerHTML=html||`<div class="empty-state" style="padding:40px 20px;"><i class="fa-solid fa-user-plus"></i><p>Aucune consultante.<br>Elles apparaissent dès la première vente.</p></div>`;
 }
 
 // ══════════════════════════════════════
 //  HELPERS
 // ══════════════════════════════════════
 function populateDatalist(){
-  const sales=mySales();
-  const clients=[...new Set(sales.map(s=>s.client))];
-  const allSales=getSales();
-  const consultants=[...new Set(allSales.map(s=>s.consultant))];
-  document.getElementById('dl-clients').innerHTML=clients.map(c=>`<option value="${esc(c)}">`).join('');
-  const dCon=document.getElementById('dl-consultants');
-  if(dCon) dCon.innerHTML=consultants.map(c=>`<option value="${esc(c)}">`).join('');
+  const s=mySales();
+  document.getElementById('dl-clients').innerHTML=[...new Set(s.map(x=>x.client))].map(c=>`<option value="${esc(c)}">`).join('');
+  const dc=document.getElementById('dl-consultants');
+  if(dc) dc.innerHTML=[...new Set(getSales().map(x=>x.consultant))].map(c=>`<option value="${esc(c)}">`).join('');
 }
 
 function fmtDate(d){
   if(!d) return '-';
   return new Date(d).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'2-digit'});
 }
-
-function esc(s){return s.replace(/'/g,"\\'");}
+function fmtDateShort(d){
+  if(!d) return '-';
+  return new Date(d).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'});
+}
+function esc(s){return (s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');}
 
 function toast(msg){
   const t=document.getElementById('toast');
-  t.textContent=msg;
-  t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2800);
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2600);
 }
-
 function openModal(id){document.getElementById(id).classList.add('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 
-// ══════════════════════════════════════
-//  INIT
-// ══════════════════════════════════════
-// Set today's date on load
-window.addEventListener('load',()=>{
-  const today=new Date().toISOString().split('T')[0];
-  // Will be set when app starts
-});
-
-// Close modal on escape
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){
-    closeModal('modal-client');
-    closeModal('modal-sale');
-  }
+  if(e.key==='Escape'){closeModal('modal-client');closeModal('modal-event');}
 });
 
-// Initialize currency toggle style
-setTimeout(()=>setCur('DA'),100);
+setTimeout(()=>setCur('DA'),50);
 </script>
 </body>
 </html>
