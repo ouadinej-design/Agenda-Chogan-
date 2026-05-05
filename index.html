@@ -3,328 +3,213 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Limitless Elite — Manager Pro</title>
+<title>Limitless Elite — Agenda Expert</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
 :root{
-  /* Palette Lumineuse & Or[cite: 1, 2] */
-  --bg:#F8F9FA;--surf:#FFFFFF;--surf2:#F1F3F5;--surf3:#E9ECEF;
-  --border:rgba(0,0,0,0.06);--text:#2D3436;--muted:#636E72;
+  --bg:#FDFDFD;--surf:#FFFFFF;--surf2:#F8F9FA;
+  --border:rgba(201,168,76,0.15);--text:#2D3436;--muted:#636E72;
   --gold:#C9A84C;--gold-l:#D4AF37;--gold-d:#8B6914;
-  --green:#27AE60;--orange:#E67E22;--red:#D63031;
-  --blue:#0984E3;--purple:#6C5CE7;--pink:#E84393;--teal:#00CEC9;
+  --green:#27AE60;--orange:#E67E22;--blue:#0984E3;--pink:#E84393;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;font-size:13px;}
-::-webkit-scrollbar{width:3px;height:3px;}
-::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.1);border-radius:3px;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;font-size:13px;}
 
-.screen{display:none;min-height:100vh;}
+.screen{display:none;}
 .screen.on{display:block;}
 
-/* LOGIN LUMINEUX[cite: 2] */
-#sLogin{background:linear-gradient(135deg,#FFFFFF,#F8F9FA 60%,#FFF9E6);display:none;flex-direction:column;justify-content:center;align-items:center;padding:32px 20px;min-height:100vh;}
-#sLogin.on{display:flex;}
-.ws-logo{width:58px;height:58px;border-radius:16px;background:linear-gradient(135deg,#C9A84C,#8B6914);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;box-shadow:0 8px 32px rgba(201,168,76,0.2);}
-.ws-card{background:rgba(255,255,255,0.9);border:1px solid var(--border);border-radius:16px;padding:22px 18px;width:100%;max-width:380px;backdrop-filter:blur(20px);box-shadow:0 10px 40px rgba(0,0,0,0.05);}
-.ws-btn{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:13px 14px;width:100%;text-align:left;cursor:pointer;transition:all 0.2s;margin-bottom:8px;display:flex;align-items:center;gap:12px;color:var(--text);font-family:'Inter',sans-serif;}
-.ws-btn:hover{background:var(--surf2);border-color:var(--gold);transform:translateX(2px);}
-.ws-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+/* TOPBAR & NAV */
+.topbar{background:var(--surf);border-bottom:1px solid var(--border);padding:0 16px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.logo-area{display:flex;align-items:center;gap:10px;}
+.logo-badge{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#C9A84C,#8B6914);display:flex;align-items:center;justify-content:center;color:#FFF;font-weight:800;}
+.logo-text{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:16px;color:var(--gold-d);line-height:1;}
 
-.form-panel{background:var(--surf2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-top:10px;}
-.inp{background:var(--surf);border:1.5px solid var(--border);border-radius:8px;color:var(--text);padding:10px 12px;width:100%;font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:border-color 0.15s;margin-bottom:8px;}
-.inp:focus{border-color:var(--gold);}
-.inp::placeholder{color:var(--muted);}
+/* AGENDA STYLES */
+.page-hdr{padding:20px 16px 10px;display:flex;align-items:center;justify-content:space-between;}
+.page-hdr h2{font-size:20px;font-family:'Cormorant Garamond',serif;font-weight:700;}
 
-.btn-p{background:linear-gradient(135deg,#C9A84C,#A07A28);color:#FFF;font-weight:700;font-size:12px;border-radius:8px;padding:12px 20px;width:100%;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:all 0.2s;box-shadow:0 4px 12px rgba(201,168,76,0.25);}
-.btn-p:hover{filter:brightness(1.08);}
-.btn-ghost{background:transparent;border:1.5px solid var(--border);color:var(--muted);font-size:11px;border-radius:8px;padding:10px;cursor:pointer;font-family:'Inter',sans-serif;width:100%;margin-top:6px;}
-
-/* APP & TOPBAR */
-#sApp{background:var(--bg);padding-bottom:68px;}
-.topbar{background:var(--surf);border-bottom:1px solid var(--border);padding:0 14px;height:50px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 10px rgba(0,0,0,0.02);}
-.ws-chip{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,#C9A84C,#8B6914);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#FFF;flex-shrink:0;}
-.ws-name{font-weight:700;font-size:13px;color:var(--gold-d);font-family:'Cormorant Garamond',serif;}
-.ws-role{font-size:8.5px;color:var(--muted);}
-.icon-btn{width:30px;height:30px;border-radius:7px;background:transparent;border:1px solid var(--border);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;}
-
-.view{display:none;}
-.view.on{display:block;}
-.page-hdr{padding:14px 12px 8px;display:flex;align-items:center;justify-content:space-between;}
-.page-hdr h2{font-size:17px;font-weight:700;color:var(--text);}
-
-/* CHIPS */
-.filter-bar{display:flex;gap:5px;padding:0 12px 10px;overflow-x:auto;}
-.chip{padding:5px 11px;border-radius:20px;font-size:9.5px;font-weight:600;cursor:pointer;color:var(--muted);border:1.5px solid var(--border);white-space:nowrap;background:var(--surf);font-family:'Inter',sans-serif;}
+.filter-bar{display:flex;gap:8px;padding:10px 16px;overflow-x:auto;scrollbar-width:none;}
+.chip{padding:6px 14px;border-radius:20px;font-size:10px;font-weight:700;cursor:pointer;background:var(--surf);border:1px solid var(--border);white-space:nowrap;color:var(--muted);transition:0.2s;}
 .chip.on{background:rgba(201,168,76,0.1);border-color:var(--gold);color:var(--gold-d);}
 
-/* BOARD & PULSE */
-.board{padding:0 12px 16px;}
-.group{margin-bottom:14px;background:var(--surf);border-radius:10px;border:1px solid var(--border);overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.03);}
-.group-hdr{display:flex;align-items:center;gap:7px;padding:10px 12px;border-bottom:1px solid var(--border);}
-.group-title{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;}
-.pulse{display:flex;align-items:center;background:var(--surf);border-bottom:1px solid var(--border);padding:11px 12px 11px 15px;gap:8px;position:relative;}
-.pulse:last-child{border-bottom:none;}
-.pulse-past{opacity:0.5;}
-.pulse-today{background:rgba(201,168,76,0.04)!important;}
-.pulse-bar{position:absolute;left:0;top:0;bottom:0;width:3px;}
+/* ADD EVENT FORM[cite: 2] */
+.add-panel{background:var(--surf);border:1px solid var(--border);border-radius:12px;margin:0 16px 20px;padding:16px;box-shadow:0 4px 15px rgba(0,0,0,0.03);}
+.inp-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.inp{width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);font-family:'Inter',sans-serif;font-size:12px;outline:none;background:var(--surf2);}
+.inp:focus{border-color:var(--gold);}
+.btn-gold{background:linear-gradient(135deg,#C9A84C,#A07A28);color:#FFF;border:none;padding:12px;border-radius:8px;font-weight:700;width:100%;cursor:pointer;box-shadow:0 4px 10px rgba(201,168,76,0.2);}
 
-/* BADGES[cite: 2] */
-.jx-badge{display:inline-block;padding:3px 8px;border-radius:5px;font-size:9px;font-weight:800;white-space:nowrap;}
-.jx-today{background:rgba(39,174,96,0.1);color:var(--green);}
-.jx-soon{background:rgba(230,126,34,0.1);color:var(--orange);}
+/* LISTING */
+.board{padding:0 16px 80px;}
+.event-card{background:var(--surf);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;position:relative;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.02);}
+.event-color{position:absolute;left:0;top:0;bottom:0;width:4px;}
+.event-info{flex:1;}
+.event-name{font-weight:700;font-size:13px;margin-bottom:2px;}
+.event-meta{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;}
+.jx-badge{padding:4px 8px;border-radius:6px;font-size:10px;font-weight:800;background:var(--surf2);color:var(--gold-d);}
 
-/* CARDS LUMINEUSES */
-.card{background:var(--surf);border:1px solid var(--border);border-radius:10px;margin:0 12px 10px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.03);}
-.card-hdr{display:flex;align-items:center;gap:8px;padding:11px 13px;border-bottom:1px solid var(--border);background:rgba(0,0,0,0.01);}
-.card-hdr-title{font-size:11px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:0.5px;}
-
-/* KPI */
-.kpi{background:var(--surf);border:1px solid var(--border);border-radius:10px;padding:12px;position:relative;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.03);}
-.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--gold);}
-.kpi-val{font-size:22px;font-weight:800;color:var(--text);font-family:'Cormorant Garamond',serif;}
-
-/* NAV */
-.bnav{position:fixed;bottom:0;left:0;right:0;background:var(--surf);border-top:1px solid var(--border);display:flex;z-index:200;padding-bottom:env(safe-area-inset-bottom,0);box-shadow:0 -2px 10px rgba(0,0,0,0.02);}
-.ni{flex:1;padding:10px 2px;text-align:center;cursor:pointer;color:var(--muted);position:relative;}
+.bnav{position:fixed;bottom:0;left:0;right:0;background:var(--surf);border-top:1px solid var(--border);display:flex;padding-bottom:env(safe-area-inset-bottom,0);z-index:1000;}
+.ni{flex:1;padding:15px;text-align:center;color:var(--muted);cursor:pointer;}
 .ni.on{color:var(--gold-d);}
-.ni.on::before{content:'';position:absolute;top:0;left:25%;right:25%;height:2px;background:var(--gold);border-radius:0 0 3px 3px;}
 
-#toast{position:fixed;bottom:78px;left:50%;transform:translateX(-50%) translateY(14px);background:var(--text);border-radius:8px;padding:8px 16px;font-size:12px;color:#FFF;z-index:1000;opacity:0;transition:all 0.22s;pointer-events:none;}
-#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+#toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--text);color:#FFF;padding:10px 20px;border-radius:30px;font-size:12px;z-index:2000;display:none;}
 </style>
 </head>
 <body>
 <div id="toast"></div>
 
-<!-- LOGIN[cite: 1, 2] -->
-<div id="sLogin" class="screen on">
-  <div style="text-align:center;margin-bottom:22px;">
-    <div class="ws-logo"><i class="fa-solid fa-crown" style="font-size:22px;color:#FFF;"></i></div>
-    <h1 style="font-size:26px;font-weight:700;color:var(--gold-d);font-family:'Cormorant Garamond',serif;">LIMITLESS ELITE</h1>
-    <p style="font-size:9px;color:var(--muted);letter-spacing:3px;margin-top:4px;text-transform:uppercase;">Luxury Workspace</p>
-  </div>
-  <div class="ws-card">
-    <button class="ws-btn" onclick="showLoginForm('consultant')">
-      <div class="ws-icon" style="background:rgba(39,174,96,0.1);"><i class="fa-solid fa-user" style="color:var(--green);"></i></div>
-      <div style="flex:1;"><div style="font-weight:600;font-size:13px;">Espace Consultante</div><div style="font-size:9px;color:var(--muted);">Agenda & Ventes</div></div>
-    </button>
-    <button class="ws-btn" onclick="showLoginForm('admin')">
-      <div class="ws-icon" style="background:rgba(201,168,76,0.1);"><i class="fa-solid fa-shield-halved" style="color:var(--gold);"></i></div>
-      <div style="flex:1;"><div style="font-weight:600;font-size:13px;">Espace Manager</div><div style="font-size:9px;color:var(--muted);">Gestion d'Équipe</div></div>
-    </button>
-    
-    <div id="f-consultant" style="display:none;" class="form-panel">
-      <input id="cName" class="inp" placeholder="Ton Prénom" type="text">
-      <button class="btn-p" onclick="loginConsultant()">Accéder →</button>
-    </div>
-    
-    <div id="f-admin" style="display:none;" class="form-panel">
-      <input id="aEmail" class="inp" placeholder="Email" type="email">
-      <input id="aPass" class="inp" placeholder="Mot de passe" type="password">
-      <button class="btn-p" onclick="loginAdmin()">Dashboard →</button>
-    </div>
-  </div>
-  <p style="font-size:9px;color:var(--muted);margin-top:20px;">Par Marie · Limitless Team[cite: 1]</p>
-</div>
-
-<!-- APP PRINCIPALE -->
-<div id="sApp" class="screen">
+<div id="sApp" class="screen on">
   <div class="topbar">
-    <div style="display:flex;align-items:center;gap:9px;">
-      <div class="ws-chip">L</div>
-      <div><div class="ws-name">Limitless Elite</div><div class="ws-role" id="hdr-sub"></div></div>
+    <div class="logo-area">
+      <div class="logo-badge">L</div>
+      <div>
+        <div class="logo-text">LIMITLESS ELITE</div>
+        <div style="font-size:8px;color:var(--muted);letter-spacing:1px;">STRATEGY MANAGER</div>
+      </div>
     </div>
-    <button class="icon-btn" onclick="logout()"><i class="fa-solid fa-power-off"></i></button>
+    <div style="font-size:10px;font-weight:700;color:var(--gold-d);" id="curDate"></div>
   </div>
 
-  <!-- AGENDA[cite: 2] -->
-  <div id="view-agenda" class="view on">
-    <div class="page-hdr"><h2>Agenda Stratégique</h2><span id="today-lbl" style="font-size:10px;color:var(--gold-d);font-weight:600;"></span></div>
-    <div id="agenda-alerts" style="padding:0 12px 10px;"></div>
-    <div class="filter-bar">
-        <div class="chip on" onclick="filterCal('all',this)">Tout</div>
-        <div class="chip" onclick="filterCal('prepa',this)">📦 Pré-commandes</div>
-        <div class="chip" onclick="filterCal('comm',this)">Business</div>
-        <div class="chip" onclick="filterCal('mus',this)">Islam</div>
-        <div class="chip" onclick="filterCal('cath',this)">Catho</div>
+  <div class="page-hdr">
+    <h2>Agenda Stratégique</h2>
+    <button onclick="toggleAdd()" style="background:none;border:none;color:var(--gold-d);font-size:18px;"><i class="fa-solid fa-circle-plus"></i></button>
+  </div>
+
+  <!-- FORMULAIRE D'AJOUT[cite: 2] -->
+  <div id="addForm" class="add-panel" style="display:none;">
+    <input id="evName" class="inp" style="margin-bottom:10px;" placeholder="Nom de l'événement (ex: Promo Flash)">
+    <div class="inp-row">
+        <input id="evDate" class="inp" type="date">
+        <select id="evCat" class="inp">
+            <option value="comm">Business</option>
+            <option value="mus">Islam</option>
+            <option value="cath">Catho</option>
+            <option value="perso">Personnel</option>
+        </select>
     </div>
-    <div class="board" id="agenda-board"></div>
+    <button class="btn-gold" onclick="saveCustomEvent()">Ajouter à l'agenda</button>
   </div>
 
-  <!-- AUTRES VUES (Vente, Clients, etc. - Structure identique mais style hérité) -->
-  <div id="view-vente" class="view">
-    <div class="page-hdr"><h2>Nouvelle Vente</h2></div>
-    <div class="card">
-        <div class="card-body">
-            <input id="sClient" class="inp" placeholder="Nom de la cliente" list="dl-clients">
-            <datalist id="dl-clients"></datalist>
-            <input id="sProd" class="inp" placeholder="Produit Chogan">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                <input id="sQty" class="inp" type="number" value="1">
-                <select id="sCat" class="inp">
-                    <option value="Parfum">Parfum</option>
-                    <option value="Soin">Soin</option>
-                    <option value="Maquillage">Maquillage</option>
-                </select>
-            </div>
-            <div style="display:flex;gap:8px;">
-                <input id="sAmt" class="inp" type="number" placeholder="Montant" style="flex:1;">
-                <select id="sCur" class="inp" style="width:70px;"><option value="DA">DA</option><option value="€">€</option></select>
-            </div>
-            <input id="sDate" class="inp" type="date">
-            <button onclick="saveSale()" class="btn-p">Enregistrer la transaction</button>
-        </div>
-    </div>
-    <div class="card"><div class="card-hdr">Dernières ventes</div><div id="recent-sales"></div></div>
+  <div class="filter-bar">
+    <div class="chip on" onclick="setFilter('all',this)">Tout</div>
+    <div class="chip" onclick="setFilter('prepa',this)">📦 Pré-commandes</div>
+    <div class="chip" onclick="setFilter('mus',this)">Islam</div>
+    <div class="chip" onclick="setFilter('comm',this)">Business</div>
+    <div class="chip" onclick="setFilter('cath',this)">Catho</div>
   </div>
 
-  <div id="view-clients" class="view">
-    <div class="page-hdr"><h2>Portefeuille Clients</h2></div>
-    <div style="padding:0 12px 10px;"><input class="inp" id="client-search" placeholder="Rechercher..." oninput="renderClients()"></div>
-    <div class="board" id="clients-board"></div>
-  </div>
+  <div class="board" id="agendaList"></div>
 
-  <div id="view-stats" class="view">
-    <div class="page-hdr"><h2>Statistiques</h2></div>
-    <div id="stats-content"></div>
-  </div>
-
-  <div id="view-dashboard" class="view"><div class="page-hdr"><h2>Dashboard Manager</h2></div><div id="dashboard-content"></div></div>
-  <div id="view-equipe" class="view"><div class="page-hdr"><h2>Ma Team Limitless</h2></div><div id="equipe-content"></div></div>
-
-  <nav class="bnav" id="bottom-nav"></nav>
+  <nav class="bnav">
+    <div class="ni on"><i class="fa-solid fa-calendar-gold"></i><div style="font-size:8px;margin-top:4px;">AGENDA</div></div>
+    <div class="ni" onclick="toast('Module Ventes bientôt disponible')"><i class="fa-solid fa-bag-shopping"></i><div style="font-size:8px;margin-top:4px;">VENTES</div></div>
+    <div class="ni" onclick="toast('Module Team bientôt disponible')"><i class="fa-solid fa-users"></i><div style="font-size:8px;margin-top:4px;">TEAM</div></div>
+  </nav>
 </div>
 
 <script>
-const ADMIN_EMAIL="ouadi.nej@gmail.com", ADMIN_PASS="1981";
-const TYPE_COLOR={mus:'#27AE60',cath:'#0984E3',comm:'#E67E22',saison:'#E84393',prepa:'#C9A84C',perso:'#00CEC9'};
-
-const MASTER_EVENTS=[
-  {n:"Ramadan",d:"2026-02-18",t:"mus",lbl:"Islam"},
-  {n:"Aïd el-Fitr 🌙",d:"2026-03-20",t:"mus",lbl:"Islam"},
-  {n:"Fête des Mères 🌹",d:"2026-05-31",t:"comm",lbl:"Business"},
-  {n:"Fête des Pères 👔",d:"2026-06-21",t:"comm",lbl:"Business"},
-  {n:"Soldes d'Été",d:"2026-06-27",t:"comm",lbl:"Business"},
-  {n:"Noël 🎄",d:"2026-12-25",t:"cath",lbl:"Catho"}
+// Événements 2026 complets[cite: 2]
+const MASTER_EVENTS = [
+    {n:"Saint-Valentin ❤️", d:"2026-02-14", t:"comm", lbl:"Business"},
+    {n:"Ramadan 🌙", d:"2026-02-18", t:"mus", lbl:"Islam"},
+    {n:"Aïd el-Fitr", d:"2026-03-20", t:"mus", lbl:"Islam"},
+    {n:"Pâques 🐣", d:"2026-04-05", t:"cath", lbl:"Catho"},
+    {n:"Aïd el-Adha 🐏", d:"2026-05-27", t:"mus", lbl:"Islam"},
+    {n:"Fête des Mères 🌹", d:"2026-05-31", t:"comm", lbl:"Business"},
+    {n:"Fête des Pères 👔", d:"2026-06-21", t:"comm", lbl:"Business"},
+    {n:"Soldes d'Été 🏷️", d:"2026-06-24", t:"comm", lbl:"Business"},
+    {n:"Achoura 🕌", d:"2026-07-25", t:"mus", lbl:"Islam"},
+    {n:"Mawlid 🕯️", d:"2026-08-25", t:"mus", lbl:"Islam"},
+    {n:"Rentrée Scolaire", d:"2026-09-01", t:"comm", lbl:"Business"},
+    {n:"Black Friday 🔥", d:"2026-11-27", t:"comm", lbl:"Business"},
+    {n:"Noël 🎄", d:"2026-12-25", t:"cath", lbl:"Catho"}
 ];
 
-let USER=null, CUR_FILTER_CAL='all';
-const getSales=()=>JSON.parse(localStorage.getItem('le_sales')||'[]');
-const putSales=d=>localStorage.setItem('le_sales',JSON.stringify(d));
-const mySales=()=>{const s=getSales(); return (USER && USER.role==='admin')?s:s.filter(x=>x.consultant===USER.name);};
+let currentFilter = 'all';
 
-function showLoginForm(r){
-    document.getElementById('f-consultant').style.display=r==='consultant'?'block':'none';
-    document.getElementById('f-admin').style.display=r==='admin'?'block':'none';
+function getCustomEvents() {
+    return JSON.parse(localStorage.getItem('le_custom_events') || '[]');
 }
 
-function loginConsultant(){
-    const n=document.getElementById('cName').value.trim();
-    if(!n)return toast('Prénom requis');
-    USER={role:'consultant',name:n}; startApp();
-}
-
-function loginAdmin(){
-    const e=document.getElementById('aEmail').value, p=document.getElementById('aPass').value;
-    if(e===ADMIN_EMAIL && p===ADMIN_PASS){ USER={role:'admin',name:'Marie'}; startApp(); }
-    else toast('Erreur identifiants');
-}
-
-function startApp(){
-    document.getElementById('sLogin').style.display='none';
-    document.getElementById('sApp').style.display='block';
-    document.getElementById('hdr-sub').textContent=USER.name;
-    const now=new Date();
-    document.getElementById('today-lbl').textContent=now.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
-    document.getElementById('sDate').value=now.toISOString().split('T')[0];
-    buildNav(); showTab('agenda');
-}
-
-function buildNav(){
-    const tabs=[{id:'agenda',i:'fa-calendar'},{id:'vente',i:'fa-bag-shopping'},{id:'clients',i:'fa-users'},{id:'stats',i:'fa-chart-line'}];
-    if(USER.role==='admin'){tabs.push({id:'dashboard',i:'fa-gauge'},{id:'equipe',i:'fa-people-group'});}
-    document.getElementById('bottom-nav').innerHTML=tabs.map(t=>`<div class="ni" id="ni-${t.id}" onclick="showTab('${t.id}')"><i class="fa-solid ${t.i}"></i></div>`).join('');
-}
-
-function showTab(t){
-    document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
-    document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
-    document.getElementById('view-'+t).classList.add('on');
-    document.getElementById('ni-'+t).classList.add('on');
-    if(t==='agenda') renderAgenda();
-    if(t==='vente') renderRecentSales();
-    if(t==='clients') renderClients();
-}
-
-function filterCal(f,el){
-    CUR_FILTER_CAL=f;
-    document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
-    el.classList.add('on'); renderAgenda();
-}
-
-function renderAgenda(){
-    const now=new Date(); now.setHours(0,0,0,0);
-    let all=[...MASTER_EVENTS];
+function saveCustomEvent() {
+    const name = document.getElementById('evName').value;
+    const date = document.getElementById('evDate').value;
+    const cat = document.getElementById('evCat').value;
     
-    // Logique "Pré-commandes" J-20[cite: 2]
-    MASTER_EVENTS.forEach(e=>{
-        let pd=new Date(e.d); pd.setDate(pd.getDate()-20);
-        all.push({n:e.n, d:pd.toISOString().split('T')[0], t:'prepa', lbl:'📦 Pré-commande'});
+    if(!name || !date) return toast("Remplis tous les champs");
+    
+    const customs = getCustomEvents();
+    customs.push({n: name, d: date, t: cat, lbl: document.getElementById('evCat').options[document.getElementById('evCat').selectedIndex].text});
+    localStorage.setItem('le_custom_events', JSON.stringify(customs));
+    
+    document.getElementById('evName').value = "";
+    toggleAdd();
+    renderAgenda();
+    toast("Événement ajouté !");
+}
+
+function toggleAdd() {
+    const f = document.getElementById('addForm');
+    f.style.display = f.style.display === 'none' ? 'block' : 'none';
+}
+
+function setFilter(f, el) {
+    currentFilter = f;
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+    el.classList.add('on');
+    renderAgenda();
+}
+
+function renderAgenda() {
+    const now = new Date(); now.setHours(0,0,0,0);
+    const customs = getCustomEvents();
+    let all = [...MASTER_EVENTS, ...customs];
+    
+    // Génération automatique des pré-commandes J-20[cite: 2]
+    let finalEvents = [];
+    all.forEach(e => {
+        finalEvents.push(e);
+        let pd = new Date(e.d);
+        pd.setDate(pd.getDate() - 20);
+        finalEvents.push({n: e.n, d: pd.toISOString().split('T')[0], t: 'prepa', lbl: '📦 Pré-commande'});
     });
 
-    if(CUR_FILTER_CAL!=='all') all=all.filter(e=>e.t===CUR_FILTER_CAL);
-    
-    const futurs=all.filter(e=>new Date(e.d)>=now).sort((a,b)=>new Date(a.d)-new Date(b.d));
-    
-    let html=futurs.map(ev=>{
-        const diff=Math.ceil((new Date(ev.d)-now)/86400000);
-        const color=TYPE_COLOR[ev.t]||'#C9A84C';
-        return `<div class="pulse">
-            <div class="pulse-bar" style="background:${color};"></div>
-            <div style="flex:1;">
-                <div style="font-weight:600;color:var(--text);">${ev.n}</div>
-                <div style="font-size:8px;color:var(--muted);">${ev.lbl} • ${new Date(ev.d).toLocaleDateString()}</div>
+    if(currentFilter !== 'all') {
+        finalEvents = finalEvents.filter(x => x.t === currentFilter);
+    }
+
+    const listing = finalEvents
+        .filter(x => new Date(x.d) >= now)
+        .sort((a,b) => new Date(a.d) - new Date(b.d));
+
+    const html = listing.map(ev => {
+        const diff = Math.ceil((new Date(ev.d) - now) / 86400000);
+        const color = ev.t === 'prepa' ? 'var(--gold)' : (ev.t === 'mus' ? 'var(--green)' : 'var(--gold-d)');
+        
+        return `
+            <div class="event-card">
+                <div class="event-color" style="background:${color}"></div>
+                <div class="event-info">
+                    <div class="event-name">${ev.n}</div>
+                    <div class="event-meta">${ev.lbl} • ${new Date(ev.d).toLocaleDateString('fr-FR')}</div>
+                </div>
+                <div class="jx-badge">${diff === 0 ? 'AUJOURD\'HUI' : 'J-' + diff}</div>
             </div>
-            <span class="jx-badge ${diff===0?'jx-today':'jx-soon'}">${diff===0?'Auj.':'J-'+diff}</span>
-        </div>`;
+        `;
     }).join('');
-    
-    document.getElementById('agenda-board').innerHTML=html || '<p class="empty-state">Aucun événement</p>';
+
+    document.getElementById('agendaList').innerHTML = html || '<p style="text-align:center;color:var(--muted);margin-top:40px;">Aucun événement à venir</p>';
 }
 
-function saveSale(){
-    const c=document.getElementById('sClient').value, p=document.getElementById('sProd').value, a=parseFloat(document.getElementById('sAmt').value);
-    if(!c||!p||isNaN(a)) return toast('Infos incomplètes');
-    const sales=getSales();
-    sales.push({client:c, product:p, amount:a, currency:document.getElementById('sCur').value, date:document.getElementById('sDate').value, consultant:USER.name, category:document.getElementById('sCat').value});
-    putSales(sales); toast('Vente enregistrée !'); renderRecentSales();
+function toast(m) {
+    const t = document.getElementById('toast');
+    t.textContent = m; t.style.display = 'block';
+    setTimeout(() => t.style.display = 'none', 2500);
 }
 
-function renderRecentSales(){
-    const s=mySales().reverse().slice(0,5);
-    document.getElementById('recent-sales').innerHTML=s.map(x=>`
-        <div style="padding:10px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;">
-            <div><b>${x.client}</b><div style="font-size:9px;">${x.product}</div></div>
-            <div style="color:var(--gold-d);font-weight:700;">${x.amount} ${x.currency}</div>
-        </div>`).join('');
-}
-
-function renderClients(){
-    const s=mySales();
-    const clients=[...new Set(s.map(x=>x.client))];
-    document.getElementById('clients-board').innerHTML=clients.map(c=>{
-        const total=s.filter(x=>x.client===c).reduce((t,v)=>t+v.amount,0);
-        return `<div class="card" style="padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
-            <div><b>${c}</b></div>
-            <div style="color:var(--gold-d);font-weight:700;">${total.toFixed(0)} DA</div>
-        </div>`;
-    }).join('');
-}
-
-function logout(){ location.reload(); }
-function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000); }
+document.getElementById('curDate').textContent = new Date().toLocaleDateString('fr-FR', {day:'numeric', month:'short'});
+renderAgenda();
 </script>
 </body>
 </html>
