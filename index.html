@@ -3,213 +3,264 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Limitless Elite — Agenda Expert</title>
+<title>Limitless Elite — Manager Pro</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
 :root{
-  --bg:#FDFDFD;--surf:#FFFFFF;--surf2:#F8F9FA;
+  /* Palette Luxury White & Gold */
+  --bg:#FDFDFD;--surf:#FFFFFF;--surf2:#F8F9FA;--surf3:#F1F3F5;
   --border:rgba(201,168,76,0.15);--text:#2D3436;--muted:#636E72;
-  --gold:#C9A84C;--gold-l:#D4AF37;--gold-d:#8B6914;
-  --green:#27AE60;--orange:#E67E22;--blue:#0984E3;--pink:#E84393;
+  --gold:#C9A84C;--gold-l:#E8D080;--gold-d:#8B6914;
+  --green:#27AE60;--orange:#E67E22;--red:#D63031;
+  --blue:#2980B9;--purple:#8E44AD;--teal:#16A085;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;font-size:13px;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;font-size:13px;}
+::-webkit-scrollbar{width:3px;height:3px;}
+::-webkit-scrollbar-thumb{background:var(--gold-l);border-radius:3px;}
 
-.screen{display:none;}
+.screen{display:none;min-height:100vh;}
 .screen.on{display:block;}
 
-/* TOPBAR & NAV */
-.topbar{background:var(--surf);border-bottom:1px solid var(--border);padding:0 16px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
-.logo-area{display:flex;align-items:center;gap:10px;}
-.logo-badge{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#C9A84C,#8B6914);display:flex;align-items:center;justify-content:center;color:#FFF;font-weight:800;}
-.logo-text{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:16px;color:var(--gold-d);line-height:1;}
+/* LOGIN */
+#sLogin{background:linear-gradient(135deg,#FFFFFF,#FDFBF7 60%,#F5F0E5);display:none;flex-direction:column;justify-content:center;align-items:center;padding:32px 20px;min-height:100vh;}
+#sLogin.on{display:flex;}
+.ws-logo{width:62px;height:62px;border-radius:18px;background:linear-gradient(135deg,#C9A84C,#8B6914);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 10px 25px rgba(201,168,76,0.25);}
+.ws-card{background:rgba(255,255,255,0.9);border:1px solid var(--border);border-radius:20px;padding:25px 20px;width:100%;max-width:380px;box-shadow:0 15px 35px rgba(0,0,0,0.05);backdrop-filter:blur(10px);}
 
-/* AGENDA STYLES */
-.page-hdr{padding:20px 16px 10px;display:flex;align-items:center;justify-content:space-between;}
-.page-hdr h2{font-size:20px;font-family:'Cormorant Garamond',serif;font-weight:700;}
+/* UI ELEMENTS */
+.ws-btn{background:var(--surf2);border:1px solid var(--border);border-radius:12px;padding:14px;width:100%;text-align:left;cursor:pointer;transition:all 0.2s;margin-bottom:10px;display:flex;align-items:center;gap:12px;color:var(--text);}
+.ws-btn:hover{background:var(--surf);border-color:var(--gold);transform:translateY(-1px);box-shadow:0 4px 12px rgba(201,168,76,0.1);}
+.inp{background:var(--surf);border:1.5px solid var(--border);border-radius:10px;color:var(--text);padding:12px;width:100%;font-size:13px;outline:none;transition:all 0.2s;margin-bottom:10px;}
+.inp:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,0.1);}
+.btn-p{background:linear-gradient(135deg,#C9A84C,#A07A28);color:#FFF;font-weight:700;border-radius:10px;padding:14px;width:100%;cursor:pointer;border:none;box-shadow:0 5px 15px rgba(201,168,76,0.3);}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:10px;padding:10px;width:100%;margin-top:8px;}
 
-.filter-bar{display:flex;gap:8px;padding:10px 16px;overflow-x:auto;scrollbar-width:none;}
-.chip{padding:6px 14px;border-radius:20px;font-size:10px;font-weight:700;cursor:pointer;background:var(--surf);border:1px solid var(--border);white-space:nowrap;color:var(--muted);transition:0.2s;}
-.chip.on{background:rgba(201,168,76,0.1);border-color:var(--gold);color:var(--gold-d);}
+/* APP TOPBAR */
+.topbar{background:var(--surf);border-bottom:1px solid var(--border);padding:0 16px;height:60px;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 10px rgba(0,0,0,0.02);}
+.ws-name{font-weight:700;font-size:14px;color:var(--gold-d);font-family:'Cormorant Garamond',serif;text-transform:uppercase;letter-spacing:1px;}
 
-/* ADD EVENT FORM[cite: 2] */
-.add-panel{background:var(--surf);border:1px solid var(--border);border-radius:12px;margin:0 16px 20px;padding:16px;box-shadow:0 4px 15px rgba(0,0,0,0.03);}
-.inp-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
-.inp{width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);font-family:'Inter',sans-serif;font-size:12px;outline:none;background:var(--surf2);}
-.inp:focus{border-color:var(--gold);}
-.btn-gold{background:linear-gradient(135deg,#C9A84C,#A07A28);color:#FFF;border:none;padding:12px;border-radius:8px;font-weight:700;width:100%;cursor:pointer;box-shadow:0 4px 10px rgba(201,168,76,0.2);}
+/* CARDS & GROUPS */
+.card{background:var(--surf);border:1px solid var(--border);border-radius:15px;margin:0 12px 15px;overflow:hidden;box-shadow:0 4px 15px rgba(0,0,0,0.03);}
+.card-hdr{display:flex;align-items:center;gap:10px;padding:12px 15px;border-bottom:1px solid var(--border);background:var(--surf2);}
+.group-hdr{display:flex;align-items:center;gap:8px;padding:10px 15px;border-radius:12px 12px 0 0;font-weight:700;text-transform:uppercase;font-size:10px;letter-spacing:1px;}
 
-/* LISTING */
-.board{padding:0 16px 80px;}
-.event-card{background:var(--surf);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;position:relative;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.02);}
-.event-color{position:absolute;left:0;top:0;bottom:0;width:4px;}
-.event-info{flex:1;}
-.event-name{font-weight:700;font-size:13px;margin-bottom:2px;}
-.event-meta{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;}
-.jx-badge{padding:4px 8px;border-radius:6px;font-size:10px;font-weight:800;background:var(--surf2);color:var(--gold-d);}
+/* PULSE ITEMS */
+.pulse{display:flex;align-items:center;background:var(--surf);border-bottom:1px solid var(--surf2);padding:12px 15px;gap:10px;position:relative;}
+.pulse-today{background:rgba(201,168,76,0.05)!important;}
+.pulse-past{opacity:0.6;filter:grayscale(0.5);}
 
-.bnav{position:fixed;bottom:0;left:0;right:0;background:var(--surf);border-top:1px solid var(--border);display:flex;padding-bottom:env(safe-area-inset-bottom,0);z-index:1000;}
-.ni{flex:1;padding:15px;text-align:center;color:var(--muted);cursor:pointer;}
-.ni.on{color:var(--gold-d);}
+/* PILLS */
+.jx-badge{padding:4px 8px;border-radius:6px;font-size:9px;font-weight:800;}
+.jx-today{background:var(--green);color:#fff;}
+.jx-soon{background:var(--orange);color:#fff;}
+.jx-future{background:var(--surf3);color:var(--muted);}
 
-#toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--text);color:#FFF;padding:10px 20px;border-radius:30px;font-size:12px;z-index:2000;display:none;}
+/* NAV */
+.bnav{position:fixed;bottom:0;left:0;right:0;background:var(--surf);border-top:1px solid var(--border);display:flex;padding-bottom:env(safe-area-inset-bottom,0);box-shadow:0 -5px 20px rgba(0,0,0,0.05);}
+.ni{flex:1;padding:10px 2px;text-align:center;color:var(--muted);transition:all 0.2s;}
+.ni.on{color:var(--gold);}
+.ni.on i{transform:translateY(-2px);}
+
+.fab{position:fixed;bottom:85px;right:20px;width:50px;height:50px;border-radius:15px;background:linear-gradient(135deg,#C9A84C,#8B6914);color:#FFF;display:none;align-items:center;justify-content:center;font-size:20px;box-shadow:0 8px 20px rgba(201,168,76,0.4);}
 </style>
 </head>
 <body>
 <div id="toast"></div>
 
-<div id="sApp" class="screen on">
+<!-- LOGIN -->
+<div id="sLogin" class="screen on">
+  <div style="text-align:center;margin-bottom:30px;">
+    <div class="ws-logo"><i class="fa-solid fa-crown" style="font-size:26px;color:#FFF;"></i></div>
+    <h1 style="font-size:28px;font-weight:700;color:var(--gold-d);font-family:'Cormorant Garamond',serif;">LIMITLESS ELITE</h1>
+    <p style="font-size:9px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-top:5px;">Manager Pro · Excellence</p>
+  </div>
+  <div class="ws-card">
+    <div id="login-options">
+      <button class="ws-btn" onclick="showLoginForm('consultant')">
+        <div style="width:40px;height:40px;border-radius:10px;background:rgba(39,174,96,0.1);display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-user" style="color:var(--green);"></i></div>
+        <div style="flex:1;"><div style="font-weight:700;">Espace Consultante</div><div style="font-size:9px;color:var(--muted);">Mon agenda & mes ventes</div></div>
+        <i class="fa-solid fa-chevron-right" style="color:var(--border);"></i>
+      </button>
+      <button class="ws-btn" onclick="showLoginForm('admin')">
+        <div style="width:40px;height:40px;border-radius:10px;background:rgba(201,168,76,0.1);display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-shield-halved" style="color:var(--gold);"></i></div>
+        <div style="flex:1;"><div style="font-weight:700;">Espace Manager</div><div style="font-size:9px;color:var(--muted);">Pilotage équipe & Stats</div></div>
+        <i class="fa-solid fa-chevron-right" style="color:var(--border);"></i>
+      </button>
+    </div>
+    
+    <div id="f-consultant" style="display:none;">
+      <input id="cName" class="inp" placeholder="Prénom Nom" type="text">
+      <button class="btn-p" onclick="loginConsultant()">Accéder</button>
+      <button class="btn-ghost" onclick="hideLoginForms()">Retour</button>
+    </div>
+
+    <div id="f-admin" style="display:none;">
+      <input id="aEmail" class="inp" placeholder="Email" type="email">
+      <input id="aPass" class="inp" placeholder="Mot de passe" type="password">
+      <button class="btn-p" onclick="loginAdmin()">Dashboard Admin</button>
+      <button class="btn-ghost" onclick="hideLoginForms()">Retour</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP MAIN -->
+<div id="sApp" class="screen">
   <div class="topbar">
-    <div class="logo-area">
-      <div class="logo-badge">L</div>
-      <div>
-        <div class="logo-text">LIMITLESS ELITE</div>
-        <div style="font-size:8px;color:var(--muted);letter-spacing:1px;">STRATEGY MANAGER</div>
-      </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div style="width:32px;height:32px;border-radius:8px;background:var(--gold);display:flex;align-items:center;justify-content:center;color:#FFF;font-weight:900;">L</div>
+      <div><div class="ws-name">Limitless Elite</div><div id="hdr-sub" style="font-size:9px;color:var(--muted);"></div></div>
     </div>
-    <div style="font-size:10px;font-weight:700;color:var(--gold-d);" id="curDate"></div>
+    <button onclick="logout()" style="background:none;border:none;color:var(--muted);font-size:18px;"><i class="fa-solid fa-power-off"></i></button>
   </div>
 
-  <div class="page-hdr">
-    <h2>Agenda Stratégique</h2>
-    <button onclick="toggleAdd()" style="background:none;border:none;color:var(--gold-d);font-size:18px;"><i class="fa-solid fa-circle-plus"></i></button>
+  <!-- VIEWS (AGENDA, VENTE, ETC) -->
+  <div id="view-agenda" class="view on">
+    <div style="padding:15px;"><h2 style="font-family:'Cormorant Garamond';">Votre Agenda Stratégique</h2></div>
+    <div id="agenda-alerts" style="padding:0 12px 10px;"></div>
+    <div id="agenda-board" style="padding:0 12px 80px;"></div>
   </div>
 
-  <!-- FORMULAIRE D'AJOUT[cite: 2] -->
-  <div id="addForm" class="add-panel" style="display:none;">
-    <input id="evName" class="inp" style="margin-bottom:10px;" placeholder="Nom de l'événement (ex: Promo Flash)">
-    <div class="inp-row">
-        <input id="evDate" class="inp" type="date">
-        <select id="evCat" class="inp">
-            <option value="comm">Business</option>
-            <option value="mus">Islam</option>
-            <option value="cath">Catho</option>
-            <option value="perso">Personnel</option>
-        </select>
+  <div id="view-vente" class="view">
+    <div style="padding:15px;"><h2>Nouvelle Vente</h2></div>
+    <div class="card">
+        <div class="card-body" style="padding:15px;">
+            <label style="font-size:10px; font-weight:700; color:var(--gold-d);">CLIENTE</label>
+            <input id="sClient" class="inp" placeholder="Nom de la cliente">
+            <label style="font-size:10px; font-weight:700; color:var(--gold-d);">PRODUIT CHOGAN</label>
+            <input id="sProd" class="inp" placeholder="Référence ou nom">
+            <div style="display:flex; gap:10px;">
+                <div style="flex:1;"><label style="font-size:10px; font-weight:700;">MONTANT</label><input id="sAmt" class="inp" type="number" placeholder="0.00"></div>
+                <div style="width:80px;"><label style="font-size:10px; font-weight:700;">DEVISE</label>
+                    <select id="sCur" class="inp"><option value="DA">DA</option><option value="€">€</option></select>
+                </div>
+            </div>
+            <button class="btn-p" onclick="saveSale()">Valider la vente</button>
+        </div>
     </div>
-    <button class="btn-gold" onclick="saveCustomEvent()">Ajouter à l'agenda</button>
+    <div id="recent-sales" style="padding:0 12px 80px;"></div>
   </div>
 
-  <div class="filter-bar">
-    <div class="chip on" onclick="setFilter('all',this)">Tout</div>
-    <div class="chip" onclick="setFilter('prepa',this)">📦 Pré-commandes</div>
-    <div class="chip" onclick="setFilter('mus',this)">Islam</div>
-    <div class="chip" onclick="setFilter('comm',this)">Business</div>
-    <div class="chip" onclick="setFilter('cath',this)">Catho</div>
-  </div>
-
-  <div class="board" id="agendaList"></div>
-
-  <nav class="bnav">
-    <div class="ni on"><i class="fa-solid fa-calendar-gold"></i><div style="font-size:8px;margin-top:4px;">AGENDA</div></div>
-    <div class="ni" onclick="toast('Module Ventes bientôt disponible')"><i class="fa-solid fa-bag-shopping"></i><div style="font-size:8px;margin-top:4px;">VENTES</div></div>
-    <div class="ni" onclick="toast('Module Team bientôt disponible')"><i class="fa-solid fa-users"></i><div style="font-size:8px;margin-top:4px;">TEAM</div></div>
+  <nav class="bnav" id="bottom-nav">
+    <div class="ni on" onclick="showTab('agenda', this)"><i class="fa-solid fa-calendar-day"></i><br><span>Agenda</span></div>
+    <div class="ni" onclick="showTab('vente', this)"><i class="fa-solid fa-cart-plus"></i><br><span>Vente</span></div>
+    <div class="ni" onclick="showTab('clients', this)"><i class="fa-solid fa-users"></i><br><span>Clients</span></div>
+    <div class="ni" onclick="showTab('stats', this)"><i class="fa-solid fa-chart-pie"></i><br><span>Stats</span></div>
   </nav>
+  <button class="fab" id="fab-btn" onclick="toast('Fonction d\'ajout rapide')"><i class="fa-solid fa-plus"></i></button>
 </div>
 
 <script>
-// Événements 2026 complets[cite: 2]
+const ADMIN_EMAIL="ouadi.nej@gmail.com", ADMIN_PASS="1981";
+let USER = null;
+
+// Données Maîtres
 const MASTER_EVENTS = [
-    {n:"Saint-Valentin ❤️", d:"2026-02-14", t:"comm", lbl:"Business"},
-    {n:"Ramadan 🌙", d:"2026-02-18", t:"mus", lbl:"Islam"},
-    {n:"Aïd el-Fitr", d:"2026-03-20", t:"mus", lbl:"Islam"},
-    {n:"Pâques 🐣", d:"2026-04-05", t:"cath", lbl:"Catho"},
-    {n:"Aïd el-Adha 🐏", d:"2026-05-27", t:"mus", lbl:"Islam"},
-    {n:"Fête des Mères 🌹", d:"2026-05-31", t:"comm", lbl:"Business"},
-    {n:"Fête des Pères 👔", d:"2026-06-21", t:"comm", lbl:"Business"},
-    {n:"Soldes d'Été 🏷️", d:"2026-06-24", t:"comm", lbl:"Business"},
-    {n:"Achoura 🕌", d:"2026-07-25", t:"mus", lbl:"Islam"},
-    {n:"Mawlid 🕯️", d:"2026-08-25", t:"mus", lbl:"Islam"},
-    {n:"Rentrée Scolaire", d:"2026-09-01", t:"comm", lbl:"Business"},
-    {n:"Black Friday 🔥", d:"2026-11-27", t:"comm", lbl:"Business"},
-    {n:"Noël 🎄", d:"2026-12-25", t:"cath", lbl:"Catho"}
+  {n:"Aïd el-Adha 🐑", d:"2026-05-27", t:"mus", lbl:"Islam"},
+  {n:"Fête des Mères 🌹", d:"2026-05-31", t:"comm", lbl:"Business"},
+  {n:"Soldes d'Été ☀️", d:"2026-06-27", t:"comm", lbl:"Business"},
+  {n:"Nouvel An Hégire", d:"2026-07-17", t:"mus", lbl:"Islam"}
 ];
 
-let currentFilter = 'all';
-
-function getCustomEvents() {
-    return JSON.parse(localStorage.getItem('le_custom_events') || '[]');
+function showLoginForm(r){
+    document.getElementById('login-options').style.display='none';
+    document.getElementById('f-'+r).style.display='block';
+}
+function hideLoginForms(){
+    document.getElementById('login-options').style.display='block';
+    document.getElementById('f-consultant').style.display='none';
+    document.getElementById('f-admin').style.display='none';
 }
 
-function saveCustomEvent() {
-    const name = document.getElementById('evName').value;
-    const date = document.getElementById('evDate').value;
-    const cat = document.getElementById('evCat').value;
-    
-    if(!name || !date) return toast("Remplis tous les champs");
-    
-    const customs = getCustomEvents();
-    customs.push({n: name, d: date, t: cat, lbl: document.getElementById('evCat').options[document.getElementById('evCat').selectedIndex].text});
-    localStorage.setItem('le_custom_events', JSON.stringify(customs));
-    
-    document.getElementById('evName').value = "";
-    toggleAdd();
+function loginConsultant(){
+    const n = document.getElementById('cName').value.trim();
+    if(!n) return toast("Nom requis");
+    USER = {role:'consultant', name:n};
+    startApp();
+}
+
+function loginAdmin(){
+    const e = document.getElementById('aEmail').value, p = document.getElementById('aPass').value;
+    if(e === ADMIN_EMAIL && p === ADMIN_PASS){
+        USER = {role:'admin', name:'Manager'};
+        startApp();
+    } else toast("Accès refusé");
+}
+
+function startApp(){
+    document.getElementById('sLogin').classList.remove('on');
+    document.getElementById('sApp').classList.add('on');
+    document.getElementById('hdr-sub').textContent = USER.name + " (" + USER.role + ")";
     renderAgenda();
-    toast("Événement ajouté !");
 }
 
-function toggleAdd() {
-    const f = document.getElementById('addForm');
-    f.style.display = f.style.display === 'none' ? 'block' : 'none';
-}
+function logout(){ location.reload(); }
 
-function setFilter(f, el) {
-    currentFilter = f;
-    document.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+function showTab(tab, el){
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('on'));
+    document.querySelectorAll('.ni').forEach(n => n.classList.remove('on'));
+    document.getElementById('view-'+tab).classList.add('on');
     el.classList.add('on');
-    renderAgenda();
 }
 
-function renderAgenda() {
-    const now = new Date(); now.setHours(0,0,0,0);
-    const customs = getCustomEvents();
-    let all = [...MASTER_EVENTS, ...customs];
+function renderAgenda(){
+    const now = new Date();
+    let html = "";
     
-    // Génération automatique des pré-commandes J-20[cite: 2]
-    let finalEvents = [];
-    all.forEach(e => {
-        finalEvents.push(e);
-        let pd = new Date(e.d);
-        pd.setDate(pd.getDate() - 20);
-        finalEvents.push({n: e.n, d: pd.toISOString().split('T')[0], t: 'prepa', lbl: '📦 Pré-commande'});
+    // Génération des Pre-commandes (J-20)
+    let allEvents = [...MASTER_EVENTS];
+    MASTER_EVENTS.forEach(e => {
+        let d = new Date(e.d);
+        d.setDate(d.getDate() - 20);
+        allEvents.push({n: e.n, d: d.toISOString().split('T')[0], t: 'prepa', lbl: 'Pre-commandes'});
     });
 
-    if(currentFilter !== 'all') {
-        finalEvents = finalEvents.filter(x => x.t === currentFilter);
-    }
+    allEvents.sort((a,b) => new Date(a.d) - new Date(b.d));
 
-    const listing = finalEvents
-        .filter(x => new Date(x.d) >= now)
-        .sort((a,b) => new Date(a.d) - new Date(b.d));
+    allEvents.forEach(e => {
+        const diff = Math.ceil((new Date(e.d) - now) / 86400000);
+        if(diff < -5) return; // Cache les vieux événements
 
-    const html = listing.map(ev => {
-        const diff = Math.ceil((new Date(ev.d) - now) / 86400000);
-        const color = ev.t === 'prepa' ? 'var(--gold)' : (ev.t === 'mus' ? 'var(--green)' : 'var(--gold-d)');
-        
-        return `
-            <div class="event-card">
-                <div class="event-color" style="background:${color}"></div>
-                <div class="event-info">
-                    <div class="event-name">${ev.n}</div>
-                    <div class="event-meta">${ev.lbl} • ${new Date(ev.d).toLocaleDateString('fr-FR')}</div>
-                </div>
-                <div class="jx-badge">${diff === 0 ? 'AUJOURD\'HUI' : 'J-' + diff}</div>
+        const isToday = diff === 0;
+        const color = e.t === 'prepa' ? 'var(--gold)' : 'var(--blue)';
+
+        html += `
+        <div class="pulse ${isToday ? 'pulse-today' : ''}">
+            <div style="width:4px; height:40px; background:${color}; border-radius:2px;"></div>
+            <div style="flex:1;">
+                <div style="font-weight:700; color:var(--text);">${e.n}</div>
+                <div style="font-size:10px; color:var(--muted);">${e.lbl} • ${new Date(e.d).toLocaleDateString('fr-FR')}</div>
             </div>
-        `;
-    }).join('');
-
-    document.getElementById('agendaList').innerHTML = html || '<p style="text-align:center;color:var(--muted);margin-top:40px;">Aucun événement à venir</p>';
+            <div class="jx-badge ${diff <= 3 ? 'jx-today' : 'jx-future'}">${diff === 0 ? 'AUJ' : 'J-'+diff}</div>
+        </div>`;
+    });
+    document.getElementById('agenda-board').innerHTML = html;
 }
 
-function toast(m) {
+function saveSale(){
+    const c = document.getElementById('sClient').value, p = document.getElementById('sProd').value;
+    if(!c || !p) return toast("Veuillez remplir les champs");
+    toast("Vente enregistrée avec succès !");
+    document.getElementById('sClient').value = "";
+    document.getElementById('sProd').value = "";
+}
+
+function toast(m){
     const t = document.getElementById('toast');
-    t.textContent = m; t.style.display = 'block';
-    setTimeout(() => t.style.display = 'none', 2500);
+    t.textContent = m;
+    t.style.display = "block";
+    t.style.position = "fixed";
+    t.style.bottom = "100px";
+    t.style.left = "50%";
+    t.style.transform = "translateX(-50%)";
+    t.style.background = "var(--text)";
+    t.style.color = "#FFF";
+    t.style.padding = "10px 20px";
+    t.style.borderRadius = "20px";
+    t.style.zIndex = "1000";
+    setTimeout(() => t.style.display="none", 2000);
 }
-
-document.getElementById('curDate').textContent = new Date().toLocaleDateString('fr-FR', {day:'numeric', month:'short'});
-renderAgenda();
 </script>
 </body>
 </html>
