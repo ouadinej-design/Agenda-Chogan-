@@ -11,12 +11,15 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
-        body { font-family: 'Poppins', sans-serif; background-color: #fdfdfd; color: #1a1a1a; }
+        body { font-family: 'Poppins', sans-serif; background-color: #fdfdfd; color: #1a1a1a; overflow-x: hidden; }
         .gold-gradient { background: linear-gradient(135deg, #D4AF37 0%, #F9E29C 50%, #B8860B 100%); }
         .gold-text { background: linear-gradient(135deg, #B8860B 0%, #D4AF37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .card-luxury { background: white; border-radius: 1.5rem; box-shadow: 0 10px 25px rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.2); }
-        .nav-active { color: #B8860B !important; transform: scale(1.1); }
-        .tab-btn { transition: all 0.3s ease; }
+        .nav-active { color: #B8860B !important; }
+        .nav-item { transition: all 0.3s ease; }
+        .bg-luxury-dark { background: #111827; }
+        .animate-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -28,36 +31,35 @@
         const App = () => {
             const [view, setView] = useState('agenda');
             
-            // --- ÉTATS DES DONNÉES ---
+            // --- PERSISTENCE DES DONNÉES ---
             const [sales, setSales] = useState(() => {
-                const saved = localStorage.getItem('limitless_sales_v3');
+                const saved = localStorage.getItem('limitless_sales_final');
                 return saved ? JSON.parse(saved) : [];
             });
 
             const [events, setEvents] = useState(() => {
-                const saved = localStorage.getItem('limitless_events_v3');
+                const saved = localStorage.getItem('limitless_events_final');
                 const defaultEvents = [
-                    { id: 1, title: "Pré-commandes : Fête des Mères", date: "2026-05-04", type: "J-20", icon: "fa-clock" },
-                    { id: 2, title: "Aïd al-Adha", date: "2026-06-16", type: "Événement", icon: "fa-star-and-crescent" }
+                    { id: 1, title: "Pré-commandes : Fête des Mères", date: "2026-05-04", type: "Pre-order", icon: "fa-clock", color: "border-yellow-500" },
+                    { id: 2, title: "Ascension", date: "2026-05-14", type: "Férié", icon: "fa-calendar", color: "border-blue-400" },
+                    { id: 3, title: "Aïd al-Adha", date: "2026-06-16", type: "Événement", icon: "fa-star-and-crescent", color: "border-green-500" },
+                    { id: 4, title: "Exposition Chogan Alger", date: "2026-05-20", type: "Expo", icon: "fa-gem", color: "border-purple-500" }
                 ];
                 return saved ? JSON.parse(saved) : defaultEvents;
             });
 
-            // Sauvegarde automatique
             useEffect(() => {
-                localStorage.setItem('limitless_sales_v3', JSON.stringify(sales));
-                localStorage.setItem('limitless_events_v3', JSON.stringify(events));
+                localStorage.setItem('limitless_sales_final', JSON.stringify(sales));
+                localStorage.setItem('limitless_events_final', JSON.stringify(events));
             }, [sales, events]);
 
-            // --- CALCULS STATS SÉPARÉS ---
-            const statsDA = sales.filter(s => s.currency === 'DA');
-            const statsEUR = sales.filter(s => s.currency === '€');
-
-            const totalDA = statsDA.reduce((acc, s) => acc + s.amount, 0);
-            const totalEUR = statsEUR.reduce((acc, s) => acc + s.amount, 0);
+            // --- CALCULS STATISTIQUES ---
+            const totalDA = sales.filter(s => s.currency === 'DA').reduce((acc, s) => acc + s.amount, 0);
+            const totalEUR = sales.filter(s => s.currency === '€').reduce((acc, s) => acc + s.amount, 0);
+            const uniqueClients = new Set(sales.map(s => s.client)).size;
 
             // --- ACTIONS ---
-            const addSale = (e) => {
+            const handleAddSale = (e) => {
                 e.preventDefault();
                 const form = e.target;
                 const newSale = {
@@ -73,7 +75,7 @@
                 setView('stats');
             };
 
-            const addEvent = (e) => {
+            const handleAddEvent = (e) => {
                 e.preventDefault();
                 const form = e.target;
                 const newEv = {
@@ -81,7 +83,8 @@
                     title: form.title.value,
                     date: form.date.value,
                     type: form.type.value,
-                    icon: "fa-calendar-star"
+                    icon: "fa-calendar-plus",
+                    color: "border-gold-500"
                 };
                 setEvents([newEv, ...events]);
                 form.reset();
@@ -89,129 +92,213 @@
             };
 
             return (
-                <div className="max-w-md mx-auto min-h-screen pb-28 bg-gray-50 relative shadow-2xl">
-                    {/* HEADER */}
-                    <header className="gold-gradient p-8 rounded-b-[3rem] text-center shadow-lg mb-4">
-                        <h1 className="text-white text-2xl font-bold tracking-[0.2em]">LIMITLESS ELITE</h1>
-                        <p className="text-white/80 text-[10px] uppercase tracking-widest">Manager Pro v3.0</p>
+                <div className="max-w-md mx-auto min-h-screen pb-28 bg-white relative shadow-2xl border-x">
+                    {/* HEADER LUXE */}
+                    <header className="gold-gradient p-10 rounded-b-[4rem] text-center shadow-xl mb-6">
+                        <div className="flex justify-center mb-3">
+                            <i className="fas fa-crown text-white text-4xl drop-shadow-md"></i>
+                        </div>
+                        <h1 className="text-white text-2xl font-bold tracking-[0.25em]">LIMITLESS ELITE</h1>
+                        <p className="text-white/80 text-[10px] uppercase tracking-widest mt-1">Manager Pro V3.5</p>
                     </header>
 
-                    <main className="px-5">
+                    <main className="px-6">
                         
-                        {/* 1. AGENDA + AJOUT ÉVÉNEMENT */}
+                        {/* VIEW: AGENDA */}
                         {view === 'agenda' && (
-                            <div className="space-y-4 animate-fadeIn">
-                                <div className="flex justify-between items-center mb-2">
-                                    <h2 className="text-lg font-bold gold-text">Planning Stratégique</h2>
-                                    <button onClick={() => setView('addEvent')} className="text-[10px] font-bold bg-white border border-gold-500 px-3 py-1 rounded-full gold-text uppercase">
-                                        + Ajouter Événement
+                            <div className="space-y-4 animate-in">
+                                <div className="flex justify-between items-end mb-2">
+                                    <h2 className="text-xl font-bold gold-text">Planning Stratégique</h2>
+                                    <button onClick={() => setView('addEvent')} className="bg-gold-500 text-white text-[10px] font-bold px-4 py-2 rounded-full uppercase shadow-md">
+                                        + Événement
                                     </button>
                                 </div>
                                 {events.sort((a,b) => new Date(a.date) - new Date(b.date)).map(ev => (
-                                    <div key={ev.id} className="card-luxury p-4 flex items-center gap-4 border-l-4 border-l-[#B8860B]">
-                                        <div className="w-10 h-10 rounded-full bg-yellow-50 flex items-center justify-center">
-                                            <i className={`fas ${ev.icon} text-yellow-600`}></i>
+                                    <div key={ev.id} className={`card-luxury p-4 flex items-center gap-4 border-l-8 ${ev.color}`}>
+                                        <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center">
+                                            <i className={`fas ${ev.icon} text-gray-400`}></i>
                                         </div>
-                                        <div>
-                                            <p className="font-bold text-sm">{ev.title}</p>
-                                            <p className="text-[10px] text-gray-400 uppercase font-bold">{ev.type} • {ev.date}</p>
+                                        <div className="flex-1">
+                                            <p className="font-bold text-sm text-gray-800">{ev.title}</p>
+                                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">
+                                                {ev.type} • {new Date(ev.date).toLocaleDateString('fr-FR')}
+                                            </p>
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         )}
 
-                        {/* 2. FORMULAIRE AJOUT ÉVÉNEMENT */}
+                        {/* VIEW: ADD EVENT */}
                         {view === 'addEvent' && (
-                            <div className="card-luxury p-6 animate-slideUp">
-                                <h2 className="text-lg font-bold gold-text mb-4 underline">Nouvel Événement</h2>
-                                <form onSubmit={addEvent} className="space-y-4">
-                                    <input name="title" required className="w-full p-4 bg-gray-50 rounded-xl outline-none border border-gray-100" placeholder="Titre (ex: Salon Expo...)" />
-                                    <input name="date" type="date" required className="w-full p-4 bg-gray-50 rounded-xl outline-none" />
-                                    <select name="type" className="w-full p-4 bg-gray-50 rounded-xl outline-none">
-                                        <option value="Événement">Événement</option>
-                                        <option value="Pre-order">Pré-commande (J-20)</option>
-                                        <option value="Meeting">Réunion Team</option>
-                                    </select>
-                                    <button type="submit" className="w-full gold-gradient text-white font-bold py-4 rounded-xl shadow-md">PROGRAMMER</button>
-                                </form>
-                            </div>
-                        )}
-
-                        {/* 3. VENTES + DEVISES */}
-                        {view === 'vente' && (
-                            <div className="card-luxury p-6 animate-slideUp">
-                                <h2 className="text-lg font-bold gold-text mb-6">Enregistrement Vente</h2>
-                                <form onSubmit={addSale} className="space-y-4">
-                                    <input name="client" required className="w-full p-4 bg-gray-50 rounded-xl border-none shadow-inner" placeholder="Nom du Client" />
-                                    <input name="product" required className="w-full p-4 bg-gray-50 rounded-xl border-none shadow-inner" placeholder="Produit Chogan" />
-                                    
-                                    <div className="flex gap-2">
-                                        <input name="amount" type="number" required className="flex-1 p-4 bg-gray-50 rounded-xl border-none shadow-inner" placeholder="Montant" />
-                                        <select name="currency" className="p-4 bg-white border border-yellow-500 rounded-xl font-bold">
-                                            <option value="DA">DA (DZ)</option>
-                                            <option value="€">€ (EUR)</option>
+                            <div className="animate-in">
+                                <div className="card-luxury p-6 border-2 border-gold-500/20">
+                                    <h2 className="text-lg font-bold gold-text mb-6 flex items-center gap-2">
+                                        <i className="fas fa-calendar-plus"></i> Nouvel Événement
+                                    </h2>
+                                    <form onSubmit={handleAddEvent} className="space-y-4">
+                                        <input name="title" required className="w-full p-4 bg-gray-50 rounded-2xl outline-none" placeholder="Nom de l'événement..." />
+                                        <input name="date" type="date" required className="w-full p-4 bg-gray-50 rounded-2xl outline-none" />
+                                        <select name="type" className="w-full p-4 bg-gray-50 rounded-2xl outline-none font-bold">
+                                            <option value="Pre-order">Pré-commande (J-20)</option>
+                                            <option value="Meeting">Réunion d'équipe</option>
+                                            <option value="Expo">Exposition / Salon</option>
+                                            <option value="Event">Événement Privé</option>
                                         </select>
-                                    </div>
-
-                                    <button type="submit" className="w-full gold-gradient text-white font-bold py-4 rounded-xl shadow-lg uppercase tracking-widest">Valider la Vente</button>
-                                </form>
+                                        <button type="submit" className="w-full gold-gradient text-white font-bold py-4 rounded-2xl shadow-lg uppercase tracking-widest">
+                                            Enregistrer dans l'Agenda
+                                        </button>
+                                        <button type="button" onClick={() => setView('agenda')} className="w-full text-gray-400 text-xs font-bold py-2">ANNULER</button>
+                                    </form>
+                                </div>
                             </div>
                         )}
 
-                        {/* 4. STATISTIQUES SÉPARÉES */}
+                        {/* VIEW: VENTE (AVEC DEVISES) */}
+                        {view === 'vente' && (
+                            <div className="animate-in">
+                                <div className="card-luxury p-8">
+                                    <h2 className="text-xl font-bold gold-text mb-8 border-b pb-2">Nouvelle Vente</h2>
+                                    <form onSubmit={handleAddSale} className="space-y-5">
+                                        <div>
+                                            <label className="text-[10px] font-bold text-gray-400 ml-1">CLIENT</label>
+                                            <input name="client" required className="w-full p-4 bg-gray-50 rounded-2xl outline-none border-none shadow-inner" placeholder="Nom du client" />
+                                        </div>
+                                        <div>
+                                            <label className="text-[10px] font-bold text-gray-400 ml-1">PRODUIT CHOGAN</label>
+                                            <input name="product" required className="w-full p-4 bg-gray-50 rounded-2xl outline-none border-none shadow-inner" placeholder="Ex: Luxury Gold 100ml" />
+                                        </div>
+                                        <div className="flex gap-3">
+                                            <div className="flex-1">
+                                                <label className="text-[10px] font-bold text-gray-400 ml-1">MONTANT</label>
+                                                <input name="amount" type="number" required className="w-full p-4 bg-gray-50 rounded-2xl outline-none border-none shadow-inner" placeholder="0.00" />
+                                            </div>
+                                            <div className="w-24">
+                                                <label className="text-[10px] font-bold text-gray-400 ml-1">DEVISE</label>
+                                                <select name="currency" className="w-full p-4 bg-white border-2 border-gold-500 rounded-2xl outline-none font-bold text-gold-600 text-center">
+                                                    <option value="DA">DA</option>
+                                                    <option value="€">€</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <button type="submit" className="w-full gold-gradient text-white font-bold py-5 rounded-3xl shadow-xl transform active:scale-95 transition mt-4 uppercase tracking-tighter">
+                                            Valider la Vente
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* VIEW: STATS (SÉPARÉES) */}
                         {view === 'stats' && (
-                            <div className="space-y-6 animate-fadeIn">
-                                <h2 className="text-lg font-bold gold-text">Tableau de Bord</h2>
+                            <div className="space-y-6 animate-in">
+                                <h2 className="text-xl font-bold gold-text">Analyses Financières</h2>
                                 
-                                {/* Totaux Graphiques Séparés */}
-                                <div className="grid grid-cols-1 gap-4">
-                                    <div className="bg-slate-900 rounded-[2rem] p-6 text-center border-b-4 border-yellow-500 shadow-xl">
-                                        <p className="text-yellow-500 text-[10px] font-bold uppercase tracking-widest">Total Algérie (DA)</p>
-                                        <p className="text-white text-3xl font-bold">{totalDA.toLocaleString()} <span className="text-sm">DA</span></p>
+                                {/* Graphiques de Totaux Séparés */}
+                                <div className="space-y-4">
+                                    {/* Bloc Algérie */}
+                                    <div className="bg-luxury-dark rounded-[2.5rem] p-6 border-b-4 border-gold-500 shadow-2xl">
+                                        <div className="flex justify-between items-center mb-4">
+                                            <span className="text-[10px] font-bold text-gold-500 uppercase tracking-widest">Région Algérie (DA)</span>
+                                            <i className="fas fa-map-marker-alt text-gold-500"></i>
+                                        </div>
+                                        <p className="text-white text-4xl font-bold">{totalDA.toLocaleString()} <span className="text-sm font-light uppercase">da</span></p>
+                                        <div className="w-full bg-gray-700 h-1.5 rounded-full mt-4 overflow-hidden">
+                                            <div className="gold-gradient h-full" style={{width: '75%'}}></div>
+                                        </div>
                                     </div>
-                                    <div className="bg-slate-800 rounded-[2rem] p-6 text-center border-b-4 border-blue-400 shadow-xl">
-                                        <p className="text-blue-400 text-[10px] font-bold uppercase tracking-widest">Total Europe (€)</p>
-                                        <p className="text-white text-3xl font-bold">{totalEUR.toLocaleString()} <span className="text-sm">€</span></p>
+
+                                    {/* Bloc Europe */}
+                                    <div className="bg-slate-800 rounded-[2.5rem] p-6 border-b-4 border-blue-400 shadow-2xl">
+                                        <div className="flex justify-between items-center mb-4">
+                                            <span className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Région Europe (€)</span>
+                                            <i className="fas fa-globe-europe text-blue-400"></i>
+                                        </div>
+                                        <p className="text-white text-4xl font-bold">{totalEUR.toLocaleString()} <span className="text-sm font-light">€</span></p>
+                                        <div className="w-full bg-gray-700 h-1.5 rounded-full mt-4 overflow-hidden">
+                                            <div className="bg-blue-400 h-full" style={{width: '45%'}}></div>
+                                        </div>
                                     </div>
                                 </div>
 
-                                {/* Historique */}
-                                <div className="card-luxury p-6">
-                                    <h3 className="font-bold text-sm mb-4 border-b pb-2">Historique des Transactions</h3>
-                                    <div className="space-y-3">
-                                        {sales.map(s => (
-                                            <div key={s.id} className="flex justify-between items-center text-xs border-b border-gray-50 pb-2">
-                                                <div>
-                                                    <p className="font-bold">{s.client}</p>
-                                                    <p className="text-gray-400">{s.product}</p>
-                                                </div>
-                                                <p className={`font-bold ${s.currency === '€' ? 'text-blue-600' : 'text-yellow-600'}`}>
-                                                    {s.amount} {s.currency}
-                                                </p>
-                                            </div>
-                                        ))}
+                                {/* Compteurs Rapides */}
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="card-luxury p-5 text-center">
+                                        <p className="text-2xl font-bold text-gray-800">{sales.length}</p>
+                                        <p className="text-[9px] font-bold text-gray-400 uppercase">Total Ventes</p>
                                     </div>
+                                    <div className="card-luxury p-5 text-center">
+                                        <p className="text-2xl font-bold text-gray-800">{uniqueClients}</p>
+                                        <p className="text-[9px] font-bold text-gray-400 uppercase">Clients Uniques</p>
+                                    </div>
+                                </div>
+
+                                {/* Historique de Ventes */}
+                                <div className="card-luxury p-6 mb-10">
+                                    <h3 className="font-bold text-sm mb-4 border-b pb-2 flex justify-between items-center">
+                                        Historique Récent <i className="fas fa-history text-gray-200"></i>
+                                    </h3>
+                                    <div className="max-h-60 overflow-y-auto space-y-3 pr-1">
+                                        {sales.length === 0 ? (
+                                            <p className="text-center text-xs text-gray-400 py-4 italic">Aucune vente enregistrée</p>
+                                        ) : (
+                                            sales.map(s => (
+                                                <div key={s.id} className="flex justify-between items-center border-b border-gray-50 pb-2">
+                                                    <div>
+                                                        <p className="font-bold text-xs">{s.client}</p>
+                                                        <p className="text-[9px] text-gray-400">{s.product} • {s.date}</p>
+                                                    </div>
+                                                    <span className={`text-xs font-bold ${s.currency === '€' ? 'text-blue-500' : 'text-gold-600'}`}>
+                                                        {s.amount.toLocaleString()} {s.currency}
+                                                    </span>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* VIEW: CLIENTS */}
+                        {view === 'clients' && (
+                            <div className="animate-in space-y-4">
+                                <h2 className="text-xl font-bold gold-text">Portefeuille Clients</h2>
+                                <div className="card-luxury p-6 min-h-[300px]">
+                                    {[...new Set(sales.map(s => s.client))].map((client, idx) => (
+                                        <div key={idx} className="flex items-center gap-4 py-3 border-b border-gray-100 last:border-0">
+                                            <div className="w-10 h-10 rounded-full gold-gradient flex items-center justify-center text-white font-bold">
+                                                {client.charAt(0).toUpperCase()}
+                                            </div>
+                                            <div>
+                                                <p className="font-bold text-sm">{client}</p>
+                                                <p className="text-[10px] text-gray-400">Client Elite</p>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         )}
                     </main>
 
-                    {/* NAVIGATION BAR */}
-                    <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/90 backdrop-blur-md border-t border-gray-100 flex justify-around py-4 z-50">
-                        <button onClick={() => setView('agenda')} className={`flex flex-col items-center gap-1 tab-btn ${view === 'agenda' || view === 'addEvent' ? 'nav-active' : 'text-gray-300'}`}>
+                    {/* BARRE DE NAVIGATION (BOTTOM) */}
+                    <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/95 backdrop-blur-md border-t border-gray-100 flex justify-around items-center py-4 px-6 z-50">
+                        <button onClick={() => setView('agenda')} className={`flex flex-col items-center gap-1 nav-item ${view === 'agenda' ? 'nav-active' : 'text-gray-300'}`}>
                             <i className="fas fa-calendar-alt text-xl"></i>
-                            <span className="text-[9px] font-bold uppercase">Agenda</span>
+                            <span className="text-[9px] font-bold">AGENDA</span>
                         </button>
-                        <button onClick={() => setView('vente')} className={`flex flex-col items-center gap-1 tab-btn ${view === 'vente' ? 'nav-active' : 'text-gray-300'}`}>
-                            <div className="w-10 h-10 gold-gradient rounded-full flex items-center justify-center -mt-8 border-4 border-white shadow-md">
-                                <i className="fas fa-plus text-white"></i>
+                        <button onClick={() => setView('vente')} className={`flex flex-col items-center gap-1 nav-item ${view === 'vente' ? 'nav-active' : 'text-gray-300'}`}>
+                            <div className="w-12 h-12 gold-gradient rounded-full flex items-center justify-center -mt-10 border-4 border-white shadow-xl">
+                                <i className="fas fa-plus text-white text-xl"></i>
                             </div>
-                            <span className="text-[9px] font-bold uppercase">Vente</span>
+                            <span className="text-[9px] font-bold">VENTE</span>
                         </button>
-                        <button onClick={() => setView('stats')} className={`flex flex-col items-center gap-1 tab-btn ${view === 'stats' ? 'nav-active' : 'text-gray-300'}`}>
+                        <button onClick={() => setView('clients')} className={`flex flex-col items-center gap-1 nav-item ${view === 'clients' ? 'nav-active' : 'text-gray-300'}`}>
+                            <i className="fas fa-users text-xl"></i>
+                            <span className="text-[9px] font-bold">CLIENTS</span>
+                        </button>
+                        <button onClick={() => setView('stats')} className={`flex flex-col items-center gap-1 nav-item ${view === 'stats' ? 'nav-active' : 'text-gray-300'}`}>
                             <i className="fas fa-chart-pie text-xl"></i>
-                            <span className="text-[9px] font-bold uppercase">Stats</span>
+                            <span className="text-[9px] font-bold">STATS</span>
                         </button>
                     </nav>
                 </div>
