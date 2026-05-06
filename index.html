@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Limitless Elite - Manager Pro v4.5</title>
+    <title>Limitless Elite v5.0</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -11,13 +11,13 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
-        body { font-family: 'Poppins', sans-serif; background-color: #fcfcfc; color: #1a1a1a; margin: 0; }
+        body { font-family: 'Poppins', sans-serif; background-color: #fdfdfd; color: #1a1a1a; margin: 0; }
         .gold-gradient { background: linear-gradient(135deg, #D4AF37 0%, #F9E29C 50%, #B8860B 100%); }
         .gold-text { color: #B8860B; }
-        .card-prestige { background: white; border-radius: 2.2rem; box-shadow: 0 10px 30px rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.05); padding: 1.2rem; margin-bottom: 1rem; }
-        .input-luxe { width: 100%; padding: 1rem; background: #fff; border-radius: 1.2rem; border: 1px solid #f0f0f0; outline: none; font-size: 0.85rem; }
-        .nav-active { color: #B8860B !important; }
-        .preorder-badge { background: #FFF9E6; color: #B8860B; padding: 2px 8px; border-radius: 6px; font-size: 8px; font-weight: bold; }
+        .card-luxe { background: white; border-radius: 2.5rem; box-shadow: 0 10px 40px rgba(212, 175, 55, 0.08); border: 1px solid rgba(212, 175, 55, 0.05); padding: 1.2rem; margin-bottom: 1rem; }
+        .input-prestige { width: 100%; padding: 1.1rem; background: #fff; border-radius: 1.2rem; border: 1px solid #f2f2f2; outline: none; font-size: 0.85rem; transition: 0.3s; }
+        .input-prestige:focus { border-color: #D4AF37; box-shadow: 0 0 10px rgba(212, 175, 55, 0.1); }
+        .nav-btn-active { color: #B8860B !important; transform: scale(1.1); }
     </style>
 </head>
 <body>
@@ -28,175 +28,162 @@
 
         const App = () => {
             const [view, setView] = useState('agenda');
-            const [sales, setSales] = useState(() => JSON.parse(localStorage.getItem('limitless_v45_data')) || []);
+            const [sales, setSales] = useState(() => JSON.parse(localStorage.getItem('limitless_v5_sales')) || []);
+            const [customEvents, setCustomEvents] = useState(() => JSON.parse(localStorage.getItem('limitless_v5_events')) || []);
 
             useEffect(() => {
-                localStorage.setItem('limitless_v45_data', JSON.stringify(sales));
-            }, [sales]);
+                localStorage.setItem('limitless_v5_sales', JSON.stringify(sales));
+                localStorage.setItem('limitless_v5_events', JSON.stringify(customEvents));
+            }, [sales, customEvents]);
 
-            // --- LISTE DES ÉVÉNEMENTS FIXES 2026 ---
+            // --- CALENDRIER FIXE 2026 ---
             const holidays = [
-                { date: "2026-01-04", title: "Épiphanie", icon: "fa-star" },
-                { date: "2026-01-07", title: "Soldes d'hiver", icon: "fa-tag" },
-                { date: "2026-02-02", title: "Chandeleur", icon: "fa-pancakes" },
-                { date: "2026-02-14", title: "Saint-Valentin", icon: "fa-heart" },
-                { date: "2026-03-20", title: "Aïd el-Fitr", icon: "fa-moon" },
-                { date: "2026-04-05", title: "Pâques", icon: "fa-egg" },
-                { date: "2026-05-14", title: "Ascension", icon: "fa-cloud" },
-                { date: "2026-05-24", title: "Pentecôte", icon: "fa-dove" },
-                { date: "2026-05-27", title: "Aïd al-Adha", icon: "fa-kaaba" },
-                { date: "2026-05-31", title: "Fête des Mères", icon: "fa-crown" },
-                { date: "2026-06-21", title: "Fête des Pères", icon: "fa-user-tie" },
-                { date: "2026-06-24", title: "Soldes d'été", icon: "fa-shopping-cart" },
-                { date: "2026-08-15", title: "Assomption", icon: "fa-church" },
-                { date: "2026-11-01", title: "Toussaint", icon: "fa-leaf" },
-                { date: "2026-11-27", title: "Black Friday", icon: "fa-fire" },
-                { date: "2026-12-25", title: "Noël", icon: "fa-tree" }
+                { date: "2026-01-04", title: "Épiphanie", icon: "fa-star", col: "bg-blue-50 text-blue-500", type: "✝️ CATHOLIQUE" },
+                { date: "2026-01-07", title: "Soldes d'hiver", icon: "fa-tag", col: "bg-red-50 text-red-500", type: "🛍️ COMMERCE" },
+                { date: "2026-02-14", title: "Saint-Valentin", icon: "fa-heart", col: "bg-pink-50 text-pink-500", type: "💖 BUSINESS" },
+                { date: "2026-03-20", title: "Aïd el-Fitr", icon: "fa-moon", col: "bg-green-50 text-green-600", type: "🌙 MUSULMAN" },
+                { date: "2026-04-05", title: "Pâques", icon: "fa-egg", col: "bg-purple-50 text-purple-500", type: "✝️ CATHOLIQUE" },
+                { date: "2026-05-27", title: "Aïd al-Adha", icon: "fa-kaaba", col: "bg-emerald-50 text-emerald-700", type: "🌙 MUSULMAN" },
+                { date: "2026-05-31", title: "Fête des Mères", icon: "fa-crown", col: "bg-rose-50 text-rose-500", type: "🎁 BUSINESS" },
+                { date: "2026-11-27", title: "Black Friday", icon: "fa-fire", col: "bg-orange-50 text-orange-600", type: "🔥 BOOM" },
+                { date: "2026-12-25", title: "Noël", icon: "fa-tree", col: "bg-red-50 text-red-600", type: "🎄 CATHOLIQUE" }
             ];
 
-            // --- CONSTRUCTION DE L'AGENDA INTELLIGENT ---
-            const events = useMemo(() => {
-                let all = [];
-
-                // 1. Événements de base
+            const allEvents = useMemo(() => {
+                let list = [];
+                // 1. Fêtes & Pre-orders J-20
                 holidays.forEach(h => {
-                    all.push({ ...h, type: "ÉVÉNEMENT", col: "text-gray-800" });
-                    
-                    // 2. Ajout automatique des PRE-ORDERS J-20
-                    const preDate = new Date(h.date);
-                    preDate.setDate(preDate.getDate() - 20);
-                    all.push({
-                        date: preDate.toISOString().split('T')[0],
-                        title: `Pré-commandes : ${h.title}`,
-                        type: "PRE-ORDER J-20",
-                        icon: "fa-clock",
-                        col: "text-orange-500",
-                        isPreOrder: true
-                    });
+                    list.push(h);
+                    const preDate = new Date(h.date); preDate.setDate(preDate.getDate() - 20);
+                    list.push({ date: preDate.toISOString().split('T')[0], title: `Pre-orders : ${h.title}`, icon: "fa-bullhorn", col: "bg-amber-50 text-amber-600", type: "STRATÉGIE J-20" });
                 });
-
-                // 3. Relances Clients J+30
+                // 2. Relances Clients J+30
                 sales.forEach(s => {
                     const d = new Date(s.date); d.setDate(d.getDate() + 30);
-                    all.push({
-                        date: d.toISOString().split('T')[0],
-                        title: `Relance : ${s.client}`,
-                        type: "SUIVI CLIENT",
-                        icon: "fa-phone",
-                        col: "text-blue-500"
-                    });
+                    list.push({ date: d.toISOString().split('T')[0], title: `Relance : ${s.client}`, icon: "fa-phone", col: "bg-sky-50 text-sky-600", type: "SUIVI CLIENT" });
                 });
-
-                return all.sort((a,b) => new Date(a.date) - new Date(b.date));
-            }, [sales]);
-
-            const stats = useMemo(() => {
-                const res = { DA: { total: 0, clients: {}, cats: {} }, EUR: { total: 0, clients: {}, cats: {} } };
-                sales.forEach(s => {
-                    const c = s.currency === '€' ? 'EUR' : 'DA';
-                    res[c].total += s.amount;
-                    res[c].clients[s.client] = (res[c].clients[s.client] || 0) + s.amount;
-                    res[c].cats[s.category] = (res[c].cats[s.category] || 0) + s.amount;
-                });
-                return res;
-            }, [sales]);
+                // 3. Événements Personnels
+                customEvents.forEach(e => list.push({ ...e, col: "bg-slate-100 text-slate-800", type: "MON ÉVÉNEMENT" }));
+                
+                return list.sort((a,b) => new Date(a.date) - new Date(b.date));
+            }, [sales, customEvents]);
 
             return (
-                <div className="max-w-md mx-auto min-h-screen pb-40">
-                    <header className="gold-gradient h-44 rounded-b-[4rem] flex flex-col items-center justify-center text-white shadow-lg mb-8">
-                        <h1 className="text-3xl font-bold tracking-tighter uppercase">Limitless</h1>
-                        <p className="text-[9px] tracking-[0.4em] opacity-80">Elite Manager Pro v4.5</p>
+                <div className="max-w-md mx-auto min-h-screen pb-44">
+                    <header className="gold-gradient h-40 rounded-b-[3.5rem] flex flex-col items-center justify-center text-white shadow-xl mb-6">
+                        <h1 className="text-2xl font-bold tracking-[0.2em] uppercase">Limitless Elite</h1>
+                        <p className="text-[10px] tracking-[0.4em] opacity-80">MANAGER PRO V5.0</p>
                     </header>
 
-                    <main className="px-6">
+                    <div className="px-5">
+                        {/* --- AGENDA --- */}
                         {view === 'agenda' && (
-                            <div className="space-y-2">
-                                <h2 className="text-xl font-bold gold-text italic mb-6">Mon Planning 2026</h2>
-                                {events.filter(e => new Date(e.date) >= new Date().setHours(0,0,0,0)).slice(0,12).map((e, i) => (
-                                    <div key={i} className={`card-prestige flex items-center gap-4 py-3 ${e.isPreOrder ? 'border-l-4 border-orange-300' : ''}`}>
-                                        <div className={`w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center ${e.col} text-lg`}>
+                            <div className="animate-in fade-in duration-500">
+                                <div className="flex justify-between items-center mb-6 px-2">
+                                    <h2 className="text-xl font-bold gold-text italic">Planning 2026</h2>
+                                    <button onClick={() => setView('add_event')} className="w-8 h-8 gold-gradient rounded-full text-white shadow-lg"><i className="fas fa-plus text-xs"></i></button>
+                                </div>
+                                {allEvents.filter(e => new Date(e.date) >= new Date().setHours(0,0,0,0)).slice(0,10).map((e, i) => (
+                                    <div key={i} className="card-luxe flex items-center gap-4 py-3 border-l-4 border-gold-400">
+                                        <div className={`w-11 h-11 rounded-2xl flex items-center justify-center text-lg ${e.col}`}>
                                             <i className={`fas ${e.icon}`}></i>
                                         </div>
                                         <div className="flex-1">
-                                            <p className="font-bold text-[12px]">{e.title}</p>
-                                            <div className="flex gap-2 items-center">
-                                                <span className="text-[8px] font-bold text-gray-400 uppercase">{e.type}</span>
-                                                {e.isPreOrder && <span className="preorder-badge italic">Stratégique</span>}
-                                            </div>
+                                            <h3 className="font-bold text-[12px] text-gray-800">{e.title}</h3>
+                                            <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">{e.type}</p>
                                         </div>
-                                        <p className="gold-text font-bold text-[11px] whitespace-nowrap">{new Date(e.date).toLocaleDateString('fr-FR', {day:'numeric', month:'short'})}</p>
+                                        <div className="text-right">
+                                            <p className="gold-text font-bold text-[11px]">{new Date(e.date).toLocaleDateString('fr-FR', {day:'numeric', month:'short'})}</p>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
                         )}
 
-                        {view === 'vente' && (
-                            <div className="card-prestige">
-                                <h2 className="text-lg font-bold gold-text mb-6 text-center uppercase tracking-widest">Nouvelle Vente</h2>
+                        {/* --- AJOUT ÉVÉNEMENT --- */}
+                        {view === 'add_event' && (
+                            <div className="card-luxe mt-4">
+                                <h2 className="text-center gold-text font-bold uppercase mb-6 tracking-widest">Nouvel Événement</h2>
                                 <form onSubmit={(e) => {
                                     e.preventDefault();
                                     const f = e.target;
-                                    setSales([{ id: Date.now(), client: f.client.value, product: f.product.value, category: f.category.value, amount: parseFloat(f.amount.value), currency: f.currency.value, date: f.saleDate.value }, ...sales]);
-                                    setView('stats');
+                                    setCustomEvents([...customEvents, { date: f.edate.value, title: f.etitle.value, icon: "fa-calendar-star" }]);
+                                    setView('agenda');
                                 }} className="space-y-4">
-                                    <div><label className="text-[10px] font-bold text-gray-400 uppercase ml-2 italic">Date de transaction</label>
-                                    <input name="saleDate" type="date" defaultValue={new Date().toISOString().split('T')[0]} className="input-luxe" required /></div>
-                                    <input name="client" placeholder="Nom du Client" className="input-luxe" required />
-                                    <input name="product" placeholder="Désignation Produit" className="input-luxe" required />
-                                    <select name="category" className="input-luxe"><option>Parfum</option><option>Soins</option><option>Maquillage</option><option>Solaire</option></select>
-                                    <div className="flex gap-2">
-                                        <input name="amount" type="number" placeholder="Montant" className="flex-1 input-luxe" required />
-                                        <select name="currency" className="w-24 input-luxe font-bold gold-text"><option value="DA">DA</option><option value="€">€</option></select>
-                                    </div>
-                                    <button type="submit" className="w-full gold-gradient text-white font-bold py-4 rounded-2xl shadow-xl mt-4 uppercase text-xs">Valider la Vente</button>
+                                    <input name="etitle" placeholder="Nom de l'événement (ex: Salon Chogan)" className="input-prestige" required />
+                                    <input name="edate" type="date" className="input-prestige" required />
+                                    <button type="submit" className="w-full gold-gradient text-white font-bold py-4 rounded-2xl shadow-xl mt-2 uppercase text-xs">Ajouter au planning</button>
                                 </form>
                             </div>
                         )}
 
-                        {view === 'stats' && (
-                            <div className="space-y-8">
-                                {['DA', 'EUR'].map(cur => (
-                                    <div key={cur} className="space-y-4">
-                                        <h3 className="gold-text font-bold italic border-b pb-1">Analyse {cur}</h3>
-                                        <div className="bg-slate-900 rounded-[2rem] p-6 text-center text-white shadow-xl">
-                                            <p className="text-[10px] uppercase text-gold-400 opacity-60">CA Total</p>
-                                            <p className="text-3xl font-bold">{stats[cur].total.toLocaleString()} {cur === 'EUR' ? '€' : 'DA'}</p>
-                                        </div>
-                                        <div className="card-prestige">
-                                            <p className="text-[10px] font-bold text-gray-400 uppercase mb-3 italic">🏆 Top Clients</p>
-                                            {Object.entries(stats[cur].clients).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([n, v], i) => (
-                                                <div key={i} className="flex justify-between text-xs py-2 border-b border-gray-50 last:border-0">
-                                                    <span className="font-medium">{n}</span><span className="gold-text font-bold">{v} {cur}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                        <div className="card-prestige">
-                                            <p className="text-[10px] font-bold text-gray-400 uppercase mb-3 italic">📊 Par Catégorie</p>
-                                            {Object.entries(stats[cur].cats).map(([cat, val]) => (
-                                                <div key={cat} className="mb-3">
-                                                    <div className="flex justify-between text-[10px] mb-1"><span>{cat}</span><span className="gold-text font-bold">{val} {cur}</span></div>
-                                                    <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden"><div className="h-full gold-gradient" style={{width: `${(val/stats[cur].total)*100}%`}}></div></div>
-                                                </div>
-                                            ))}
-                                        </div>
+                        {/* --- VENTE --- */}
+                        {view === 'vente' && (
+                            <div className="card-luxe mt-4">
+                                <h2 className="text-center gold-text font-bold uppercase mb-8 tracking-widest">Enregistrement Vente</h2>
+                                <form onSubmit={(e) => {
+                                    e.preventDefault();
+                                    const f = e.target;
+                                    setSales([{ id: Date.now(), client: f.client.value, amount: parseFloat(f.amount.value), currency: f.currency.value, date: f.sdate.value, category: f.cat.value }, ...sales]);
+                                    setView('stats');
+                                }} className="space-y-4">
+                                    <input name="sdate" type="date" defaultValue={new Date().toISOString().split('T')[0]} className="input-prestige" />
+                                    <input name="client" placeholder="Nom du Client" className="input-prestige" required />
+                                    <select name="cat" className="input-prestige"><option>Parfum</option><option>Soins</option><option>Maquillage</option><option>Solaire</option></select>
+                                    <div className="flex gap-2">
+                                        <input name="amount" type="number" placeholder="Prix" className="flex-1 input-prestige" required />
+                                        <select name="currency" className="w-24 input-prestige font-bold gold-text"><option>DA</option><option>€</option></select>
                                     </div>
-                                ))}
+                                    <button type="submit" className="w-full gold-gradient text-white font-bold py-4 rounded-2xl shadow-xl mt-4 uppercase text-xs">Valider la Transaction</button>
+                                </form>
                             </div>
                         )}
-                    </main>
 
-                    <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/90 backdrop-blur-lg flex justify-around items-center py-6 z-50 rounded-t-[3.5rem] shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
-                        <button onClick={() => setView('agenda')} className={`flex flex-col items-center gap-1 ${view === 'agenda' ? 'nav-active' : 'text-gray-300'}`}>
-                            <i className="fas fa-calendar-check text-2xl"></i><span className="text-[8px] font-bold uppercase">Agenda</span>
+                        {/* --- STATS --- */}
+                        {view === 'stats' && (
+                            <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-500">
+                                {['DA', '€'].map(cur => {
+                                    const total = sales.filter(s => s.currency === cur).reduce((acc, s) => acc + s.amount, 0);
+                                    const top = sales.filter(s => s.currency === cur).slice(0, 3);
+                                    return (
+                                        <div key={cur} className="space-y-4">
+                                            <div className="bg-slate-900 rounded-[2.5rem] p-8 text-center text-white shadow-2xl relative overflow-hidden">
+                                                <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -mr-10 -mt-10"></div>
+                                                <p className="text-[10px] uppercase tracking-[0.3em] text-gold-400 font-bold mb-2">Chiffre d'Affaire ({cur})</p>
+                                                <p className="text-4xl font-bold tracking-tighter">{total.toLocaleString()} {cur}</p>
+                                            </div>
+                                            <div className="card-luxe">
+                                                <p className="text-[10px] font-bold text-gray-400 uppercase mb-4 italic">Dernières ventes</p>
+                                                {top.map((s, i) => (
+                                                    <div key={i} className="flex justify-between py-2 border-b border-gray-50 last:border-0 text-xs font-medium">
+                                                        <span>{s.client}</span><span className="gold-text font-bold">+{s.amount} {cur}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* BARRE DE NAVIGATION LUXE */}
+                    <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/95 backdrop-blur-md flex justify-around items-center py-6 z-50 rounded-t-[3.5rem] shadow-[0_-10px_40px_rgba(0,0,0,0.06)] px-4">
+                        <button onClick={() => setView('agenda')} className={`flex flex-col items-center gap-1 transition-all ${view === 'agenda' ? 'nav-btn-active' : 'text-gray-300'}`}>
+                            <i className="fas fa-calendar-alt text-2xl"></i>
+                            <span className="text-[8px] font-bold uppercase tracking-widest">Agenda</span>
                         </button>
-                        <button onClick={() => setView('vente')} className="relative -mt-24">
-                            <div className="w-18 h-18 gold-gradient rounded-full flex items-center justify-center border-8 border-white shadow-2xl active:scale-95 transition">
+                        
+                        <button onClick={() => setView('vente')} className="relative -mt-24 transition-transform active:scale-90">
+                            <div className="w-18 h-18 gold-gradient rounded-full flex items-center justify-center border-[8px] border-white shadow-[0_15px_30px_rgba(212,175,55,0.3)]">
                                 <i className="fas fa-plus text-white text-3xl"></i>
                             </div>
-                            <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[9px] font-bold gold-text uppercase">Vente</span>
+                            <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[9px] font-bold gold-text uppercase tracking-widest">Vendre</span>
                         </button>
-                        <button onClick={() => setView('stats')} className={`flex flex-col items-center gap-1 ${view === 'stats' ? 'nav-active' : 'text-gray-300'}`}>
-                            <i className="fas fa-chart-line text-2xl"></i><span className="text-[8px] font-bold uppercase">Stats</span>
+
+                        <button onClick={() => setView('stats')} className={`flex flex-col items-center gap-1 transition-all ${view === 'stats' ? 'nav-btn-active' : 'text-gray-300'}`}>
+                            <i className="fas fa-chart-line text-2xl"></i>
+                            <span className="text-[8px] font-bold uppercase tracking-widest">Stats</span>
                         </button>
                     </nav>
                 </div>
