@@ -10,96 +10,173 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #ffffff; }
-        .gold-gradient { background: linear-gradient(135deg, #D4AF37 0%, #B8860B 100%); }
-        .gold-text { color: #B8860B; }
-        .card-luxury { 
-            background: white; 
-            border-radius: 20px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
-            border: 1px solid rgba(212, 175, 55, 0.1);
-        }
-        .nav-active { color: #B8860B !important; border-top: 3px solid #B8860B; }
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+        body { font-family: 'Poppins', sans-serif; background-color: #fdfdfd; }
+        .gold-gradient { background: linear-gradient(135deg, #D4AF37 0%, #F9E29C 50%, #B8860B 100%); }
+        .gold-text { background: linear-gradient(135deg, #B8860B 0%, #D4AF37 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .card-luxury { background: white; border-radius: 1.5rem; box-shadow: 0 10px 25px rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.2); transition: transform 0.2s; }
+        .nav-item { transition: all 0.3s; color: #9ca3af; }
+        .nav-active { color: #B8860B; transform: translateY(-5px); }
+        .bg-luxury-dark { background: #0f172a; }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState } = React;
+        const { useState, useEffect } = React;
 
         const App = () => {
             const [view, setView] = useState('agenda');
+            const [sales, setSales] = useState(() => {
+                const saved = localStorage.getItem('limitless_sales');
+                return saved ? JSON.parse(saved) : [];
+            });
+
+            useEffect(() => {
+                localStorage.setItem('limitless_sales', JSON.stringify(sales));
+            }, [sales]);
+
+            // Données de l'Agenda
+            const events = [
+                { id: 1, title: "Pré-commandes : Fête des Mères", date: "Mai 2026", type: "J-20", color: "border-yellow-500", icon: "fa-clock" },
+                { id: 2, title: "Ascension", date: "14 Mai 2026", type: "Férié", color: "border-blue-400", icon: "fa-calendar-day" },
+                { id: 3, title: "Aïd al-Adha", date: "Juin 2026", type: "Événement", color: "border-green-500", icon: "fa-star-and-crescent" },
+                { id: 4, title: "Réunion Stratégique Team", date: "Chaque Lundi", type: "Team", color: "border-purple-500", icon: "fa-users" }
+            ];
+
+            const handleAddSale = (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const newSale = {
+                    id: Date.now(),
+                    client: formData.get('client'),
+                    product: formData.get('product'),
+                    amount: parseFloat(formData.get('amount')),
+                    date: new Date().toLocaleDateString('fr-FR')
+                };
+                setSales([newSale, ...sales]);
+                e.target.reset();
+                setView('stats');
+            };
+
+            const totalCA = sales.reduce((acc, s) => acc + s.amount, 0);
 
             return (
-                <div className="max-w-md mx-auto min-h-screen bg-white pb-20">
-                    {/* Header Luxe */}
-                    <header className="gold-gradient p-8 rounded-b-[40px] text-center shadow-lg">
-                        <h1 className="text-white text-2xl font-bold tracking-tighter">LIMITLESS ELITE</h1>
-                        <p className="text-white/90 text-xs uppercase tracking-widest mt-1">Édition Manager Pro</p>
+                <div className="max-w-md mx-auto min-h-screen pb-24 shadow-2xl relative bg-white">
+                    {/* HEADER COMPLET */}
+                    <header className="gold-gradient p-10 rounded-b-[3.5rem] text-center shadow-xl mb-6">
+                        <div className="flex justify-center mb-2">
+                            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                                <i className="fas fa-crown text-white text-3xl"></i>
+                            </div>
+                        </div>
+                        <h1 className="text-white text-2xl font-bold tracking-[0.2em]">LIMITLESS ELITE</h1>
+                        <div className="h-0.5 w-24 bg-white/50 mx-auto my-2"></div>
+                        <p className="text-white/90 text-xs font-light uppercase tracking-widest">Manager Pro Edition</p>
                     </header>
 
-                    {/* Contenu Dynamique */}
-                    <main className="p-4">
+                    <main className="px-6">
+                        {/* VUE AGENDA STRATÉGIQUE */}
                         {view === 'agenda' && (
-                            <div className="space-y-4">
-                                <h2 className="text-lg font-bold flex items-center gap-2">
-                                    <i className="fas fa-calendar-check gold-text"></i> Calendrier Stratégique
+                            <div className="space-y-6 animate-fadeIn">
+                                <h2 className="text-xl font-bold gold-text flex items-center gap-2">
+                                    <i className="fas fa-bullseye"></i> Stratégie & Anticipation
                                 </h2>
-                                <div className="card-luxury p-5 border-l-4 border-l-[#B8860B]">
-                                    <p className="text-xs text-gray-400">RAPPEL J-20</p>
-                                    <p className="font-bold">Pré-commandes : Fête des Mères</p>
-                                </div>
-                                <div className="card-luxury p-5 border-l-4 border-l-blue-400">
-                                    <p className="text-xs text-gray-400">BUSINESS</p>
-                                    <p className="font-bold">Fête des Mères (FR)</p>
-                                </div>
+                                {events.map(event => (
+                                    <div key={event.id} className={`card-luxury p-4 border-l-8 ${event.color} flex items-center justify-between`}>
+                                        <div>
+                                            <p className="text-[10px] font-bold text-gray-400 uppercase">{event.type}</p>
+                                            <p className="font-bold text-gray-800">{event.title}</p>
+                                            <p className="text-xs text-gray-500">{event.date}</p>
+                                        </div>
+                                        <i className={`fas ${event.icon} text-gray-300 text-xl`}></i>
+                                    </div>
+                                ))}
                             </div>
                         )}
 
-                        {view === 'stats' && (
-                            <div className="space-y-4">
-                                <h2 className="text-lg font-bold gold-text">Statistiques</h2>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="card-luxury p-4 text-center">
-                                        <p className="text-2xl font-bold">10 035</p>
-                                        <p className="text-[10px] text-gray-500 uppercase">CA Total (DA)</p>
-                                    </div>
-                                    <div className="card-luxury p-4 text-center">
-                                        <p className="text-2xl font-bold">2</p>
-                                        <p className="text-[10px] text-gray-500 uppercase">Ventes</p>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
+                        {/* VUE NOUVELLE VENTE */}
                         {view === 'vente' && (
-                            <div className="card-luxury p-6 mt-4">
-                                <h2 className="text-lg font-bold mb-4 gold-text underline">Nouvelle Vente</h2>
-                                <div className="space-y-3">
-                                    <input type="text" placeholder="Client" className="w-full p-3 border rounded-xl bg-gray-50 outline-none focus:border-[#D4AF37]" />
-                                    <input type="number" placeholder="Montant DA" className="w-full p-3 border rounded-xl bg-gray-50 outline-none focus:border-[#D4AF37]" />
-                                    <button className="w-full gold-gradient text-white font-bold py-3 rounded-xl mt-2 shadow-md hover:opacity-90 transition">
-                                        ENREGISTRER
-                                    </button>
+                            <div className="animate-fadeIn">
+                                <div className="card-luxury p-6">
+                                    <h2 className="text-xl font-bold gold-text mb-6 border-b pb-2">Enregistrer une Vente</h2>
+                                    <form onSubmit={handleAddSale} className="space-y-4">
+                                        <div>
+                                            <label className="text-xs font-bold text-gray-500 ml-1">CLIENT</label>
+                                            <input name="client" required className="w-full p-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gold-500 outline-none" placeholder="Nom du client..." />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs font-bold text-gray-500 ml-1">PRODUIT CHOGAN</label>
+                                            <input name="product" required className="w-full p-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gold-500 outline-none" placeholder="Ex: Luxury Gold..." />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs font-bold text-gray-500 ml-1">MONTANT (DA)</label>
+                                            <input name="amount" type="number" required className="w-full p-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-gold-500 outline-none" placeholder="0.00" />
+                                        </div>
+                                        <button type="submit" className="w-full gold-gradient text-white font-bold py-4 rounded-2xl shadow-lg transform active:scale-95 transition">
+                                            VALIDER LA TRANSACTION
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* VUE STATISTIQUES DÉTAILLÉES */}
+                        {view === 'stats' && (
+                            <div className="space-y-6 animate-fadeIn">
+                                <div className="bg-luxury-dark rounded-[2rem] p-6 text-center border-b-4 border-yellow-500 shadow-2xl">
+                                    <p className="text-yellow-500 text-xs font-bold tracking-widest mb-2 uppercase">Chiffre d'Affaires Mensuel</p>
+                                    <p className="text-white text-4xl font-bold">{totalCA.toLocaleString()} <span className="text-lg">DA</span></p>
+                                    <div className="flex justify-around mt-6 border-t border-white/10 pt-4">
+                                        <div>
+                                            <p className="text-white text-lg font-bold">{sales.length}</p>
+                                            <p className="text-gray-400 text-[10px] uppercase">Ventes</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-white text-lg font-bold">{new Set(sales.map(s => s.client)).size}</p>
+                                            <p className="text-gray-400 text-[10px] uppercase">Clients</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="card-luxury p-6">
+                                    <h3 className="font-bold mb-4 flex items-center justify-between">
+                                        <span>Dernières Activités</span>
+                                        <i className="fas fa-history text-gray-300"></i>
+                                    </h3>
+                                    <div className="space-y-3">
+                                        {sales.length === 0 && <p className="text-center text-gray-400 text-sm italic">Aucune donnée disponible</p>}
+                                        {sales.slice(0, 5).map(sale => (
+                                            <div key={sale.id} className="flex justify-between items-center p-3 hover:bg-gray-50 rounded-xl transition border-b border-gray-100">
+                                                <div>
+                                                    <p className="font-bold text-sm text-gray-800">{sale.client}</p>
+                                                    <p className="text-[10px] text-gray-500">{sale.product} • {sale.date}</p>
+                                                </div>
+                                                <p className="font-bold gold-text">{sale.amount} DA</p>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
                         )}
                     </main>
 
-                    {/* Navigation Basse */}
-                    <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/90 backdrop-blur-md border-t flex justify-around py-3">
-                        <button onClick={() => setView('agenda')} className={`flex flex-col items-center gap-1 ${view === 'agenda' ? 'nav-active' : 'text-gray-400'}`}>
-                            <i className="fas fa-home text-xl"></i>
-                            <span className="text-[10px] font-bold">Agenda</span>
+                    {/* BARRE DE NAVIGATION INFÉRIEURE */}
+                    <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/80 backdrop-blur-lg border-t border-gray-100 px-8 py-4 flex justify-between items-center z-50">
+                        <button onClick={() => setView('agenda')} className={`nav-item flex flex-col items-center ${view === 'agenda' ? 'nav-active' : ''}`}>
+                            <i className="fas fa-calendar-alt text-xl"></i>
+                            <span className="text-[10px] mt-1 font-bold">AGENDA</span>
                         </button>
-                        <button onClick={() => setView('vente')} className={`flex flex-col items-center gap-1 ${view === 'vente' ? 'nav-active' : 'text-gray-400'}`}>
-                            <i className="fas fa-plus-circle text-xl"></i>
-                            <span className="text-[10px] font-bold">Vente</span>
+                        <button onClick={() => setView('vente')} className={`nav-item flex flex-col items-center ${view === 'vente' ? 'nav-active' : ''}`}>
+                            <div className="w-12 h-12 gold-gradient rounded-full flex items-center justify-center -mt-10 shadow-lg border-4 border-white">
+                                <i className="fas fa-plus text-white text-xl"></i>
+                            </div>
+                            <span className="text-[10px] mt-1 font-bold">VENTE</span>
                         </button>
-                        <button onClick={() => setView('stats')} className={`flex flex-col items-center gap-1 ${view === 'stats' ? 'nav-active' : 'text-gray-400'}`}>
-                            <i className="fas fa-chart-bar text-xl"></i>
-                            <span className="text-[10px] font-bold">Stats</span>
+                        <button onClick={() => setView('stats')} className={`nav-item flex flex-col items-center ${view === 'stats' ? 'nav-active' : ''}`}>
+                            <i className="fas fa-chart-line text-xl"></i>
+                            <span className="text-[10px] mt-1 font-bold">STATS</span>
                         </button>
                     </nav>
                 </div>
