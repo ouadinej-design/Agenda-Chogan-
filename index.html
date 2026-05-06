@@ -11,214 +11,200 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
-        body { font-family: 'Poppins', sans-serif; background-color: #ffffff; color: #1a1a1a; overflow-x: hidden; }
+        body { font-family: 'Poppins', sans-serif; background-color: #ffffff; color: #1a1a1a; }
         .gold-gradient { background: linear-gradient(135deg, #D4AF37 0%, #F9E29C 50%, #B8860B 100%); }
         .gold-text { color: #B8860B; }
-        .card-luxury { 
-            background: white; border-radius: 2rem; 
-            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.15); 
-            border: 1px solid rgba(212, 175, 55, 0.1);
-        }
-        .input-luxe {
-            width: 100%; padding: 1.1rem; background: #fcfcfc; border-radius: 1.2rem;
-            border: 1px solid #eee; outline: none; transition: 0.3s;
-        }
-        .input-luxe:focus { border-color: #D4AF37; box-shadow: 0 0 15px rgba(212, 175, 55, 0.1); }
+        .card-luxury { background: white; border-radius: 2rem; box-shadow: 0 10px 30px rgba(212, 175, 55, 0.15); border: 1px solid rgba(212, 175, 55, 0.1); }
+        .input-luxe { width: 100%; padding: 1.1rem; background: #fcfcfc; border-radius: 1.2rem; border: 1px solid #eee; outline: none; }
         .nav-active { color: #B8860B !important; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-view { animation: fadeIn 0.4s ease-out; }
+        .progress-bar { height: 8px; border-radius: 4px; background: #f0f0f0; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #D4AF37, #B8860B); transition: width 0.5s ease-out; }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect } = React;
+        const { useState, useEffect, useMemo } = React;
 
         const App = () => {
             const [view, setView] = useState('agenda');
-            
-            // --- SAUVEGARDE LOCALE ---
-            const [sales, setSales] = useState(() => {
-                const saved = localStorage.getItem('limitless_pro_sales');
-                return saved ? JSON.parse(saved) : [];
-            });
+            const [sales, setSales] = useState(() => JSON.parse(localStorage.getItem('limitless_final_sales')) || []);
 
-            const [customEvents, setCustomEvents] = useState(() => {
-                const saved = localStorage.getItem('limitless_pro_events');
-                return saved ? JSON.parse(saved) : [];
-            });
+            // --- SAUVEGARDE ---
+            useEffect(() => {
+                localStorage.setItem('limitless_final_sales', JSON.stringify(sales));
+            }, [sales]);
 
-            // --- CALENDRIER STRATÉGIQUE COMPLET 2026 ---
+            // --- CALCULS STATISTIQUES ---
+            const stats = useMemo(() => {
+                const results = { DA: { total: 0, clients: {}, categories: {} }, EUR: { total: 0, clients: {}, categories: {} } };
+                
+                sales.forEach(s => {
+                    const d = s.currency === '€' ? 'EUR' : 'DA';
+                    results[d].total += s.amount;
+                    results[d].clients[s.client] = (results[d].clients[s.client] || 0) + s.amount;
+                    results[d].categories[s.category] = (results[d].categories[s.category] || 0) + s.amount;
+                });
+
+                return results;
+            }, [sales]);
+
+            // --- GÉNÉRATION AUTOMATIQUE DES RELANCES J+30 ---
+            const followUpEvents = useMemo(() => {
+                return sales.map(s => {
+                    const saleDate = new Date(s.date);
+                    saleDate.setDate(saleDate.getDate() + 30);
+                    return {
+                        date: saleDate.toISOString().split('T')[0],
+                        title: `Relance : ${s.client}`,
+                        type: "🔄 SUIVI CLIENT",
+                        icon: "fa-phone-alt",
+                        color: "text-blue-500",
+                        isFollowUp: true
+                    };
+                });
+            }, [sales]);
+
             const staticEvents = [
-                { date: "2026-01-04", title: "Épiphanie", type: "✝️ CATHOLIQUE", icon: "fa-star", color: "text-blue-400" },
-                { date: "2026-01-07", title: "Soldes d'hiver (Début)", type: "🛍️ COMMERCE", icon: "fa-tag", color: "text-red-500" },
-                { date: "2026-01-15", title: "Soins d'Hiver / Hydratation", type: "💡 CONSEIL", icon: "fa-snowflake", color: "text-cyan-500" },
-                { date: "2026-02-02", title: "Chandeleur", type: "✝️ CATHOLIQUE", icon: "fa-pancakes", color: "text-yellow-500" },
-                { date: "2026-02-14", title: "Saint-Valentin", type: "💖 BUSINESS", icon: "fa-heart", color: "text-pink-500" },
-                { date: "2026-03-20", title: "Aïd el-Fitr", type: "🌙 MUSULMAN", icon: "fa-moon", color: "text-green-600" },
-                { date: "2026-04-05", title: "Pâques", type: "✝️ CATHOLIQUE", icon: "fa-egg", color: "text-indigo-400" },
-                { date: "2026-05-11", title: "Rappel J-20 : Fête des Mères", type: "⚠️ STRATÉGIE", icon: "fa-clock", color: "text-orange-500" },
-                { date: "2026-05-14", title: "Ascension", type: "✝️ CATHOLIQUE", icon: "fa-cloud-upload-alt", color: "text-blue-300" },
-                { date: "2026-05-24", title: "Pentecôte", type: "✝️ CATHOLIQUE", icon: "fa-dove", color: "text-gray-400" },
-                { date: "2026-05-27", title: "Aïd al-Adha", type: "🌙 MUSULMAN", icon: "fa-kaaba", color: "text-green-700" },
-                { date: "2026-05-31", title: "Fête des Mères", type: "🎁 TOP VENTES", icon: "fa-crown", color: "text-pink-600" },
-                { date: "2026-06-10", title: "Vente Solaire & Été", type: "☀️ SAISON", icon: "fa-sun", color: "text-yellow-600" },
-                { date: "2026-06-21", title: "Fête des Pères", type: "👔 BUSINESS", icon: "fa-user-tie", color: "text-blue-700" },
-                { date: "2026-06-24", title: "Soldes d'été (Début)", type: "🛍️ COMMERCE", icon: "fa-shopping-cart", color: "text-orange-500" },
-                { date: "2026-08-15", title: "Assomption", type: "✝️ CATHOLIQUE", icon: "fa-church", color: "text-blue-600" },
-                { date: "2026-09-25", title: "French Days d'automne", type: "🇫🇷 PROMO", icon: "fa-flag", color: "text-blue-800" },
-                { date: "2026-11-01", title: "Toussaint", type: "✝️ CATHOLIQUE", icon: "fa-leaf", color: "text-orange-800" },
-                { date: "2026-11-27", title: "Black Friday", type: "🔥 BOOM VENTES", icon: "fa-fire", color: "text-black" },
-                { date: "2026-12-25", title: "Noël", type: "🎄 CATHOLIQUE", icon: "fa-tree", color: "text-red-600" }
+                { date: "2026-05-31", title: "Fête des Mères", type: "🎁 BUSINESS", icon: "fa-crown", color: "text-pink-600" },
+                { date: "2026-06-16", title: "Aïd al-Adha", type: "🌙 RELIGIEUX", icon: "fa-kaaba", color: "text-green-600" }
             ];
 
-            const allEvents = [...staticEvents, ...customEvents].sort((a,b) => new Date(a.date) - new Date(b.date));
-
-            useEffect(() => {
-                localStorage.setItem('limitless_pro_sales', JSON.stringify(sales));
-                localStorage.setItem('limitless_pro_events', JSON.stringify(customEvents));
-            }, [sales, customEvents]);
-
-            // --- CALCULS ---
-            const totalDA = sales.filter(s => s.currency === 'DA').reduce((acc, s) => acc + s.amount, 0);
-            const totalEUR = sales.filter(s => s.currency === '€').reduce((acc, s) => acc + s.amount, 0);
+            const allEvents = [...staticEvents, ...followUpEvents].sort((a,b) => new Date(a.date) - new Date(b.date));
 
             const handleAddSale = (e) => {
                 e.preventDefault();
                 const f = e.target;
-                const newSale = { id: Date.now(), client: f.client.value, product: f.product.value, amount: parseFloat(f.amount.value), currency: f.currency.value, date: new Date().toLocaleDateString() };
+                const newSale = {
+                    id: Date.now(),
+                    client: f.client.value,
+                    product: f.product.value,
+                    category: f.category.value,
+                    amount: parseFloat(f.amount.value),
+                    currency: f.currency.value,
+                    date: new Date().toISOString().split('T')[0]
+                };
                 setSales([newSale, ...sales]);
                 f.reset(); setView('stats');
             };
 
-            const handleAddEvent = (e) => {
-                e.preventDefault();
-                const f = e.target;
-                const newEv = { id: Date.now(), title: f.title.value, date: f.date.value, type: "PERSO", icon: "fa-star", color: "text-yellow-500" };
-                setCustomEvents([...customEvents, newEv]);
-                f.reset(); setView('agenda');
-            };
-
             return (
-                <div className="max-w-md mx-auto min-h-screen bg-white pb-36 relative shadow-2xl">
-                    {/* HEADER */}
-                    <header className="gold-gradient pt-14 pb-12 px-6 rounded-b-[3.5rem] text-center shadow-xl">
-                        <h1 className="text-white text-2xl font-bold tracking-[0.2em] drop-shadow-sm">LIMITLESS ELITE</h1>
-                        <p className="text-white/90 text-[10px] uppercase tracking-[0.3em] mt-1 font-light">Manager Pro Edition</p>
+                <div className="max-w-md mx-auto min-h-screen bg-white pb-32 relative shadow-2xl">
+                    <header className="gold-gradient pt-12 pb-10 px-6 rounded-b-[3rem] text-center shadow-lg text-white">
+                        <h1 className="text-2xl font-bold tracking-widest">LIMITLESS ELITE</h1>
+                        <p className="text-[10px] uppercase tracking-[0.3em]">Manager Pro v3.5</p>
                     </header>
 
-                    <main className="px-6 mt-8 animate-view">
-                        
-                        {/* 1. AGENDA STRATÉGIQUE */}
+                    <main className="px-6 mt-8">
+                        {/* --- VUE AGENDA --- */}
                         {view === 'agenda' && (
                             <div className="space-y-4">
-                                <div className="flex justify-between items-center mb-2">
-                                    <h2 className="text-lg font-bold gold-text uppercase tracking-tight italic">Planning 2026</h2>
-                                    <button onClick={() => setView('addEvent')} className="text-[10px] font-bold border border-[#D4AF37] text-[#B8860B] px-4 py-1.5 rounded-full uppercase">+ Événement</button>
-                                </div>
-                                {allEvents.map((ev, index) => (
-                                    <div key={index} className="card-luxury p-4 flex items-center gap-4 transition transform active:scale-95">
-                                        <div className={`w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center ${ev.color}`}>
-                                            <i className={`fas ${ev.icon} text-xl`}></i>
+                                <h2 className="text-lg font-bold gold-text uppercase italic">Mon Planning</h2>
+                                {allEvents.filter(ev => new Date(ev.date) >= new Date()).slice(0, 8).map((ev, i) => (
+                                    <div key={i} className={`card-luxury p-4 flex items-center gap-4 ${ev.isFollowUp ? 'border-l-4 border-blue-400' : ''}`}>
+                                        <div className={`w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center ${ev.color}`}>
+                                            <i className={`fas ${ev.icon}`}></i>
                                         </div>
                                         <div className="flex-1">
-                                            <p className="font-bold text-[13px] text-gray-800 leading-tight">{ev.title}</p>
-                                            <p className="text-[9px] text-gray-400 uppercase font-bold tracking-wider mt-0.5">{ev.type}</p>
+                                            <p className="font-bold text-xs">{ev.title}</p>
+                                            <p className="text-[9px] text-gray-400 font-bold uppercase">{ev.type}</p>
                                         </div>
-                                        <div className="text-right">
-                                            <p className="text-[10px] font-bold text-[#B8860B] bg-yellow-50 px-2 py-1 rounded-lg">
-                                                {new Date(ev.date).toLocaleDateString('fr-FR', {day:'numeric', month:'short'})}
-                                            </p>
-                                        </div>
+                                        <p className="text-[10px] font-bold gold-text">{new Date(ev.date).toLocaleDateString('fr-FR', {day:'numeric', month:'short'})}</p>
                                     </div>
                                 ))}
                             </div>
                         )}
 
-                        {/* 2. FORMULAIRE VENTE (Bouton central) */}
+                        {/* --- VUE VENTE --- */}
                         {view === 'vente' && (
-                            <div className="card-luxury p-8 border-t-4 border-t-[#D4AF37]">
-                                <h2 className="text-xl font-bold gold-text mb-6 flex items-center gap-2">
-                                    <i className="fas fa-plus-circle"></i> Nouvelle Vente
-                                </h2>
-                                <form onSubmit={handleAddSale} className="space-y-5">
-                                    <input name="client" required className="input-luxe" placeholder="Nom du Client" />
-                                    <input name="product" required className="input-luxe" placeholder="Produit Chogan" />
-                                    <div className="flex gap-3">
-                                        <input name="amount" type="number" step="0.01" required className="flex-1 input-luxe" placeholder="Montant" />
-                                        <select name="currency" className="w-24 input-luxe font-bold text-[#B8860B] border-none shadow-sm">
+                            <div className="card-luxury p-8">
+                                <h2 className="text-xl font-bold gold-text mb-6 italic">Nouvelle Vente</h2>
+                                <form onSubmit={handleAddSale} className="space-y-4">
+                                    <input name="client" required className="input-luxe text-sm" placeholder="Nom du Client" />
+                                    <input name="product" required className="input-luxe text-sm" placeholder="Nom du Produit" />
+                                    <select name="category" className="input-luxe text-sm">
+                                        <option value="Parfum">Parfum</option>
+                                        <option value="Soins Corps">Soins Corps</option>
+                                        <option value="Maquillage">Maquillage</option>
+                                        <option value="Solaire">Solaire</option>
+                                    </select>
+                                    <div className="flex gap-2">
+                                        <input name="amount" type="number" required className="flex-1 input-luxe text-sm" placeholder="Prix" />
+                                        <select name="currency" className="w-24 input-luxe font-bold text-[#B8860B]">
                                             <option value="DA">DA</option>
                                             <option value="€">€</option>
                                         </select>
                                     </div>
-                                    <button type="submit" className="w-full gold-gradient text-white font-bold py-5 rounded-2xl shadow-xl uppercase tracking-widest mt-4 active:scale-95 transition">
-                                        ENREGISTRER LA VENTE
-                                    </button>
+                                    <button type="submit" className="w-full gold-gradient text-white font-bold py-4 rounded-2xl shadow-xl mt-4 uppercase text-xs tracking-widest">Enregistrer</button>
                                 </form>
                             </div>
                         )}
 
-                        {/* 3. STATISTIQUES SÉPARÉES */}
+                        {/* --- VUE STATS --- */}
                         {view === 'stats' && (
-                            <div className="space-y-6">
-                                <h2 className="text-lg font-bold gold-text uppercase italic">Tableau de Bord</h2>
-                                <div className="bg-slate-900 rounded-[2.5rem] p-7 text-center shadow-2xl border-b-8 border-yellow-500 relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 p-4 opacity-10"><i className="fas fa-chart-line text-6xl text-white"></i></div>
-                                    <p className="text-yellow-500 text-[10px] font-bold uppercase tracking-[0.2em]">Chiffre d'Affaires DZ</p>
-                                    <p className="text-white text-4xl font-bold mt-2">{totalDA.toLocaleString()} <span className="text-sm font-light">DA</span></p>
-                                </div>
-                                <div className="bg-slate-800 rounded-[2.5rem] p-7 text-center shadow-2xl border-b-8 border-blue-400 relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 p-4 opacity-10"><i className="fas fa-euro-sign text-6xl text-white"></i></div>
-                                    <p className="text-blue-400 text-[10px] font-bold uppercase tracking-[0.2em]">Chiffre d'Affaires EUR</p>
-                                    <p className="text-white text-4xl font-bold mt-2">{totalEUR.toLocaleString()} <span className="text-sm font-light">€</span></p>
-                                </div>
-                                <div className="card-luxury p-6">
-                                    <h3 className="font-bold text-[11px] uppercase text-gray-400 mb-4 tracking-widest flex justify-between">
-                                        <span>Derniers mouvements</span>
-                                        <i className="fas fa-history"></i>
-                                    </h3>
-                                    {sales.slice(0,6).map(s => (
-                                        <div key={s.id} className="flex justify-between py-3 text-xs border-b border-gray-50 last:border-0">
-                                            <div className="font-medium text-gray-700">{s.client} <span className="text-gray-300 mx-1">•</span> <span className="text-[10px] text-gray-400">{s.product}</span></div>
-                                            <div className={`font-bold ${s.currency === '€' ? 'text-blue-500' : 'text-yellow-600'}`}>{s.amount} {s.currency}</div>
+                            <div className="space-y-8">
+                                {['DA', 'EUR'].map(devise => (
+                                    <div key={devise} className="space-y-6">
+                                        <h2 className="text-lg font-bold gold-text italic border-b pb-2">Business {devise}</h2>
+                                        
+                                        {/* CA Total */}
+                                        <div className="bg-slate-900 rounded-[2.5rem] p-6 text-center text-white shadow-xl relative overflow-hidden">
+                                            <p className="text-yellow-500 text-[10px] font-bold uppercase tracking-widest">Chiffre d'Affaires</p>
+                                            <p className="text-3xl font-bold mt-1">{stats[devise].total.toLocaleString()} {devise === 'EUR' ? '€' : 'DA'}</p>
                                         </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
 
-                        {/* 4. AJOUT ÉVÉNEMENT CUSTOM */}
-                        {view === 'addEvent' && (
-                            <div className="card-luxury p-8">
-                                <h2 className="text-lg font-bold gold-text mb-6 text-center">Ajouter un rendez-vous</h2>
-                                <form onSubmit={handleAddEvent} className="space-y-4">
-                                    <input name="title" required className="input-luxe" placeholder="Ex: Salon de beauté Oran" />
-                                    <input name="date" type="date" required className="input-luxe" />
-                                    <button type="submit" className="w-full gold-gradient text-white font-bold py-4 rounded-2xl shadow-lg mt-4">PROGRAMMER</button>
-                                    <button type="button" onClick={() => setView('agenda')} className="w-full text-[10px] text-gray-400 font-bold uppercase py-2">Retour</button>
-                                </form>
+                                        {/* Top Clients */}
+                                        <div className="card-luxury p-6">
+                                            <h3 className="text-[10px] font-bold uppercase text-gray-400 mb-4 tracking-widest flex items-center gap-2">
+                                                <i className="fas fa-crown text-yellow-500"></i> Top Clients
+                                            </h3>
+                                            {Object.entries(stats[devise].clients).sort((a,b) => b[1] - a[1]).slice(0,3).map(([name, val], idx) => (
+                                                <div key={name} className="flex justify-between items-center py-2 border-b border-gray-50 last:border-0">
+                                                    <span className="text-xs font-medium text-gray-600">{idx+1}. {name}</span>
+                                                    <span className="text-xs font-bold gold-text">{val} {devise === 'EUR' ? '€' : 'DA'}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* Graphe Catégories */}
+                                        <div className="card-luxury p-6">
+                                            <h3 className="text-[10px] font-bold uppercase text-gray-400 mb-4 tracking-widest flex items-center gap-2">
+                                                <i className="fas fa-chart-pie text-blue-400"></i> Par Catégorie
+                                            </h3>
+                                            {Object.entries(stats[devise].categories).map(([cat, val]) => (
+                                                <div key={cat} className="mb-4">
+                                                    <div className="flex justify-between text-[11px] mb-1">
+                                                        <span className="font-bold">{cat}</span>
+                                                        <span className="gold-text font-bold">{val} {devise === 'EUR' ? '€' : 'DA'}</span>
+                                                    </div>
+                                                    <div className="progress-bar">
+                                                        <div className="progress-fill" style={{ width: `${(val / stats[devise].total) * 100}%` }}></div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         )}
                     </main>
 
-                    {/* BARRE DE NAVIGATION LUXE AVEC "+" */}
-                    <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/95 backdrop-blur-md border-t flex justify-around items-center py-5 z-50 rounded-t-[3rem] shadow-[0_-10px_40px_rgba(0,0,0,0.08)]">
+                    {/* BARRE NAV */}
+                    <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/95 backdrop-blur-md border-t flex justify-around items-center py-5 z-50 rounded-t-[3rem] shadow-2xl">
                         <button onClick={() => setView('agenda')} className={`flex flex-col items-center gap-1 transition ${view === 'agenda' ? 'nav-active' : 'text-gray-300'}`}>
-                            <i className="fas fa-calendar-alt text-2xl"></i>
-                            <span className="text-[9px] font-bold uppercase tracking-tighter">Agenda</span>
+                            <i className="fas fa-calendar-alt text-xl"></i>
+                            <span className="text-[9px] font-bold uppercase">Agenda</span>
                         </button>
-                        
-                        <button onClick={() => setView('vente')} className="relative -mt-20">
-                            <div className="w-16 h-16 gold-gradient rounded-full flex items-center justify-center border-[6px] border-white shadow-[0_10px_20px_rgba(212,175,55,0.3)] transform active:scale-90 transition">
+                        <button onClick={() => setView('vente')} className="relative -mt-16 active:scale-90 transition">
+                            <div className="w-16 h-16 gold-gradient rounded-full flex items-center justify-center border-8 border-white shadow-2xl">
                                 <i className="fas fa-plus text-white text-2xl"></i>
                             </div>
-                            <span className="absolute -bottom-7 left-1/2 -translate-x-1/2 text-[9px] font-bold gold-text uppercase">Vente</span>
+                            <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[9px] font-bold gold-text uppercase">Vente</span>
                         </button>
-
                         <button onClick={() => setView('stats')} className={`flex flex-col items-center gap-1 transition ${view === 'stats' ? 'nav-active' : 'text-gray-300'}`}>
-                            <i className="fas fa-chart-bar text-2xl"></i>
-                            <span className="text-[9px] font-bold uppercase tracking-tighter">Stats</span>
+                            <i className="fas fa-chart-bar text-xl"></i>
+                            <span className="text-[9px] font-bold uppercase">Stats</span>
                         </button>
                     </nav>
                 </div>
