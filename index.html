@@ -442,7 +442,8 @@ function Stats({user,sales,onToast}){
     const monthly={};
     for(let i=5;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);const k=d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0');monthly[k]={label:d.toLocaleDateString('fr-FR',{month:'short'}),val:0};}
     s.forEach(x=>{const k=x.date.substring(0,7);if(monthly[k])monthly[k].val+=x.amount;});
-    const mVals=Object.values(monthly),maxM=Math.max(...mVals.map(m=>m.val),1);
+    const mVals=Object.values(monthly),maxM=Math.max(...mVals.map(m=>m.val),objMonth||0,1);
+    const CHART_H=52; // bar max height in px
     const byCat={};s.forEach(x=>{byCat[x.category]=(byCat[x.category]||0)+x.amount;});
     const maxCat=Math.max(...Object.values(byCat),1);
     const isEU=cur==='€',ac=isEU?'#2563eb':'#B8860B';
@@ -475,12 +476,21 @@ function Stats({user,sales,onToast}){
       </div>}
       <div className="card-luxe" style={{padding:'13px'}}>
         <p style={{fontSize:9,fontWeight:700,color:'#9ca3af',textTransform:'uppercase',marginBottom:8}}>CA 6 mois</p>
-        <div style={{display:'flex',alignItems:'flex-end',gap:5,height:68}}>
-          {mVals.map((m,i)=><div key={i} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:2}}>
-            <span style={{fontSize:7,color:ac,fontWeight:700}}>{m.val>0?m.val.toFixed(0):''}</span>
-            <div style={{width:'100%',borderRadius:'3px 3px 0 0',minHeight:3,background:`linear-gradient(180deg,${ac},${ac}88)`,height:Math.max(Math.round((m.val/maxM)*52),3)+'px'}}></div>
-            <span style={{fontSize:7,color:'#9ca3af'}}>{m.label}</span>
-          </div>)}
+        <div style={{position:'relative',height:68}}>
+          {objMonth>0&&(()=>{
+            const lineY=CHART_H-Math.min(Math.round((objMonth/maxM)*CHART_H),CHART_H);
+            return<div style={{position:'absolute',top:lineY+'px',left:0,right:0,zIndex:2,pointerEvents:'none'}}>
+              <div style={{borderTop:`1.5px dashed ${ac}`,width:'100%',opacity:.7}}></div>
+              <span style={{position:'absolute',right:0,top:-9,fontSize:7,color:ac,fontWeight:700,background:'white',padding:'0 3px',borderRadius:3}}>Obj. {objMonth.toFixed(0)} {cur}</span>
+            </div>;
+          })()}
+          <div style={{display:'flex',alignItems:'flex-end',gap:5,height:'100%'}}>
+            {mVals.map((m,i)=><div key={i} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:2}}>
+              <span style={{fontSize:7,color:ac,fontWeight:700}}>{m.val>0?m.val.toFixed(0):''}</span>
+              <div style={{width:'100%',borderRadius:'3px 3px 0 0',minHeight:3,background:`linear-gradient(180deg,${ac},${ac}88)`,height:Math.max(Math.round((m.val/maxM)*CHART_H),3)+'px'}}></div>
+              <span style={{fontSize:7,color:'#9ca3af'}}>{m.label}</span>
+            </div>)}
+          </div>
         </div>
       </div>
       {Object.keys(byCat).length>0&&<div className="card-luxe" style={{padding:'13px'}}>
