@@ -598,6 +598,11 @@ function Structure({sales,onToast}){
   const roots=tree.nodes.filter(n=>!n.parentId);
   const nodeSales=selectedNode?sales.filter(s=>s.consultant===selectedNode.name):[];
   const nodeCA=nodeSales.reduce((t,s)=>t+s.amount,0);
+  const now2=new Date();
+  const nodeThisMonth=nodeSales.filter(s=>{const d=new Date(s.date);return d.getMonth()===now2.getMonth()&&d.getFullYear()===now2.getFullYear();}).reduce((t,s)=>t+s.amount,0);
+  const nodeThisYear=nodeSales.filter(s=>new Date(s.date).getFullYear()===now2.getFullYear()).reduce((t,s)=>t+s.amount,0);
+  const nodeObj=selectedNode?(LS.getObjs()[selectedNode.name]||{}):{};
+  const objM=nodeObj.monthDA||0, objY=nodeObj.yearDA||0;
 
   // Get all descendants of a node
   function getDescendants(nodeId){
@@ -661,6 +666,45 @@ function Structure({sales,onToast}){
             <div style={{fontSize:10,fontWeight:700,color:'#B8860B'}}>{teamCA.toFixed(0)} DA</div>
           </div>
         </div>
+        <div className="grp-lbl">Objectifs de CA — {selectedNode.name}</div>
+        {objM>0||objY>0?<div style={{marginBottom:12}}>
+          {objM>0&&(()=>{
+            const ok=nodeThisMonth>=objM;
+            const pct=Math.min(Math.round((nodeThisMonth/objM)*100),100);
+            return<div style={{background:ok?'#f0fdf4':'#fff5f5',border:`1px solid ${ok?'#86efac':'#fca5a5'}`,borderRadius:12,padding:'10px 13px',marginBottom:8}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
+                <span style={{fontSize:10,fontWeight:700,color:ok?'#16a34a':'#e44258'}}>
+                  <i className={`fas ${ok?'fa-circle-check':'fa-circle-xmark'}`} style={{marginRight:5}}></i>
+                  Objectif mensuel
+                </span>
+                <span style={{fontSize:10,fontWeight:700,color:ok?'#16a34a':'#e44258'}}>{nodeThisMonth.toFixed(0)} / {objM.toFixed(0)} DA</span>
+              </div>
+              <div style={{background:ok?'#dcfce7':'#fee2e2',borderRadius:4,height:6,overflow:'hidden'}}>
+                <div style={{height:'100%',borderRadius:4,width:pct+'%',background:ok?'#16a34a':'#e44258',transition:'width .4s'}}></div>
+              </div>
+              <div style={{fontSize:8,color:ok?'#16a34a':'#e44258',marginTop:3,fontWeight:600}}>{pct}% atteint{ok?' ✓':' — '+(objM-nodeThisMonth).toFixed(0)+' DA restants'}</div>
+            </div>;
+          })()}
+          {objY>0&&(()=>{
+            const ok=nodeThisYear>=objY;
+            const pct=Math.min(Math.round((nodeThisYear/objY)*100),100);
+            return<div style={{background:ok?'#f0fdf4':'#fff5f5',border:`1px solid ${ok?'#86efac':'#fca5a5'}`,borderRadius:12,padding:'10px 13px',marginBottom:8}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
+                <span style={{fontSize:10,fontWeight:700,color:ok?'#16a34a':'#e44258'}}>
+                  <i className={`fas ${ok?'fa-circle-check':'fa-circle-xmark'}`} style={{marginRight:5}}></i>
+                  Objectif annuel
+                </span>
+                <span style={{fontSize:10,fontWeight:700,color:ok?'#16a34a':'#e44258'}}>{nodeThisYear.toFixed(0)} / {objY.toFixed(0)} DA</span>
+              </div>
+              <div style={{background:ok?'#dcfce7':'#fee2e2',borderRadius:4,height:6,overflow:'hidden'}}>
+                <div style={{height:'100%',borderRadius:4,width:pct+'%',background:ok?'#16a34a':'#e44258',transition:'width .4s'}}></div>
+              </div>
+              <div style={{fontSize:8,color:ok?'#16a34a':'#e44258',marginTop:3,fontWeight:600}}>{pct}% atteint{ok?' ✓':' — '+(objY-nodeThisYear).toFixed(0)+' DA restants'}</div>
+            </div>;
+          })()}
+        </div>:<div style={{background:'#fafafa',borderRadius:10,padding:'9px 12px',marginBottom:12}}>
+          <p style={{fontSize:10,color:'#9ca3af',textAlign:'center'}}>Aucun objectif défini pour {selectedNode.name}.<br/><span style={{fontSize:9}}>La consultante peut les saisir dans l'onglet Stats.</span></p>
+        </div>}
         <div className="grp-lbl">Dernières ventes de {selectedNode.name}</div>
         {nodeSales.slice(0,5).map((s,i)=><div key={i} style={{background:'#fafafa',borderRadius:10,padding:'9px 11px',marginBottom:6}}>
           <div style={{display:'flex',justifyContent:'space-between'}}>
