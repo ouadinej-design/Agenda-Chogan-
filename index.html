@@ -131,51 +131,181 @@ function FirstTimeSetup({name,onDone}){
   const [email,setEmail]=useState('');
   const [tel,setTel]=useState('');
   const [role,setRole]=useState('Consultante');
+  // Étape 2 — organigramme
+  const [managerName,setManagerName]=useState(''); // pour consultante: qui est sa marraine
+  const [teamMembers,setTeamMembers]=useState([]); // pour manager: ses membres
+  const [newMemberName,setNewMemberName]=useState('');
+  const [newMemberRole,setNewMemberRole]=useState('Consultante');
+
+  function goStep2(){
+    if(!email.trim()||!tel.trim()){alert('Email et téléphone obligatoires');return;}
+    setStep(2);
+  }
+
+  function addMember(){
+    if(!newMemberName.trim())return;
+    setTeamMembers(prev=>[...prev,{name:newMemberName.trim(),role:newMemberRole,id:Date.now().toString()}]);
+    setNewMemberName('');
+  }
+
+  function removeMember(id){setTeamMembers(prev=>prev.filter(m=>m.id!==id));}
 
   function save(){
-    if(!email.trim()||!tel.trim()){alert('Email et téléphone obligatoires');return;}
     const profiles=LS.getProfiles();
-    profiles[name]={prenom,nom,email:email.trim(),tel:tel.trim(),role,name};
+    profiles[name]={prenom,nom,email:email.trim(),tel:tel.trim(),role,name,managerName:managerName.trim()};
     LS.putProfiles(profiles);
-    // If manager, add to tree automatically
+
+    // Mettre à jour l'arbre
+    const tree=LS.getTree();
+
     if(role==='Manager'){
-      const tree=LS.getTree();
+      // Ajouter soi-même comme Manager si pas déjà présent
+      let selfNode=tree.nodes.find(n=>n.name===name);
+      if(!selfNode){
+        selfNode={id:'self_'+Date.now(),name,role:'Manager',parentId:null};
+        tree.nodes.push(selfNode);
+      }
+      // Ajouter les membres de l'équipe sous soi
+      teamMembers.forEach(m=>{
+        if(!tree.nodes.find(n=>n.name===m.name)){
+          tree.nodes.push({id:m.id,name:m.name,role:m.role,parentId:selfNode.id});
+        }
+      });
+    } else {
+      // Consultante — se rattacher à son manager si renseigné
+      let parentId=null;
+      if(managerName.trim()){
+        let mgr=tree.nodes.find(n=>n.name.toLowerCase()===managerName.trim().toLowerCase());
+        if(!mgr){
+          mgr={id:'mgr_'+Date.now(),name:managerName.trim(),role:'Manager',parentId:null};
+          tree.nodes.push(mgr);
+        }
+        parentId=mgr.id;
+      }
       if(!tree.nodes.find(n=>n.name===name)){
-        tree.nodes.push({id:Date.now().toString(),name,role:'Manager',parentId:null});
-        LS.putTree(tree);
+        tree.nodes.push({id:'cons_'+Date.now(),name,role:'Consultante',parentId});
       }
     }
+
+    LS.putTree(tree);
     onDone({prenom,nom,email:email.trim(),tel:tel.trim(),role,name});
   }
 
+  const progressPct=step===1?50:100;
+
   return(
-    <div style={{minHeight:'100vh',background:'linear-gradient(160deg,#fffbf0,#fdfdfd)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:24}}>
+    <div style={{minHeight:'100vh',background:'linear-gradient(160deg,#fffbf0,#fdfdfd)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'flex-start',padding:'32px 20px'}}>
       <div className="gold-gradient" style={{width:62,height:62,borderRadius:20,display:'flex',alignItems:'center',justifyContent:'center',marginBottom:14,boxShadow:'0 8px 24px rgba(212,175,55,.35)'}}>
         <i className="fas fa-crown" style={{fontSize:24,color:'white'}}></i>
       </div>
       <h1 style={{fontFamily:'Cormorant Garamond',fontSize:22,fontWeight:700,color:'#B8860B',margin:'0 0 4px'}}>Bienvenue !</h1>
-      <p style={{fontSize:9,color:'#9ca3af',letterSpacing:2,textTransform:'uppercase',marginBottom:24}}>Première connexion · Créez votre profil</p>
+      <p style={{fontSize:9,color:'#9ca3af',letterSpacing:2,textTransform:'uppercase',marginBottom:16}}>Première connexion · Créez votre profil</p>
 
-      <div className="setup-step" style={{width:'100%',maxWidth:380}}>
-        <p style={{fontSize:10,fontWeight:700,color:'#B8860B',textTransform:'uppercase',letterSpacing:1,marginBottom:14}}>
-          <i className="fas fa-user-circle" style={{marginRight:6}}></i>Vos informations
-        </p>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
-          <div><p className="lbl">Prénom</p><input className="inp" value={prenom} onChange={e=>setPrenom(e.target.value)} placeholder="Prénom"/></div>
-          <div><p className="lbl">Nom</p><input className="inp" value={nom} onChange={e=>setNom(e.target.value)} placeholder="Nom"/></div>
+      {/* Progress bar */}
+      <div style={{width:'100%',maxWidth:380,marginBottom:20}}>
+        <div style={{display:'flex',justifyContent:'space-between',marginBottom:6}}>
+          {['Informations','Mon équipe'].map((s,i)=><span key={i} style={{fontSize:9,fontWeight:700,color:step>i?'#B8860B':'#d1d5db',textTransform:'uppercase',letterSpacing:.5}}>{i+1}. {s}</span>)}
         </div>
-        <p className="lbl">Email <span style={{color:'#e44258'}}>*</span></p>
-        <input className="inp" type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="votre@email.com"/>
-        <p className="lbl">Téléphone <span style={{color:'#e44258'}}>*</span></p>
-        <input className="inp" type="tel" value={tel} onChange={e=>setTel(e.target.value)} placeholder="+33 6 00 00 00 00"/>
-        <p className="lbl">Votre rôle</p>
-        <div style={{display:'flex',gap:8,marginBottom:12}}>
-          {['Consultante','Manager'].map(r=><div key={r} onClick={()=>setRole(r)} style={{flex:1,padding:'10px',textAlign:'center',borderRadius:10,cursor:'pointer',border:`1.5px solid ${role===r?'#D4AF37':'#f0f0f0'}`,background:role===r?'#fef3c7':'#fafafa',fontWeight:role===r?700:400,fontSize:11,color:role===r?'#B8860B':'#9ca3af',fontFamily:'Poppins'}}>{r}</div>)}
+        <div style={{background:'#f3f4f6',borderRadius:20,height:4,overflow:'hidden'}}>
+          <div style={{height:'100%',borderRadius:20,background:'linear-gradient(90deg,#D4AF37,#B8860B)',width:progressPct+'%',transition:'width .4s'}}></div>
         </div>
-        <button className="btn-g" onClick={save}>
-          <i className="fas fa-check" style={{marginRight:6}}></i>Créer mon profil et accéder
-        </button>
-        <p style={{fontSize:8,color:'#9ca3af',textAlign:'center',marginTop:8}}>Ces données sont obligatoires et stockées localement sur cet appareil.</p>
+      </div>
+
+      <div style={{width:'100%',maxWidth:380}}>
+
+        {/* ── STEP 1 : Infos personnelles */}
+        {step===1&&<div className="card-luxe">
+          <p className="lbl" style={{color:'#B8860B',fontSize:10,marginBottom:12}}><i className="fas fa-user-circle" style={{marginRight:6}}></i>Vos informations</p>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+            <div><p className="lbl">Prénom</p><input className="inp" value={prenom} onChange={e=>setPrenom(e.target.value)} placeholder="Prénom"/></div>
+            <div><p className="lbl">Nom</p><input className="inp" value={nom} onChange={e=>setNom(e.target.value)} placeholder="Nom"/></div>
+          </div>
+          <p className="lbl">Email <span style={{color:'#e44258'}}>*</span></p>
+          <input className="inp" type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="votre@email.com"/>
+          <p className="lbl">Téléphone <span style={{color:'#e44258'}}>*</span></p>
+          <input className="inp" type="tel" value={tel} onChange={e=>setTel(e.target.value)} placeholder="+33 6 00 00 00 00"/>
+          <p className="lbl">Votre rôle</p>
+          <div style={{display:'flex',gap:8,marginBottom:16}}>
+            {['Consultante','Manager'].map(r=><div key={r} onClick={()=>setRole(r)} style={{flex:1,padding:'10px',textAlign:'center',borderRadius:10,cursor:'pointer',border:`1.5px solid ${role===r?'#D4AF37':'#f0f0f0'}`,background:role===r?'#fef3c7':'#fafafa',fontWeight:role===r?700:400,fontSize:11,color:role===r?'#B8860B':'#9ca3af',fontFamily:'Poppins'}}>{r}</div>)}
+          </div>
+          <button className="btn-g" onClick={goStep2}>
+            Suivant → Mon équipe
+          </button>
+          <p style={{fontSize:8,color:'#9ca3af',textAlign:'center',marginTop:8}}>Champs * obligatoires</p>
+        </div>}
+
+        {/* ── STEP 2 : Organigramme */}
+        {step===2&&<div>
+          <div className="card-luxe">
+            <p className="lbl" style={{color:'#B8860B',fontSize:10,marginBottom:12}}><i className="fas fa-sitemap" style={{marginRight:6}}></i>
+              {role==='Manager'?'Votre équipe (organigramme)':'Votre marraine / manager'}
+            </p>
+
+            {role==='Consultante'&&<>
+              <p style={{fontSize:10,color:'#9ca3af',marginBottom:10,lineHeight:1.5}}>Indiquez le nom de votre marraine ou manager (N+1). Vos données lui seront rattachées dans l'organigramme.</p>
+              <p className="lbl">Nom de votre marraine / manager</p>
+              <input className="inp" placeholder="Ex: Marie Dupont" value={managerName} onChange={e=>setManagerName(e.target.value)}/>
+              <div style={{background:'#f0fdf4',border:'1px solid #86efac',borderRadius:10,padding:'10px 12px',marginTop:8}}>
+                <div style={{fontSize:10,fontWeight:700,color:'#16a34a',marginBottom:3}}><i className="fas fa-circle-info" style={{marginRight:5}}></i>Comment ça fonctionne</div>
+                <div style={{fontSize:9,color:'#6b7280',lineHeight:1.5}}>Votre marraine verra vos ventes et statistiques dans son espace Manager → Équipe. Votre N+1 est automatiquement notifié de votre inscription.</div>
+              </div>
+            </>}
+
+            {role==='Manager'&&<>
+              <p style={{fontSize:10,color:'#9ca3af',marginBottom:12,lineHeight:1.5}}>Ajoutez les membres de votre équipe. Chaque membre sera visible dans votre organigramme.</p>
+
+              {/* Ajouter un membre */}
+              <div style={{display:'flex',gap:8,marginBottom:8}}>
+                <input className="inp" placeholder="Prénom Nom du membre" value={newMemberName} onChange={e=>setNewMemberName(e.target.value)} style={{flex:1,marginBottom:0}} onKeyDown={e=>e.key==='Enter'&&addMember()}/>
+                <select className="inp" value={newMemberRole} onChange={e=>setNewMemberRole(e.target.value)} style={{width:120,marginBottom:0}}>
+                  <option value="Consultante">Consultante</option>
+                  <option value="Manager">Manager</option>
+                </select>
+              </div>
+              <button onClick={addMember} style={{width:'100%',background:'#fef3c7',border:'1px solid #fde68a',borderRadius:10,padding:'9px',fontSize:10,fontWeight:700,color:'#B8860B',cursor:'pointer',fontFamily:'Poppins',marginBottom:12}}>
+                <i className="fas fa-plus" style={{marginRight:5}}></i>Ajouter à l'équipe
+              </button>
+
+              {/* Aperçu organigramme */}
+              {teamMembers.length>0&&<>
+                <p className="lbl" style={{marginBottom:8}}>Aperçu de votre organigramme</p>
+                <div style={{background:'#fffbf0',border:'1px solid #fde68a',borderRadius:12,padding:'12px'}}>
+                  {/* Soi-même = racine */}
+                  <div style={{display:'flex',justifyContent:'center',marginBottom:10}}>
+                    <div style={{background:'linear-gradient(135deg,#D4AF37,#B8860B)',color:'white',borderRadius:10,padding:'7px 14px',fontSize:10,fontWeight:700,textAlign:'center'}}>
+                      <i className="fas fa-crown" style={{marginRight:5}}></i>{prenom||name} <span style={{fontSize:8,opacity:.8}}>(Vous)</span>
+                    </div>
+                  </div>
+                  <div style={{width:1,height:10,background:'#fde68a',margin:'0 auto'}}></div>
+                  <div style={{display:'flex',flexWrap:'wrap',gap:6,justifyContent:'center',marginTop:4}}>
+                    {teamMembers.map((m,i)=><div key={m.id} style={{display:'flex',alignItems:'center',gap:4,background:'white',border:`1.5px solid ${m.role==='Manager'?'#D4AF37':'#e5e7eb'}`,borderTop:`3px solid ${m.role==='Manager'?'#D4AF37':'#9ca3af'}`,borderRadius:8,padding:'5px 8px'}}>
+                      <div>
+                        <div style={{fontSize:9.5,fontWeight:700}}>{m.name}</div>
+                        <div style={{fontSize:7.5,color:m.role==='Manager'?'#B8860B':'#9ca3af'}}>{m.role}</div>
+                      </div>
+                      <button onClick={()=>removeMember(m.id)} style={{background:'none',border:'none',color:'#fca5a5',cursor:'pointer',fontSize:10,padding:2}}>✕</button>
+                    </div>)}
+                  </div>
+                </div>
+              </>}
+
+              {teamMembers.length===0&&<div style={{textAlign:'center',color:'#9ca3af',padding:'16px 0',fontSize:11}}>
+                <i className="fas fa-users" style={{fontSize:24,opacity:.2,display:'block',marginBottom:8}}></i>
+                Ajoutez vos premières consultantes<br/>
+                <span style={{fontSize:9}}>Vous pourrez en ajouter d'autres plus tard dans l'onglet Équipe.</span>
+              </div>}
+            </>}
+          </div>
+
+          <div style={{display:'flex',gap:8}}>
+            <button onClick={()=>setStep(1)} className="btn-ghost" style={{flex:1,marginTop:0}}>← Retour</button>
+            <button onClick={save} className="btn-g" style={{flex:2}}>
+              <i className="fas fa-check" style={{marginRight:6}}></i>Créer mon profil
+            </button>
+          </div>
+          <p style={{fontSize:8,color:'#9ca3af',textAlign:'center',marginTop:8}}>Données stockées localement · Visibles par votre N+1</p>
+        </div>}
+
       </div>
     </div>
   );
