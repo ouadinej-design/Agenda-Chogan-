@@ -242,7 +242,7 @@ function Agenda({user,sales,onClient}){
     if(filter!=='all')all=all.filter(e=>e.t===filter);
     return{futurs:all.filter(e=>Math.ceil((new Date(e.d)-now)/86400000)>=0).sort((a,b)=>new Date(a.d)-new Date(b.d)),passes:all.filter(e=>Math.ceil((new Date(e.d)-now)/86400000)<0).sort((a,b)=>new Date(b.d)-new Date(a.d))};
   },[filter,now]);
-  const urgents=useMemo(()=>{const m={};mySales.forEach(s=>{if(!m[s.client]||s.date>m[s.client])m[s.client]=s.date;});return Object.entries(m).filter(([,d])=>Math.floor((now-new Date(d))/86400000)>=60).map(([n,d])=>({name:n,days:Math.floor((now-new Date(d))/86400000)}));},[mySales,now]);
+  const urgents=useMemo(()=>{const m={};mySales.forEach(s=>{if(!m[s.client]||s.date>m[s.client])m[s.client]=s.date;});return Object.entries(m).filter(([_k,d])=>Math.floor((now-new Date(d))/86400000)>=60).map(([n,d])=>({name:n,days:Math.floor((now-new Date(d))/86400000)}));},[mySales,now]);
   function Row({ev}){const diff=Math.ceil((new Date(ev.d)-now)/86400000),isPast=diff<0,color=TYPE_COLOR[ev.t]||'#B8860B';
     return<div className={`card-luxe ${isPast?'past-row':''}`} style={{display:'flex',alignItems:'center',gap:11,padding:'11px 13px',borderLeft:`3px solid ${isPast?'#e5e7eb':color}`}}>
       <div style={{flex:1,minWidth:0}}><div style={{fontSize:11,fontWeight:600,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{ev.n}</div>
@@ -291,7 +291,7 @@ function Evenements({onToast}){
       </div>
       <div style={{display:'flex',gap:8}}>
         <button className="btn-g" onClick={save} style={{flex:1}}>{editId?'Enregistrer la modification':'✦ Ajouter'}</button>
-        {editId&&<button onClick={()=>{setEditId(null);setF({name:'',type:'Salon/Expo',date:new Date().toISOString().split('T')[0],email:'',tel:'']);}} style={{background:'#f3f4f6',border:'none',borderRadius:10,padding:'10px 14px',cursor:'pointer',fontFamily:'Poppins',fontSize:11}}>Annuler</button>}
+        {editId&&<button onClick={()=>{setEditId(null);setF({name:'',type:'Salon/Expo',date:new Date().toISOString().split('T')[0],email:'',tel:''});}} style={{background:'#f3f4f6',border:'none',borderRadius:10,padding:'10px 14px',cursor:'pointer',fontFamily:'Poppins',fontSize:11}}>Annuler</button>}
       </div>
     </div>
     {evts.length>0&&<><div className="grp-lbl">Mes événements ({evts.length})</div>
@@ -592,7 +592,7 @@ function Structure({sales,onToast}){
   const nodeThisYear=nodeSales.filter(s=>new Date(s.date).getFullYear()===now2.getFullYear()).reduce((t,s)=>t+s.amount,0);
   const nodeObj=selectedNode?(LS.getObjs()[selectedNode.name]||{}):{};
   const objM=nodeObj.monthDA||0,objY=nodeObj.yearDA||0;
-  const teamSales=selectedNode?[...nodeSales,...getDescendants(selectedNode.id).flatMap(d=>sales.filter(s=>s.consultant===d.name))]:[];
+  const teamSales=selectedNode?[...nodeSales,...getDescendants(selectedNode.id).reduce((a,d)=>[...a,...sales.filter(s=>s.consultant===d.name)],[])]:[];
   const teamCA=teamSales.reduce((t,s)=>t+s.amount,0);
   // Client stats for selected node
   const clientsSet=new Set(nodeSales.map(s=>s.client));
@@ -600,7 +600,7 @@ function Structure({sales,onToast}){
   const thisMonthSales=nodeSales.filter(s=>{const d=new Date(s.date);return d.getMonth()===now2.getMonth()&&d.getFullYear()===now2.getFullYear();});
   // New clients this month = clients whose first purchase ever with this consultant is this month
   const clientFirstPurchase={};nodeSales.forEach(s=>{if(!clientFirstPurchase[s.client]||s.date<clientFirstPurchase[s.client])clientFirstPurchase[s.client]=s.date;});
-  const newClientsThisMonth=Object.entries(clientFirstPurchase).filter(([,d])=>{const dd=new Date(d);return dd.getMonth()===now2.getMonth()&&dd.getFullYear()===now2.getFullYear();}).length;
+  const newClientsThisMonth=Object.entries(clientFirstPurchase).filter(([_k,d])=>{const dd=new Date(d);return dd.getMonth()===now2.getMonth()&&dd.getFullYear()===now2.getFullYear();}).length;
   const returningClientsThisMonth=new Set(thisMonthSales.map(s=>s.client)).size-newClientsThisMonth;
   // Parrainage: direct recruits in tree
   const directRecruits=selectedNode?tree.nodes.filter(n=>n.parentId===selectedNode.id).length:0;
@@ -916,4 +916,3 @@ ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 </script>
 </body>
 </html>
-
