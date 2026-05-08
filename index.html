@@ -21,7 +21,6 @@ select.inp option{background:white;}
 .lbl{font-size:9px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:3px;}
 .btn-g{background:linear-gradient(135deg,#D4AF37,#B8860B);color:white;font-weight:700;padding:.95rem;border-radius:1.1rem;width:100%;border:none;cursor:pointer;font-family:'Poppins',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-top:4px;}
 .btn-ghost{background:transparent;border:1px solid #e5e7eb;color:#9ca3af;font-size:11px;padding:.75rem;border-radius:1rem;width:100%;cursor:pointer;font-family:'Poppins',sans-serif;margin-top:6px;}
-.btn-sm{padding:.5rem 1rem;border-radius:.8rem;font-size:10px;width:auto;margin-top:0;}
 .btn-red{background:#fff5f5;border:1px solid #fecaca;color:#e44258;font-size:10px;padding:.6rem 1rem;border-radius:.8rem;cursor:pointer;font-family:'Poppins',sans-serif;font-weight:600;}
 .chip-bar{display:flex;gap:5px;overflow-x:auto;padding-bottom:4px;margin-bottom:10px;}
 .chip-bar::-webkit-scrollbar{height:0;}
@@ -40,7 +39,6 @@ select.inp option{background:white;}
 .stat-card{background:linear-gradient(135deg,#1a1a1a,#2d2d2d);border-radius:1.8rem;padding:1.4rem;text-align:center;color:white;margin-bottom:.9rem;}
 .bar-track{background:#f3f4f6;border-radius:4px;height:5px;overflow:hidden;margin-top:3px;}
 .bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#D4AF37,#B8860B);}
-.bar-blue{background:linear-gradient(90deg,#2563eb,#60a5fa);}
 .avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:white;flex-shrink:0;}
 .c-row{background:white;border-radius:1.2rem;border:1px solid #f0f0f0;padding:11px 13px;margin-bottom:7px;display:flex;align-items:center;gap:9px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.03);}
 .modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:flex-end;backdrop-filter:blur(4px);}
@@ -49,21 +47,19 @@ select.inp option{background:white;}
 .sec-div{display:flex;align-items:center;gap:8px;margin:12px 0 10px;}
 .sec-div-line{flex:1;height:1px;background:#f3f4f6;}
 .sec-div-txt{font-size:9px;font-weight:700;padding:3px 12px;border-radius:20px;}
-/* ORG CHART */
-.org-node{background:white;border:1.5px solid rgba(212,175,55,.25);border-radius:16px;padding:10px 12px;text-align:center;cursor:pointer;transition:.2s;min-width:90px;box-shadow:0 2px 10px rgba(212,175,55,.08);}
-.org-node:hover{border-color:#D4AF37;box-shadow:0 4px 16px rgba(212,175,55,.15);}
-.org-manager{border-top:3px solid #D4AF37;}
-.org-branch{display:flex;flex-direction:column;align-items:center;}
-.org-children{display:flex;gap:8px;margin-top:12px;position:relative;}
-.org-children::before{content:'';position:absolute;top:-6px;left:50%;transform:translateX(-50%);width:1px;height:6px;background:#D4AF37;}
-.org-connector{position:absolute;top:-6px;left:0;right:0;height:1px;background:#D4AF37;}
+/* ORG */
+.org-card{background:white;border:1.5px solid rgba(212,175,55,.2);border-radius:12px;padding:8px 10px;cursor:pointer;transition:.2s;text-align:center;min-width:80px;max-width:110px;}
+.org-card:hover{border-color:#D4AF37;box-shadow:0 4px 14px rgba(212,175,55,.15);}
+.org-manager-card{border-top:3px solid #D4AF37;}
+.org-consultant-card{border-top:3px solid #9ca3af;}
+/* SETUP */
+.setup-step{background:white;border-radius:1.8rem;padding:1.5rem;margin-bottom:1rem;border:1px solid rgba(212,175,55,.1);box-shadow:0 6px 30px rgba(212,175,55,.07);}
 </style>
 </head>
 <body>
 <div id="root"></div>
 <script type="text/babel">
 const {useState,useEffect,useMemo,useCallback}=React;
-
 const ADMIN_EMAIL="ouadi.nej@gmail.com",ADMIN_PASS="1981";
 const TYPE_COLOR={mus:'#16a34a',cath:'#2563eb',comm:'#c2410c',saison:'#9333ea',prepa:'#b45309',perso:'#0891b2'};
 const PILL_CLS={mus:'pill-mus',cath:'pill-cath',comm:'pill-comm',saison:'pill-saison',prepa:'pill-prepa',perso:'pill-perso'};
@@ -101,7 +97,6 @@ const MASTER=[
   {n:"Noël 🎄",d:"2026-12-25",t:"cath",lbl:"Catho"},
 ];
 
-// ── STORAGE
 const LS={
   getSales:()=>JSON.parse(localStorage.getItem('le_sales')||'[]'),
   putSales:d=>localStorage.setItem('le_sales',JSON.stringify(d)),
@@ -111,7 +106,9 @@ const LS={
   putObjs:d=>localStorage.setItem('le_objectives',JSON.stringify(d)),
   getTree:()=>JSON.parse(localStorage.getItem('le_tree')||'{"nodes":[]}'),
   putTree:d=>localStorage.setItem('le_tree',JSON.stringify(d)),
-  reset:()=>{['le_sales','le_cevents','le_objectives','le_tree'].forEach(k=>localStorage.removeItem(k));},
+  getProfiles:()=>JSON.parse(localStorage.getItem('le_profiles')||'{}'),
+  putProfiles:d=>localStorage.setItem('le_profiles',JSON.stringify(d)),
+  reset:()=>['le_sales','le_cevents','le_objectives','le_tree','le_profiles'].forEach(k=>localStorage.removeItem(k)),
 };
 
 function fmt(d){if(!d)return'-';return new Date(d).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'2-digit'});}
@@ -123,8 +120,66 @@ function JX({diff}){
   if(diff<=7)return<span className="jx jx-soon">J-{diff}</span>;
   return<span className="jx jx-future">J-{diff}</span>;
 }
-function Toast({m}){return m?<div style={{position:'fixed',bottom:88,left:'50%',transform:'translateX(-50%)',background:'#1a1a1a',color:'#F9E29C',borderRadius:12,padding:'8px 18px',fontSize:12,fontWeight:600,zIndex:999,whiteSpace:'nowrap',boxShadow:'0 4px 16px rgba(0,0,0,.2)'}}>{m}</div>:null;}
-function Divider({label,color='#B8860B',bg='#fef3c7'}){return<div className="sec-div"><div className="sec-div-line"></div><span className="sec-div-txt" style={{color,background:bg}}>{label}</span><div className="sec-div-line"></div></div>;}
+function Toast({m}){return m?<div style={{position:'fixed',bottom:88,left:'50%',transform:'translateX(-50%)',background:'#1a1a1a',color:'#F9E29C',borderRadius:12,padding:'8px 18px',fontSize:12,fontWeight:600,zIndex:999,whiteSpace:'nowrap'}}>{m}</div>:null;}
+function Div({label,color='#B8860B',bg='#fef3c7'}){return<div className="sec-div"><div className="sec-div-line"></div><span className="sec-div-txt" style={{color,background:bg}}>{label}</span><div className="sec-div-line"></div></div>;}
+
+// ── FIRST TIME SETUP
+function FirstTimeSetup({name,onDone}){
+  const [step,setStep]=useState(1);
+  const [prenom,setPrenom]=useState(name.split(' ')[0]||'');
+  const [nom,setNom]=useState(name.split(' ').slice(1).join(' ')||'');
+  const [email,setEmail]=useState('');
+  const [tel,setTel]=useState('');
+  const [role,setRole]=useState('Consultante');
+
+  function save(){
+    if(!email.trim()||!tel.trim()){alert('Email et téléphone obligatoires');return;}
+    const profiles=LS.getProfiles();
+    profiles[name]={prenom,nom,email:email.trim(),tel:tel.trim(),role,name};
+    LS.putProfiles(profiles);
+    // If manager, add to tree automatically
+    if(role==='Manager'){
+      const tree=LS.getTree();
+      if(!tree.nodes.find(n=>n.name===name)){
+        tree.nodes.push({id:Date.now().toString(),name,role:'Manager',parentId:null});
+        LS.putTree(tree);
+      }
+    }
+    onDone({prenom,nom,email:email.trim(),tel:tel.trim(),role,name});
+  }
+
+  return(
+    <div style={{minHeight:'100vh',background:'linear-gradient(160deg,#fffbf0,#fdfdfd)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:24}}>
+      <div className="gold-gradient" style={{width:62,height:62,borderRadius:20,display:'flex',alignItems:'center',justifyContent:'center',marginBottom:14,boxShadow:'0 8px 24px rgba(212,175,55,.35)'}}>
+        <i className="fas fa-crown" style={{fontSize:24,color:'white'}}></i>
+      </div>
+      <h1 style={{fontFamily:'Cormorant Garamond',fontSize:22,fontWeight:700,color:'#B8860B',margin:'0 0 4px'}}>Bienvenue !</h1>
+      <p style={{fontSize:9,color:'#9ca3af',letterSpacing:2,textTransform:'uppercase',marginBottom:24}}>Première connexion · Créez votre profil</p>
+
+      <div className="setup-step" style={{width:'100%',maxWidth:380}}>
+        <p style={{fontSize:10,fontWeight:700,color:'#B8860B',textTransform:'uppercase',letterSpacing:1,marginBottom:14}}>
+          <i className="fas fa-user-circle" style={{marginRight:6}}></i>Vos informations
+        </p>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+          <div><p className="lbl">Prénom</p><input className="inp" value={prenom} onChange={e=>setPrenom(e.target.value)} placeholder="Prénom"/></div>
+          <div><p className="lbl">Nom</p><input className="inp" value={nom} onChange={e=>setNom(e.target.value)} placeholder="Nom"/></div>
+        </div>
+        <p className="lbl">Email <span style={{color:'#e44258'}}>*</span></p>
+        <input className="inp" type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="votre@email.com"/>
+        <p className="lbl">Téléphone <span style={{color:'#e44258'}}>*</span></p>
+        <input className="inp" type="tel" value={tel} onChange={e=>setTel(e.target.value)} placeholder="+33 6 00 00 00 00"/>
+        <p className="lbl">Votre rôle</p>
+        <div style={{display:'flex',gap:8,marginBottom:12}}>
+          {['Consultante','Manager'].map(r=><div key={r} onClick={()=>setRole(r)} style={{flex:1,padding:'10px',textAlign:'center',borderRadius:10,cursor:'pointer',border:`1.5px solid ${role===r?'#D4AF37':'#f0f0f0'}`,background:role===r?'#fef3c7':'#fafafa',fontWeight:role===r?700:400,fontSize:11,color:role===r?'#B8860B':'#9ca3af',fontFamily:'Poppins'}}>{r}</div>)}
+        </div>
+        <button className="btn-g" onClick={save}>
+          <i className="fas fa-check" style={{marginRight:6}}></i>Créer mon profil et accéder
+        </button>
+        <p style={{fontSize:8,color:'#9ca3af',textAlign:'center',marginTop:8}}>Ces données sont obligatoires et stockées localement sur cet appareil.</p>
+      </div>
+    </div>
+  );
+}
 
 // ── LOGIN
 function Login({onLogin}){
@@ -180,81 +235,65 @@ function Agenda({user,sales,onClient}){
   const [filter,setFilter]=useState('all');
   const now=useMemo(()=>{const d=new Date();d.setHours(0,0,0,0);return d;},[]);
   const mySales=user.role==='admin'?sales:sales.filter(s=>s.consultant===user.name);
-
   const evts=useMemo(()=>{
     let all=[...MASTER];
     LS.getEvts().forEach(e=>all.push({n:e.n,d:e.d,t:'perso',lbl:e.lbl}));
     [...all].forEach(e=>{const pd=new Date(e.d);pd.setDate(pd.getDate()-20);all.push({n:e.n,d:pd.toISOString().split('T')[0],t:'prepa',lbl:'🛒 Push',isPrep:true});});
     if(filter!=='all')all=all.filter(e=>e.t===filter);
-    return{
-      futurs:all.filter(e=>Math.ceil((new Date(e.d)-now)/86400000)>=0).sort((a,b)=>new Date(a.d)-new Date(b.d)),
-      passes:all.filter(e=>Math.ceil((new Date(e.d)-now)/86400000)<0).sort((a,b)=>new Date(b.d)-new Date(a.d))
-    };
+    return{futurs:all.filter(e=>Math.ceil((new Date(e.d)-now)/86400000)>=0).sort((a,b)=>new Date(a.d)-new Date(b.d)),passes:all.filter(e=>Math.ceil((new Date(e.d)-now)/86400000)<0).sort((a,b)=>new Date(b.d)-new Date(a.d))};
   },[filter,now]);
-
-  const urgents=useMemo(()=>{
-    const m={};mySales.forEach(s=>{if(!m[s.client]||s.date>m[s.client])m[s.client]=s.date;});
-    return Object.entries(m).filter(([,d])=>Math.floor((now-new Date(d))/86400000)>=60).map(([n,d])=>({name:n,days:Math.floor((now-new Date(d))/86400000)}));
-  },[mySales,now]);
-
-  function Row({ev}){
-    const diff=Math.ceil((new Date(ev.d)-now)/86400000),isPast=diff<0,color=TYPE_COLOR[ev.t]||'#B8860B';
+  const urgents=useMemo(()=>{const m={};mySales.forEach(s=>{if(!m[s.client]||s.date>m[s.client])m[s.client]=s.date;});return Object.entries(m).filter(([,d])=>Math.floor((now-new Date(d))/86400000)>=60).map(([n,d])=>({name:n,days:Math.floor((now-new Date(d))/86400000)}));},[mySales,now]);
+  function Row({ev}){const diff=Math.ceil((new Date(ev.d)-now)/86400000),isPast=diff<0,color=TYPE_COLOR[ev.t]||'#B8860B';
     return<div className={`card-luxe ${isPast?'past-row':''}`} style={{display:'flex',alignItems:'center',gap:11,padding:'11px 13px',borderLeft:`3px solid ${isPast?'#e5e7eb':color}`}}>
-      <div style={{flex:1,minWidth:0}}>
-        <div style={{fontSize:11,fontWeight:600,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{ev.n}</div>
-        <div style={{display:'flex',alignItems:'center',gap:5,marginTop:3}}>
-          <span style={{fontSize:8,color:'#9ca3af'}}>{fmtS(ev.d)}</span>
-          <span className={`pill ${PILL_CLS[ev.t]}`}>{ev.lbl}</span>
-        </div>
-      </div>
-      <JX diff={diff}/>
-    </div>;
-  }
-
+      <div style={{flex:1,minWidth:0}}><div style={{fontSize:11,fontWeight:600,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{ev.n}</div>
+      <div style={{display:'flex',alignItems:'center',gap:5,marginTop:3}}><span style={{fontSize:8,color:'#9ca3af'}}>{fmtS(ev.d)}</span><span className={`pill ${PILL_CLS[ev.t]}`}>{ev.lbl}</span></div></div>
+      <JX diff={diff}/></div>;}
   const filters=[{k:'all',l:'Tout'},{k:'mus',l:'Islam'},{k:'cath',l:'Catho'},{k:'comm',l:'Business'},{k:'saison',l:'Saison'},{k:'prepa',l:'🛒 Push'},{k:'perso',l:'Perso'}];
   return<div>
     {urgents.map((c,i)=><div key={i} onClick={()=>onClient(c.name)} style={{background:'#fff5f5',border:'1px solid #fecaca',borderRadius:14,padding:'10px 13px',display:'flex',alignItems:'center',gap:9,marginBottom:8,cursor:'pointer'}}>
       <i className="fas fa-triangle-exclamation" style={{color:'#e44258',fontSize:12}}></i>
       <div style={{flex:1}}><div style={{fontSize:10,fontWeight:700}}>{c.name}</div><div style={{fontSize:8,color:'#9ca3af'}}>Relance urgente — {c.days} jours</div></div>
-      <i className="fas fa-chevron-right" style={{color:'#d1d5db',fontSize:9}}></i>
-    </div>)}
+      <i className="fas fa-chevron-right" style={{color:'#d1d5db',fontSize:9}}></i></div>)}
     <div className="chip-bar">{filters.map(f=><div key={f.k} className={`chip ${filter===f.k?'chip-on':''}`} onClick={()=>setFilter(f.k)}>{f.l}</div>)}</div>
     {evts.futurs.length?<><div className="grp-lbl">✦ Prochains — {evts.futurs.length}</div>{evts.futurs.map((ev,i)=><Row key={i} ev={ev}/>)}</>:<div style={{textAlign:'center',color:'#9ca3af',padding:30,fontSize:12}}>Aucun événement à venir</div>}
-    {evts.passes.length?<><div className="grp-lbl" style={{marginTop:10}}>📁 Historique — {evts.passes.length}</div>{evts.passes.map((ev,i)=><Row key={i} ev={ev}/>)}</>:null}
+    {evts.passes.length?<><div className="grp-lbl" style={{marginTop:10}}>📁 Historique</div>{evts.passes.map((ev,i)=><Row key={i} ev={ev}/>)}</>:null}
   </div>;
 }
 
 // ── ÉVÉNEMENTS
 function Evenements({onToast}){
   const [evts,setEvts]=useState(LS.getEvts);
-  const [name,setName]=useState('');
-  const [type,setType]=useState('Salon/Expo');
-  const [date,setDate]=useState(new Date().toISOString().split('T')[0]);
-  const [email,setEmail]=useState('');
-  const [tel,setTel]=useState('');
+  const [editId,setEditId]=useState(null);
+  const [f,setF]=useState({name:'',type:'Salon/Expo',date:new Date().toISOString().split('T')[0],email:'',tel:''});
   const now=useMemo(()=>{const d=new Date();d.setHours(0,0,0,0);return d;},[]);
+  const upd=k=>e=>setF(p=>({...p,[k]:e.target.value}));
   const types=['Salon/Expo','Réunion domicile','Réseaux sociaux','Réunion équipe','Brocante','Événement Privé','Autre'];
 
-  function add(){
-    if(!name.trim()||!date){onToast('⚠️ Titre et date requis');return;}
-    const e=[...evts,{id:Date.now().toString(),n:name.trim(),lbl:type,d:date,email:email.trim(),tel:tel.trim()}];
-    setEvts(e);LS.putEvts(e);setName('');setEmail('');setTel('');onToast('✦ Événement ajouté !');
+  function openEdit(ev){setEditId(ev.id);setF({name:ev.n,type:ev.lbl,date:ev.d,email:ev.email||'',tel:ev.tel||''});}
+  function save(){
+    if(!f.name.trim()||!f.date){onToast('⚠️ Titre et date requis');return;}
+    let e=LS.getEvts();
+    if(editId){e=e.map(x=>x.id===editId?{...x,n:f.name.trim(),lbl:f.type,d:f.date,email:f.email,tel:f.tel}:x);onToast('✦ Événement modifié !');}
+    else{e=[...e,{id:Date.now().toString(),n:f.name.trim(),lbl:f.type,d:f.date,email:f.email.trim(),tel:f.tel.trim()}];onToast('✦ Événement ajouté !');}
+    setEvts(e);LS.putEvts(e);setEditId(null);setF({name:'',type:'Salon/Expo',date:new Date().toISOString().split('T')[0],email:'',tel:''});
   }
   function del(id){const e=evts.filter(x=>x.id!==id);setEvts(e);LS.putEvts(e);onToast('Supprimé');}
 
   return<div>
     <div className="card-luxe">
-      <p className="lbl" style={{color:'#B8860B',fontSize:10,marginBottom:10}}>Ajouter un événement</p>
-      <p className="lbl">Titre</p><input className="inp" placeholder="Ex: Salon de Beauté..." value={name} onChange={e=>setName(e.target.value)}/>
-      <p className="lbl">Type</p><select className="inp" value={type} onChange={e=>setType(e.target.value)}>{types.map(t=><option key={t}>{t}</option>)}</select>
-      <p className="lbl">Date</p><input className="inp" type="date" value={date} onChange={e=>setDate(e.target.value)}/>
+      <p className="lbl" style={{color:'#B8860B',fontSize:10,marginBottom:10}}>{editId?'Modifier l\'événement':'Ajouter un événement'}</p>
+      <p className="lbl">Titre</p><input className="inp" placeholder="Ex: Salon de Beauté..." value={f.name} onChange={upd('name')}/>
+      <p className="lbl">Type</p><select className="inp" value={f.type} onChange={upd('type')}>{types.map(t=><option key={t}>{t}</option>)}</select>
+      <p className="lbl">Date</p><input className="inp" type="date" value={f.date} onChange={upd('date')}/>
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
-        <div><p className="lbl">E-mail contact</p><input className="inp" type="email" placeholder="contact@email.com" value={email} onChange={e=>setEmail(e.target.value)}/></div>
-        <div><p className="lbl">Téléphone</p><input className="inp" type="tel" placeholder="+33 6 00 00 00 00" value={tel} onChange={e=>setTel(e.target.value)}/></div>
+        <div><p className="lbl">E-mail contact</p><input className="inp" type="email" placeholder="contact@email.com" value={f.email} onChange={upd('email')}/></div>
+        <div><p className="lbl">Téléphone</p><input className="inp" type="tel" placeholder="+33 6..." value={f.tel} onChange={upd('tel')}/></div>
       </div>
-      <button className="btn-g" onClick={add}>✦ Enregistrer l'événement</button>
+      <div style={{display:'flex',gap:8}}>
+        <button className="btn-g" onClick={save} style={{flex:1}}>{editId?'Enregistrer la modification':'✦ Ajouter'}</button>
+        {editId&&<button onClick={()=>{setEditId(null);setF({name:'',type:'Salon/Expo',date:new Date().toISOString().split('T')[0],email:'',tel:'']);}} style={{background:'#f3f4f6',border:'none',borderRadius:10,padding:'10px 14px',cursor:'pointer',fontFamily:'Poppins',fontSize:11}}>Annuler</button>}
+      </div>
     </div>
-
     {evts.length>0&&<><div className="grp-lbl">Mes événements ({evts.length})</div>
     {evts.sort((a,b)=>new Date(a.d)-new Date(b.d)).map(ev=>{
       const diff=Math.ceil((new Date(ev.d)-now)/86400000);
@@ -266,31 +305,26 @@ function Evenements({onToast}){
           {ev.tel&&<div style={{fontSize:8,color:'#6b7280'}}><i className="fas fa-phone" style={{marginRight:3}}></i>{ev.tel}</div>}
         </div>
         <JX diff={diff}/>
-        <button onClick={()=>del(ev.id)} style={{background:'none',border:'none',color:'#d1d5db',cursor:'pointer',padding:4,fontSize:10}}><i className="fas fa-trash-can"></i></button>
-      </div>;
-    })}</>}
-
+        <button onClick={()=>openEdit(ev)} style={{background:'none',border:'none',color:'#d4af37',cursor:'pointer',padding:4,fontSize:11}}><i className="fas fa-pen"></i></button>
+        <button onClick={()=>del(ev.id)} style={{background:'none',border:'none',color:'#d1d5db',cursor:'pointer',padding:4,fontSize:11}}><i className="fas fa-trash-can"></i></button>
+      </div>;})}
+    </>}
     <div className="grp-lbl" style={{marginTop:10}}>Calendrier stratégique 2026</div>
-    {['Islam','Catho','Business','Saison'].map(cat=>{
-      const tMap={Islam:'mus',Catho:'cath',Business:'comm',Saison:'saison'};
-      const t=tMap[cat];
+    {['Islam','Catho','Business','Saison'].map(cat=>{const tMap={Islam:'mus',Catho:'cath',Business:'comm',Saison:'saison'};const t=tMap[cat];
       return<div key={cat} style={{marginBottom:6}}>
         <div style={{fontSize:9,fontWeight:700,textTransform:'uppercase',letterSpacing:1,color:TYPE_COLOR[t],padding:'5px 2px 3px'}}>{cat}</div>
-        {MASTER.filter(e=>e.t===t).sort((a,b)=>new Date(a.d)-new Date(b.d)).map((e,i)=>{
-          const diff=Math.ceil((new Date(e.d)-now)/86400000),isPast=diff<0;
+        {MASTER.filter(e=>e.t===t).sort((a,b)=>new Date(a.d)-new Date(b.d)).map((e,i)=>{const diff=Math.ceil((new Date(e.d)-now)/86400000),isPast=diff<0;
           return<div key={i} className={`card-luxe ${isPast?'past-row':''}`} style={{display:'flex',alignItems:'center',gap:9,padding:'9px 12px',borderLeft:`3px solid ${TYPE_COLOR[t]}`,marginBottom:5}}>
             <div style={{flex:1,fontSize:10,fontWeight:500}}>{e.n}</div>
             <span style={{fontSize:8,color:'#9ca3af'}}>{fmtS(e.d)}</span>
-            <JX diff={diff}/>
-          </div>;
-        })}
-      </div>;
-    })}
+            <JX diff={diff}/></div>;})}
+      </div>;})}
   </div>;
 }
 
 // ── VENTE
 function Vente({user,sales,setSales,onToast}){
+  const [editId,setEditId]=useState(null);
   const [f,setF]=useState({consultant:'',client:'',prod:'',qty:'1',cat:'Parfum',amt:'',cur:'DA',date:new Date().toISOString().split('T')[0],note:'',email:'',tel:''});
   const upd=k=>e=>setF(p=>({...p,[k]:e.target.value}));
   const cats=['Parfum','Soin visage','Soin corps','Maquillage','Coffret','Autre'];
@@ -298,19 +332,22 @@ function Vente({user,sales,setSales,onToast}){
   const allClients=[...new Set(mySales.map(s=>s.client))];
   const allCons=[...new Set(sales.map(s=>s.consultant))];
 
+  function openEdit(s){setEditId(s.id);setF({consultant:s.consultant,client:s.client,prod:s.product,qty:String(s.qty),cat:s.category,amt:String(s.amount),cur:s.currency,date:s.date,note:s.note||'',email:s.email||'',tel:s.tel||''});}
+
   function save(){
     if(!f.client.trim()||!f.prod.trim()||!f.date){onToast('⚠️ Client, produit et date requis');return;}
-    const s={id:Date.now().toString(),consultant:user.role==='admin'?(f.consultant.trim()||'Manager'):user.name,
-      client:f.client.trim(),product:f.prod.trim(),qty:parseInt(f.qty)||1,amount:parseFloat(f.amt)||0,
-      currency:f.cur,category:f.cat,date:f.date,note:f.note.trim(),email:f.email.trim(),tel:f.tel.trim(),createdAt:new Date().toISOString()};
-    const ns=[s,...sales];setSales(ns);LS.putSales(ns);
-    setF(p=>({...p,client:'',prod:'',qty:'1',amt:'',note:'',email:'',tel:'',consultant:''}));
-    onToast('✦ Vente enregistrée !');
+    const consultant=user.role==='admin'?(f.consultant.trim()||'Manager'):user.name;
+    const rec={consultant,client:f.client.trim(),product:f.prod.trim(),qty:parseInt(f.qty)||1,amount:parseFloat(f.amt)||0,currency:f.cur,category:f.cat,date:f.date,note:f.note.trim(),email:f.email.trim(),tel:f.tel.trim()};
+    let ns;
+    if(editId){ns=sales.map(s=>s.id===editId?{...s,...rec}:s);onToast('✦ Vente modifiée !');}
+    else{ns=[{id:Date.now().toString(),...rec,createdAt:new Date().toISOString()},...sales];onToast('✦ Vente enregistrée !');}
+    setSales(ns);LS.putSales(ns);
+    setEditId(null);setF(p=>({...p,client:'',prod:'',qty:'1',amt:'',note:'',email:'',tel:'',consultant:''}));
   }
 
   return<div>
     <div className="card-luxe">
-      <p className="lbl" style={{color:'#B8860B',fontSize:10,marginBottom:10}}>Nouvelle transaction</p>
+      <p className="lbl" style={{color:'#B8860B',fontSize:10,marginBottom:10}}>{editId?'Modifier la vente':'Nouvelle transaction'}</p>
       {user.role==='admin'&&<><p className="lbl">Consultante</p><input className="inp" placeholder="Nom" value={f.consultant} onChange={upd('consultant')} list="dl-c"/><datalist id="dl-c">{allCons.map(c=><option key={c} value={c}/>)}</datalist></>}
       <p className="lbl">Cliente</p><input className="inp" placeholder="Nom de la cliente" value={f.client} onChange={upd('client')} list="dl-cl"/><datalist id="dl-cl">{allClients.map(c=><option key={c} value={c}/>)}</datalist>
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
@@ -330,21 +367,24 @@ function Vente({user,sales,setSales,onToast}){
         </div>
       </div>
       <p className="lbl">Date</p><input className="inp" type="date" value={f.date} onChange={upd('date')}/>
-      <p className="lbl">Notes & commentaires</p><textarea className="inp" rows={2} placeholder="Préférences, allergies, prochaine commande..." value={f.note} onChange={upd('note')} style={{resize:'none'}}/>
-      <button className="btn-g" onClick={save}>✦ Valider la transaction</button>
+      <p className="lbl">Notes & commentaires</p><textarea className="inp" rows={2} placeholder="Préférences, allergies..." value={f.note} onChange={upd('note')} style={{resize:'none'}}/>
+      <div style={{display:'flex',gap:8}}>
+        <button className="btn-g" onClick={save} style={{flex:1}}>{editId?'Enregistrer la modification':'✦ Valider la transaction'}</button>
+        {editId&&<button onClick={()=>{setEditId(null);setF(p=>({...p,client:'',prod:'',qty:'1',amt:'',note:'',email:'',tel:''}));}} style={{background:'#f3f4f6',border:'none',borderRadius:10,padding:'10px 14px',cursor:'pointer',fontFamily:'Poppins',fontSize:11}}>Annuler</button>}
+      </div>
     </div>
     <div className="grp-lbl">Dernières ventes</div>
-    {mySales.slice(0,10).map(s=><div key={s.id} className="card-luxe" style={{display:'flex',alignItems:'center',gap:9,padding:'10px 13px'}}>
+    {mySales.slice(0,12).map(s=><div key={s.id} className="card-luxe" style={{display:'flex',alignItems:'center',gap:9,padding:'10px 13px'}}>
       <div style={{flex:1,minWidth:0}}>
         <div style={{fontSize:11,fontWeight:600,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{s.client}</div>
         <div style={{fontSize:8,color:'#9ca3af'}}>{s.product} · ×{s.qty}{user.role==='admin'?' · '+s.consultant:''}</div>
         {s.email&&<div style={{fontSize:8,color:'#6b7280'}}><i className="fas fa-envelope" style={{marginRight:3}}></i>{s.email}</div>}
-        {s.tel&&<div style={{fontSize:8,color:'#6b7280'}}><i className="fas fa-phone" style={{marginRight:3}}></i>{s.tel}</div>}
       </div>
       <div style={{textAlign:'right',flexShrink:0}}>
         <div style={{fontSize:11,fontWeight:700,color:'#B8860B'}}>{s.amount} {s.currency}</div>
         <div style={{fontSize:8,color:'#9ca3af'}}>{fmtS(s.date)}</div>
       </div>
+      <button onClick={()=>openEdit(s)} style={{background:'none',border:'none',color:'#d4af37',cursor:'pointer',padding:4,fontSize:11}}><i className="fas fa-pen"></i></button>
     </div>)}
     {!mySales.length&&<div style={{textAlign:'center',color:'#9ca3af',padding:24,fontSize:12}}>Aucune vente</div>}
   </div>;
@@ -356,18 +396,7 @@ function Clients({user,sales,onClient}){
   const [search,setSearch]=useState('');
   const now=useMemo(()=>{const d=new Date();d.setHours(0,0,0,0);return d;},[]);
   const mySales=user.role==='admin'?sales:sales.filter(s=>s.consultant===user.name);
-  const map=useMemo(()=>{
-    const m={};
-    mySales.forEach(s=>{
-      if(!m[s.client])m[s.client]={name:s.client,purchases:[],total:0,lastDate:'',topProd:{},email:s.email||'',tel:s.tel||''};
-      m[s.client].purchases.push(s);m[s.client].total+=s.amount;
-      if(!m[s.client].lastDate||s.date>m[s.client].lastDate)m[s.client].lastDate=s.date;
-      if(s.email&&!m[s.client].email)m[s.client].email=s.email;
-      if(s.tel&&!m[s.client].tel)m[s.client].tel=s.tel;
-      m[s.client].topProd[s.product]=(m[s.client].topProd[s.product]||0)+1;
-    });
-    return m;
-  },[mySales]);
+  const map=useMemo(()=>{const m={};mySales.forEach(s=>{if(!m[s.client])m[s.client]={name:s.client,purchases:[],total:0,lastDate:'',topProd:{},email:s.email||'',tel:s.tel||''};m[s.client].purchases.push(s);m[s.client].total+=s.amount;if(!m[s.client].lastDate||s.date>m[s.client].lastDate)m[s.client].lastDate=s.date;if(s.email&&!m[s.client].email)m[s.client].email=s.email;if(s.tel&&!m[s.client].tel)m[s.client].tel=s.tel;m[s.client].topProd[s.product]=(m[s.client].topProd[s.product]||0)+1;});return m;},[mySales]);
   const maxT=Math.max(...Object.values(map).map(c=>c.total),1);
   let clients=Object.values(map);
   if(search)clients=clients.filter(c=>c.name.toLowerCase().includes(search.toLowerCase()));
@@ -375,35 +404,9 @@ function Clients({user,sales,onClient}){
   const grR=clients.filter(c=>Math.floor((now-new Date(c.lastDate))/86400000)<30);
   const grW=clients.filter(c=>{const d=Math.floor((now-new Date(c.lastDate))/86400000);return d>=30&&d<60;});
   const grU=clients.filter(c=>Math.floor((now-new Date(c.lastDate))/86400000)>=60);
-
-  function Row({c,i}){
-    const d=Math.floor((now-new Date(c.lastDate))/86400000);
-    const color=AVT[i%AVT.length],init=c.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
-    const top=Object.entries(c.topProd).sort((a,b)=>b[1]-a[1])[0];
-    const sC=d<30?'#16a34a':d<60?'#d97706':'#e44258',sL=d<30?'Récent':d<60?'À relancer':'Urgent !';
-    return<div className="c-row" onClick={()=>onClient(c.name)}>
-      <div className="avatar" style={{background:color}}>{init}</div>
-      <div style={{flex:1,minWidth:0}}>
-        <div style={{fontSize:11,fontWeight:600}}>{c.name}</div>
-        <div style={{fontSize:8,color:'#9ca3af'}}>{top?top[0]:''} · {c.purchases.length} achat(s)</div>
-        <div className="bar-track"><div className="bar-fill" style={{width:Math.round((c.total/maxT)*100)+'%'}}></div></div>
-      </div>
-      <div style={{textAlign:'right',flexShrink:0}}>
-        <div style={{fontSize:10,fontWeight:700,color:'#B8860B'}}>{c.total.toFixed(0)} {c.purchases[0]?.currency||'DA'}</div>
-        <div style={{fontSize:8,color:sC,fontWeight:600}}>{sL}</div>
-      </div>
-      <i className="fas fa-chevron-right" style={{color:'#d1d5db',fontSize:9,marginLeft:6}}></i>
-    </div>;
-  }
-  function Grp({title,color,items,offset=0}){
-    if(!items.length)return null;
-    return<><div style={{display:'flex',alignItems:'center',gap:6,padding:'5px 2px 3px'}}>
-      <div style={{width:10,height:10,borderRadius:3,background:color,flexShrink:0}}></div>
-      <span style={{fontSize:9,fontWeight:700,textTransform:'uppercase',letterSpacing:.8,color}}>{title}</span>
-      <span style={{marginLeft:'auto',background:'#f3f4f6',borderRadius:20,padding:'1px 7px',fontSize:8,color:'#9ca3af'}}>{items.length}</span>
-    </div>{items.map((c,i)=><Row key={c.name} c={c} i={i+offset}/>)}</>;
-  }
-
+  function Row({c,i}){const d=Math.floor((now-new Date(c.lastDate))/86400000),color=AVT[i%AVT.length],init=c.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase(),top=Object.entries(c.topProd).sort((a,b)=>b[1]-a[1])[0],sC=d<30?'#16a34a':d<60?'#d97706':'#e44258',sL=d<30?'Récent':d<60?'À relancer':'Urgent !';
+    return<div className="c-row" onClick={()=>onClient(c.name)}><div className="avatar" style={{background:color}}>{init}</div><div style={{flex:1,minWidth:0}}><div style={{fontSize:11,fontWeight:600}}>{c.name}</div><div style={{fontSize:8,color:'#9ca3af'}}>{top?top[0]:''} · {c.purchases.length} achat(s)</div><div className="bar-track"><div className="bar-fill" style={{width:Math.round((c.total/maxT)*100)+'%'}}></div></div></div><div style={{textAlign:'right',flexShrink:0}}><div style={{fontSize:10,fontWeight:700,color:'#B8860B'}}>{c.total.toFixed(0)} {c.purchases[0]?.currency||'DA'}</div><div style={{fontSize:8,color:sC,fontWeight:600}}>{sL}</div></div><i className="fas fa-chevron-right" style={{color:'#d1d5db',fontSize:9,marginLeft:6}}></i></div>;}
+  function Grp({title,color,items,offset=0}){if(!items.length)return null;return<><div style={{display:'flex',alignItems:'center',gap:6,padding:'5px 2px 3px'}}><div style={{width:10,height:10,borderRadius:3,background:color,flexShrink:0}}></div><span style={{fontSize:9,fontWeight:700,textTransform:'uppercase',letterSpacing:.8,color}}>{title}</span><span style={{marginLeft:'auto',background:'#f3f4f6',borderRadius:20,padding:'1px 7px',fontSize:8,color:'#9ca3af'}}>{items.length}</span></div>{items.map((c,i)=><Row key={c.name} c={c} i={i+offset}/>)}</>;  }
   return<div>
     <input className="inp" placeholder="🔍  Rechercher un client..." value={search} onChange={e=>setSearch(e.target.value)} style={{marginBottom:8}}/>
     <div className="chip-bar">{[{k:'all',l:'Tous'},{k:'recent',l:'Récents'},{k:'warn',l:'À relancer'},{k:'urgent',l:'Urgents'}].map(f=><div key={f.k} className={`chip ${filter===f.k?'chip-on':''}`} onClick={()=>setFilter(f.k)}>{f.l}</div>)}</div>
@@ -418,72 +421,59 @@ function Stats({user,sales,onToast}){
   const now=new Date();
   const [objs,setObjs]=useState(LS.getObjs);
   const [editObj,setEditObj]=useState(false);
-  const [tmpDA,setTmpDA]=useState('');
-  const [tmpEU,setTmpEU]=useState('');
-  const [tmpADA,setTmpADA]=useState('');
-  const [tmpAEU,setTmpAEU]=useState('');
+  const [tmp,setTmp]=useState({da:'',eu:'',ada:'',aeu:''});
 
   function saveObjs(){
-    const k=user.name;
-    const o={...objs,[k]:{monthDA:parseFloat(tmpDA)||0,monthEU:parseFloat(tmpEU)||0,yearDA:parseFloat(tmpADA)||0,yearEU:parseFloat(tmpAEU)||0}};
+    const k=user.name;const o={...objs,[k]:{monthDA:parseFloat(tmp.da)||0,monthEU:parseFloat(tmp.eu)||0,yearDA:parseFloat(tmp.ada)||0,yearEU:parseFloat(tmp.aeu)||0}};
     setObjs(o);LS.putObjs(o);setEditObj(false);onToast('Objectifs enregistrés !');
   }
-  function openEdit(){
-    const o=objs[user.name]||{};setTmpDA(o.monthDA||'');setTmpEU(o.monthEU||'');setTmpADA(o.yearDA||'');setTmpAEU(o.yearEU||'');setEditObj(true);
-  }
+  function openEdit(){const o=objs[user.name]||{};setTmp({da:o.monthDA||'',eu:o.monthEU||'',ada:o.yearDA||'',aeu:o.yearEU||''});setEditObj(true);}
 
   function block(cur){
     const s=mySales.filter(x=>x.currency===cur);
     const thisM=s.filter(x=>{const d=new Date(x.date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();});
     const lastM=s.filter(x=>{const d=new Date(x.date),lm=new Date(now.getFullYear(),now.getMonth()-1,1);return d.getMonth()===lm.getMonth()&&d.getFullYear()===lm.getFullYear();});
-    const total=s.reduce((t,x)=>t+x.amount,0);
-    const thisCA=thisM.reduce((t,x)=>t+x.amount,0),lastCA=lastM.reduce((t,x)=>t+x.amount,0);
+    const total=s.reduce((t,x)=>t+x.amount,0),thisCA=thisM.reduce((t,x)=>t+x.amount,0),lastCA=lastM.reduce((t,x)=>t+x.amount,0);
     const trend=lastCA>0?Math.round(((thisCA-lastCA)/lastCA)*100):null;
     const monthly={};
     for(let i=5;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);const k=d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0');monthly[k]={label:d.toLocaleDateString('fr-FR',{month:'short'}),val:0};}
     s.forEach(x=>{const k=x.date.substring(0,7);if(monthly[k])monthly[k].val+=x.amount;});
-    const mVals=Object.values(monthly),maxM=Math.max(...mVals.map(m=>m.val),objMonth||0,1);
-    const CHART_H=52; // bar max height in px
+    const mVals=Object.values(monthly);
+    const myObj=objs[user.name]||{};
+    const objM=cur==='€'?(myObj.monthEU||0):(myObj.monthDA||0);
+    const objY=cur==='€'?(myObj.yearEU||0):(myObj.yearDA||0);
+    const maxM=Math.max(...mVals.map(m=>m.val),objM||0,1);
+    const CHART_H=52;
+    const yearCA=s.filter(x=>new Date(x.date).getFullYear()===now.getFullYear()).reduce((t,x)=>t+x.amount,0);
+    const isEU=cur==='€',ac=isEU?'#2563eb':'#B8860B';
     const byCat={};s.forEach(x=>{byCat[x.category]=(byCat[x.category]||0)+x.amount;});
     const maxCat=Math.max(...Object.values(byCat),1);
-    const isEU=cur==='€',ac=isEU?'#2563eb':'#B8860B';
-    const myObj=objs[user.name]||{};
-    const objMonth=isEU?(myObj.monthEU||0):(myObj.monthDA||0);
-    const objYear=isEU?(myObj.yearEU||0):(myObj.yearDA||0);
-    const yearCA=s.filter(x=>new Date(x.date).getFullYear()===now.getFullYear()).reduce((t,x)=>t+x.amount,0);
+
+    // Top clients for this currency
+    const topMap={};s.forEach(x=>{if(!topMap[x.client])topMap[x.client]={name:x.client,total:0};topMap[x.client].total+=x.amount;});
+    const topC=Object.values(topMap).sort((a,b)=>b.total-a.total).slice(0,3);
+
     return<div key={cur} style={{marginBottom:18}}>
-      <Divider label={isEU?'🇪🇺 Euros (€)':'🇩🇿 Dinars (DA)'} color={ac} bg={isEU?'#eff6ff':'#fef3c7'}/>
+      <Div label={isEU?'🇪🇺 Euros (€)':'🇩🇿 Dinars (DA)'} color={ac} bg={isEU?'#eff6ff':'#fef3c7'}/>
       <div className="stat-card">
         <p style={{fontSize:9,textTransform:'uppercase',letterSpacing:2,opacity:.6,marginBottom:5}}>CA Total {cur}</p>
         <p style={{fontSize:30,fontWeight:700,color:'#F9E29C'}}>{total.toLocaleString()} {cur}</p>
         <p style={{fontSize:10,opacity:.6,marginTop:3}}>Ce mois : {thisCA.toFixed(isEU?2:0)} {cur}{trend!==null?` · ${trend>=0?'↑':'↓'} ${Math.abs(trend)}% vs M-1`:''}</p>
       </div>
-      {objMonth>0&&<div className="card-luxe" style={{padding:'13px',marginBottom:8}}>
-        <div style={{display:'flex',justifyContent:'space-between',fontSize:10,marginBottom:4}}>
-          <span style={{fontWeight:600}}>Objectif mensuel</span>
-          <span style={{color:ac,fontWeight:700}}>{thisCA.toFixed(0)} / {objMonth.toFixed(0)} {cur}</span>
-        </div>
-        <div className="bar-track"><div style={{height:'100%',borderRadius:4,width:Math.min(Math.round((thisCA/objMonth)*100),100)+'%',background:`linear-gradient(90deg,${ac},${ac}99)`}}></div></div>
-        <div style={{fontSize:8,color:'#9ca3af',marginTop:3}}>{Math.min(Math.round((thisCA/objMonth)*100),100)}% atteint</div>
+      {objM>0&&<div className="card-luxe" style={{padding:'13px',marginBottom:8}}>
+        <div style={{display:'flex',justifyContent:'space-between',fontSize:10,marginBottom:4}}><span style={{fontWeight:600}}>Objectif mensuel</span><span style={{color:ac,fontWeight:700}}>{thisCA.toFixed(0)} / {objM.toFixed(0)} {cur}</span></div>
+        <div className="bar-track"><div style={{height:'100%',borderRadius:4,width:Math.min(Math.round((thisCA/objM)*100),100)+'%',background:`linear-gradient(90deg,${ac},${ac}99)`}}></div></div>
+        <div style={{fontSize:8,color:'#9ca3af',marginTop:3}}>{Math.min(Math.round((thisCA/objM)*100),100)}% atteint</div>
       </div>}
-      {objYear>0&&<div className="card-luxe" style={{padding:'13px',marginBottom:8}}>
-        <div style={{display:'flex',justifyContent:'space-between',fontSize:10,marginBottom:4}}>
-          <span style={{fontWeight:600}}>Objectif annuel</span>
-          <span style={{color:ac,fontWeight:700}}>{yearCA.toFixed(0)} / {objYear.toFixed(0)} {cur}</span>
-        </div>
-        <div className="bar-track"><div style={{height:'100%',borderRadius:4,width:Math.min(Math.round((yearCA/objYear)*100),100)+'%',background:`linear-gradient(90deg,${ac},${ac}99)`}}></div></div>
-        <div style={{fontSize:8,color:'#9ca3af',marginTop:3}}>{Math.min(Math.round((yearCA/objYear)*100),100)}% atteint</div>
+      {objY>0&&<div className="card-luxe" style={{padding:'13px',marginBottom:8}}>
+        <div style={{display:'flex',justifyContent:'space-between',fontSize:10,marginBottom:4}}><span style={{fontWeight:600}}>Objectif annuel</span><span style={{color:ac,fontWeight:700}}>{yearCA.toFixed(0)} / {objY.toFixed(0)} {cur}</span></div>
+        <div className="bar-track"><div style={{height:'100%',borderRadius:4,width:Math.min(Math.round((yearCA/objY)*100),100)+'%',background:`linear-gradient(90deg,${ac},${ac}99)`}}></div></div>
+        <div style={{fontSize:8,color:'#9ca3af',marginTop:3}}>{Math.min(Math.round((yearCA/objY)*100),100)}% atteint</div>
       </div>}
       <div className="card-luxe" style={{padding:'13px'}}>
         <p style={{fontSize:9,fontWeight:700,color:'#9ca3af',textTransform:'uppercase',marginBottom:8}}>CA 6 mois</p>
         <div style={{position:'relative',height:68}}>
-          {objMonth>0&&(()=>{
-            const lineY=CHART_H-Math.min(Math.round((objMonth/maxM)*CHART_H),CHART_H);
-            return<div style={{position:'absolute',top:lineY+'px',left:0,right:0,zIndex:2,pointerEvents:'none'}}>
-              <div style={{borderTop:`1.5px dashed ${ac}`,width:'100%',opacity:.7}}></div>
-              <span style={{position:'absolute',right:0,top:-9,fontSize:7,color:ac,fontWeight:700,background:'white',padding:'0 3px',borderRadius:3}}>Obj. {objMonth.toFixed(0)} {cur}</span>
-            </div>;
-          })()}
+          {objM>0&&(()=>{const lineY=CHART_H-Math.min(Math.round((objM/maxM)*CHART_H),CHART_H);return<div style={{position:'absolute',top:lineY+'px',left:0,right:0,zIndex:2,pointerEvents:'none'}}><div style={{borderTop:`1.5px dashed ${ac}`,width:'100%',opacity:.7}}></div><span style={{position:'absolute',right:0,top:-9,fontSize:7,color:ac,fontWeight:700,background:'white',padding:'0 3px',borderRadius:3}}>Obj. {objM.toFixed(0)} {cur}</span></div>; })()}
           <div style={{display:'flex',alignItems:'flex-end',gap:5,height:'100%'}}>
             {mVals.map((m,i)=><div key={i} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:2}}>
               <span style={{fontSize:7,color:ac,fontWeight:700}}>{m.val>0?m.val.toFixed(0):''}</span>
@@ -500,11 +490,16 @@ function Stats({user,sales,onToast}){
           <div className="bar-track"><div style={{height:'100%',borderRadius:4,width:Math.round((val/maxCat)*100)+'%',background:`linear-gradient(90deg,${ac},${ac}88)`}}></div></div>
         </div>)}
       </div>}
+      {topC.length>0&&<div className="card-luxe" style={{padding:'13px'}}>
+        <p style={{fontSize:9,fontWeight:700,color:'#9ca3af',textTransform:'uppercase',marginBottom:8}}>🏆 Top Clients {cur}</p>
+        {topC.map((c,i)=><div key={i} style={{display:'flex',alignItems:'center',gap:9,paddingBottom:7,marginBottom:7,borderBottom:i<topC.length-1?'1px solid #f9f9f9':'none'}}>
+          <div style={{width:19,height:19,borderRadius:5,background:i===0?'linear-gradient(135deg,#D4AF37,#B8860B)':'#f3f4f6',display:'flex',alignItems:'center',justifyContent:'center',fontSize:8,fontWeight:700,color:i===0?'white':'#9ca3af'}}>{i+1}</div>
+          <div style={{flex:1,fontSize:11,fontWeight:500}}>{c.name}</div>
+          <div style={{fontSize:10,fontWeight:700,color:ac}}>{c.total.toFixed(isEU?2:0)} {cur}</div>
+        </div>)}
+      </div>}
     </div>;
   }
-
-  const cMap={};mySales.forEach(s=>{if(!cMap[s.client])cMap[s.client]={name:s.client,total:0,cur:s.currency};cMap[s.client].total+=s.amount;});
-  const topC=Object.values(cMap).sort((a,b)=>b.total-a.total).slice(0,5);
 
   return<div>
     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:12}}>
@@ -516,32 +511,22 @@ function Stats({user,sales,onToast}){
     <button onClick={openEdit} style={{width:'100%',background:'#fef3c7',border:'1px solid #fde68a',borderRadius:12,padding:'10px',fontSize:10,fontWeight:700,color:'#B8860B',cursor:'pointer',marginBottom:12,fontFamily:'Poppins'}}>
       <i className="fas fa-bullseye" style={{marginRight:6}}></i>Définir mes objectifs de CA
     </button>
-    {block('DA')}
-    {block('€')}
-    {topC.length>0&&<div className="card-luxe" style={{padding:'13px'}}>
-      <p style={{fontSize:9,fontWeight:700,color:'#9ca3af',textTransform:'uppercase',marginBottom:8}}>🏆 Top Clients</p>
-      {topC.map((c,i)=><div key={i} style={{display:'flex',alignItems:'center',gap:9,paddingBottom:7,marginBottom:7,borderBottom:i<topC.length-1?'1px solid #f9f9f9':'none'}}>
-        <div style={{width:19,height:19,borderRadius:5,background:i===0?'linear-gradient(135deg,#D4AF37,#B8860B)':'#f3f4f6',display:'flex',alignItems:'center',justifyContent:'center',fontSize:8,fontWeight:700,color:i===0?'white':'#9ca3af'}}>{i+1}</div>
-        <div style={{flex:1,fontSize:11,fontWeight:500}}>{c.name}</div>
-        <div style={{fontSize:10,fontWeight:700,color:'#B8860B'}}>{c.total.toFixed(0)} {c.cur}</div>
-      </div>)}
-    </div>}
-
+    {block('DA')}{block('€')}
     {editObj&&<div className="modal-ov" onClick={e=>{if(e.target===e.currentTarget)setEditObj(false);}}>
       <div className="modal-sh">
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
           <h3 style={{fontFamily:'Cormorant Garamond',fontSize:16,fontWeight:700,color:'#B8860B'}}>Mes objectifs de CA</h3>
           <button onClick={()=>setEditObj(false)} style={{background:'#f3f4f6',border:'none',borderRadius:8,padding:'4px 9px',cursor:'pointer'}}>✕</button>
         </div>
-        <Divider label="Dinars Algériens (DA)" color="#B8860B" bg="#fef3c7"/>
+        <Div label="Dinars Algériens (DA)" color="#B8860B" bg="#fef3c7"/>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
-          <div><p className="lbl">Objectif mensuel DA</p><input className="inp" type="number" placeholder="Ex: 50000" value={tmpDA} onChange={e=>setTmpDA(e.target.value)}/></div>
-          <div><p className="lbl">Objectif annuel DA</p><input className="inp" type="number" placeholder="Ex: 500000" value={tmpADA} onChange={e=>setTmpADA(e.target.value)}/></div>
+          <div><p className="lbl">Mensuel DA</p><input className="inp" type="number" placeholder="50000" value={tmp.da} onChange={e=>setTmp(p=>({...p,da:e.target.value}))}/></div>
+          <div><p className="lbl">Annuel DA</p><input className="inp" type="number" placeholder="500000" value={tmp.ada} onChange={e=>setTmp(p=>({...p,ada:e.target.value}))}/></div>
         </div>
-        <Divider label="Euros (€)" color="#2563eb" bg="#eff6ff"/>
+        <Div label="Euros (€)" color="#2563eb" bg="#eff6ff"/>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
-          <div><p className="lbl">Objectif mensuel €</p><input className="inp" type="number" placeholder="Ex: 1000" value={tmpEU} onChange={e=>setTmpEU(e.target.value)}/></div>
-          <div><p className="lbl">Objectif annuel €</p><input className="inp" type="number" placeholder="Ex: 10000" value={tmpAEU} onChange={e=>setTmpAEU(e.target.value)}/></div>
+          <div><p className="lbl">Mensuel €</p><input className="inp" type="number" placeholder="1000" value={tmp.eu} onChange={e=>setTmp(p=>({...p,eu:e.target.value}))}/></div>
+          <div><p className="lbl">Annuel €</p><input className="inp" type="number" placeholder="10000" value={tmp.aeu} onChange={e=>setTmp(p=>({...p,aeu:e.target.value}))}/></div>
         </div>
         <button className="btn-g" onClick={saveObjs}>Enregistrer les objectifs</button>
       </div>
@@ -549,35 +534,7 @@ function Stats({user,sales,onToast}){
   </div>;
 }
 
-// ── ORG CHART
-function OrgNode({node,nodes,sales,onSelect}){
-  const children=nodes.filter(n=>n.parentId===node.id);
-  const nodeSales=sales.filter(s=>s.consultant===node.name);
-  const ca=nodeSales.reduce((t,s)=>t+s.amount,0);
-  const color=node.role==='Manager'?'#B8860B':'#6b7280';
-  return<div className="org-branch">
-    <div className={`org-node ${node.role==='Manager'?'org-manager':''}`} onClick={()=>onSelect(node)} style={{borderColor:color+'40'}}>
-      <div style={{width:32,height:32,borderRadius:'50%',background:`${color}18`,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 6px',border:`2px solid ${color}30`}}>
-        <i className={`fas ${node.role==='Manager'?'fa-crown':'fa-user'}`} style={{fontSize:12,color}}></i>
-      </div>
-      <div style={{fontSize:10,fontWeight:700,color:'#1a1a1a',whiteSpace:'nowrap'}}>{node.name}</div>
-      <div style={{fontSize:8,color,fontWeight:600,marginTop:1}}>{node.role}</div>
-      {ca>0&&<div style={{fontSize:8,color:'#9ca3af',marginTop:2}}>{ca.toFixed(0)} DA</div>}
-    </div>
-    {children.length>0&&<div style={{position:'relative',display:'flex',flexDirection:'column',alignItems:'center'}}>
-      <div style={{width:1,height:12,background:'#D4AF37'}}></div>
-      <div style={{position:'relative',display:'flex',gap:8}}>
-        {children.length>1&&<div style={{position:'absolute',top:0,left:'calc(45px)',right:'calc(45px)',height:1,background:'#D4AF37'}}></div>}
-        {children.map(c=><div key={c.id} style={{display:'flex',flexDirection:'column',alignItems:'center'}}>
-          <div style={{width:1,height:12,background:'#D4AF37'}}></div>
-          <OrgNode node={c} nodes={nodes} sales={sales} onSelect={onSelect}/>
-        </div>)}
-      </div>
-    </div>}
-  </div>;
-}
-
-// ── STRUCTURE (ADMIN)
+// ── STRUCTURE — Organigramme vertical
 function Structure({sales,onToast}){
   const [tree,setTree]=useState(LS.getTree);
   const [name,setName]=useState('');
@@ -590,34 +547,71 @@ function Structure({sales,onToast}){
     const n={id:Date.now().toString(),name:name.trim(),role,parentId:parentId||null};
     const t={nodes:[...tree.nodes,n]};setTree(t);LS.putTree(t);setName('');setParentId('');onToast('✦ Membre ajouté !');
   }
-  function delNode(id){
-    const keep=tree.nodes.filter(n=>n.id!==id&&n.parentId!==id);
-    const t={nodes:keep};setTree(t);LS.putTree(t);setSelectedNode(null);onToast('Supprimé');
+  function delNode(id){const keep=tree.nodes.filter(n=>n.id!==id&&n.parentId!==id);const t={nodes:keep};setTree(t);LS.putTree(t);setSelectedNode(null);}
+  function getDescendants(nodeId){const ch=tree.nodes.filter(n=>n.parentId===nodeId);return ch.reduce((a,c)=>[...a,c,...getDescendants(c.id)],[]);}
+
+  // Organigramme vertical : racines → lignes d'enfants
+  function NodeCard({node}){
+    const ns=sales.filter(s=>s.consultant===node.name);
+    const ca=ns.reduce((t,s)=>t+s.amount,0);
+    const isManager=node.role==='Manager';
+    return<div className={`org-card ${isManager?'org-manager-card':'org-consultant-card'}`} onClick={()=>setSelectedNode(node)}>
+      <div style={{width:26,height:26,borderRadius:'50%',background:isManager?'rgba(212,175,55,.15)':'rgba(107,114,128,.12)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 5px'}}>
+        <i className={`fas ${isManager?'fa-crown':'fa-user'}`} style={{fontSize:11,color:isManager?'#B8860B':'#6b7280'}}></i>
+      </div>
+      <div style={{fontSize:9.5,fontWeight:700,color:'#1a1a1a',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{node.name}</div>
+      <div style={{fontSize:7.5,color:isManager?'#B8860B':'#6b7280',fontWeight:600}}>{node.role}</div>
+      {ca>0&&<div style={{fontSize:7,color:'#9ca3af',marginTop:2}}>{ca.toFixed(0)} DA</div>}
+    </div>;
   }
 
   const roots=tree.nodes.filter(n=>!n.parentId);
+
+  function RenderTree({parentId:pid,depth=0}){
+    const children=tree.nodes.filter(n=>n.parentId===pid);
+    return<>{children.map(node=>{
+      const grandchildren=tree.nodes.filter(n=>n.parentId===node.id);
+      return<div key={node.id} style={{marginLeft:depth>0?16:0,marginBottom:8}}>
+        <div style={{display:'flex',alignItems:'center',gap:6,flexWrap:'wrap'}}>
+          {depth>0&&<div style={{width:16,height:1,background:'#fde68a',flexShrink:0}}></div>}
+          <NodeCard node={node}/>
+          {grandchildren.length>0&&<>
+            <div style={{color:'#d4af37',fontSize:12,fontWeight:700}}>→</div>
+            {grandchildren.map(gc=><NodeCard key={gc.id} node={gc}/>)}
+          </>}
+        </div>
+      </div>;
+    })}</>;
+  }
+
+  // Selected node detail
+  const now2=new Date();
   const nodeSales=selectedNode?sales.filter(s=>s.consultant===selectedNode.name):[];
   const nodeCA=nodeSales.reduce((t,s)=>t+s.amount,0);
-  const now2=new Date();
   const nodeThisMonth=nodeSales.filter(s=>{const d=new Date(s.date);return d.getMonth()===now2.getMonth()&&d.getFullYear()===now2.getFullYear();}).reduce((t,s)=>t+s.amount,0);
   const nodeThisYear=nodeSales.filter(s=>new Date(s.date).getFullYear()===now2.getFullYear()).reduce((t,s)=>t+s.amount,0);
   const nodeObj=selectedNode?(LS.getObjs()[selectedNode.name]||{}):{};
-  const objM=nodeObj.monthDA||0, objY=nodeObj.yearDA||0;
-
-  // Get all descendants of a node
-  function getDescendants(nodeId){
-    const children=tree.nodes.filter(n=>n.parentId===nodeId);
-    return children.reduce((acc,c)=>[...acc,c,...getDescendants(c.id)],[]);
-  }
-  const teamSales=selectedNode?[...sales.filter(s=>s.consultant===selectedNode.name),...getDescendants(selectedNode.id).flatMap(d=>sales.filter(s=>s.consultant===d.name))]:[];
+  const objM=nodeObj.monthDA||0,objY=nodeObj.yearDA||0;
+  const teamSales=selectedNode?[...nodeSales,...getDescendants(selectedNode.id).flatMap(d=>sales.filter(s=>s.consultant===d.name))]:[];
   const teamCA=teamSales.reduce((t,s)=>t+s.amount,0);
+  // Client stats for selected node
+  const clientsSet=new Set(nodeSales.map(s=>s.client));
+  const now2M=new Date();now2M.setHours(0,0,0,0);
+  const thisMonthSales=nodeSales.filter(s=>{const d=new Date(s.date);return d.getMonth()===now2.getMonth()&&d.getFullYear()===now2.getFullYear();});
+  // New clients this month = clients whose first purchase ever with this consultant is this month
+  const clientFirstPurchase={};nodeSales.forEach(s=>{if(!clientFirstPurchase[s.client]||s.date<clientFirstPurchase[s.client])clientFirstPurchase[s.client]=s.date;});
+  const newClientsThisMonth=Object.entries(clientFirstPurchase).filter(([,d])=>{const dd=new Date(d);return dd.getMonth()===now2.getMonth()&&dd.getFullYear()===now2.getFullYear();}).length;
+  const returningClientsThisMonth=new Set(thisMonthSales.map(s=>s.client)).size-newClientsThisMonth;
+  // Parrainage: direct recruits in tree
+  const directRecruits=selectedNode?tree.nodes.filter(n=>n.parentId===selectedNode.id).length:0;
+  const networkRecruits=selectedNode?getDescendants(selectedNode.id).length:0;
 
   return<div>
     <div className="card-luxe">
-      <p className="lbl" style={{color:'#B8860B',fontSize:10,marginBottom:10}}>Construire l'arborescence</p>
-      <p className="lbl">Nom du membre</p><input className="inp" placeholder="Ex: Marie, Blandine..." value={name} onChange={e=>setName(e.target.value)}/>
+      <p className="lbl" style={{color:'#B8860B',fontSize:10,marginBottom:10}}>Ajouter un membre</p>
+      <p className="lbl">Nom</p><input className="inp" placeholder="Ex: Marie, Blandine..." value={name} onChange={e=>setName(e.target.value)}/>
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
-        <div><p className="lbl">Rôle</p><select className="inp" value={role} onChange={e=>setRole(e.target.value)}><option value="Manager">Manager</option><option value="Consultante">Consultante</option></select></div>
+        <div><p className="lbl">Rôle</p><select className="inp" value={role} onChange={e=>setRole(e.target.value)}><option value="Manager">Marraine / Manager</option><option value="Consultante">Consultante</option></select></div>
         <div><p className="lbl">Rattachée à</p>
           <select className="inp" value={parentId} onChange={e=>setParentId(e.target.value)}>
             <option value="">-- Racine --</option>
@@ -625,15 +619,20 @@ function Structure({sales,onToast}){
           </select>
         </div>
       </div>
-      <button className="btn-g btn-sm" onClick={addNode} style={{width:'100%',marginTop:4}}>+ Ajouter ce membre</button>
+      <button className="btn-g" onClick={addNode}>+ Ajouter</button>
     </div>
 
     {roots.length>0&&<>
       <div className="grp-lbl">Organigramme de l'équipe</div>
-      <div style={{overflowX:'auto',paddingBottom:12}}>
-        <div style={{display:'flex',gap:16,paddingBottom:8,minWidth:'max-content',justifyContent:'center'}}>
-          {roots.map(r=><OrgNode key={r.id} node={r} nodes={tree.nodes} sales={sales} onSelect={setSelectedNode}/>)}
-        </div>
+      <div className="card-luxe" style={{padding:'14px',overflowX:'auto'}}>
+        {roots.map(r=><div key={r.id} style={{marginBottom:16}}>
+          <div style={{display:'flex',justifyContent:'center',marginBottom:10}}>
+            <NodeCard node={r}/>
+          </div>
+          {/* Ligne de connexion vers le bas */}
+          {tree.nodes.filter(n=>n.parentId===r.id).length>0&&<div style={{width:1,height:12,background:'#fde68a',margin:'0 auto'}}></div>}
+          <RenderTree parentId={r.id} depth={1}/>
+        </div>)}
       </div>
     </>}
 
@@ -644,78 +643,75 @@ function Structure({sales,onToast}){
 
     {selectedNode&&<div className="modal-ov" onClick={e=>{if(e.target===e.currentTarget)setSelectedNode(null);}}>
       <div className="modal-sh">
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
           <h3 style={{fontFamily:'Cormorant Garamond',fontSize:16,fontWeight:700,color:'#B8860B'}}>{selectedNode.name}</h3>
           <button onClick={()=>setSelectedNode(null)} style={{background:'#f3f4f6',border:'none',borderRadius:8,padding:'4px 9px',cursor:'pointer'}}>✕</button>
         </div>
         <div style={{background:'#fef3c7',borderRadius:12,padding:'10px 13px',marginBottom:12}}>
           <div style={{fontSize:10,fontWeight:700,color:'#B8860B'}}>{selectedNode.role}</div>
-          <div style={{fontSize:9,color:'#9ca3af',marginTop:1}}>
-            {getDescendants(selectedNode.id).length} membre(s) dans l'équipe
-          </div>
+          <div style={{fontSize:9,color:'#9ca3af',marginTop:1}}>{directRecruits} filleul(e)(s) direct(e)(s) · {networkRecruits} dans le réseau</div>
         </div>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:12}}>
-          <div className="card-luxe" style={{textAlign:'center',padding:'12px 8px',marginBottom:0}}>
-            <div style={{fontSize:18,fontWeight:800,color:'#B8860B',fontFamily:'Cormorant Garamond'}}>{nodeSales.length}</div>
-            <div style={{fontSize:8,color:'#9ca3af',textTransform:'uppercase'}}>Ventes perso</div>
-            <div style={{fontSize:10,fontWeight:700,color:'#B8860B'}}>{nodeCA.toFixed(0)} DA</div>
-          </div>
-          <div className="card-luxe" style={{textAlign:'center',padding:'12px 8px',marginBottom:0}}>
-            <div style={{fontSize:18,fontWeight:800,color:'#B8860B',fontFamily:'Cormorant Garamond'}}>{teamSales.length}</div>
-            <div style={{fontSize:8,color:'#9ca3af',textTransform:'uppercase'}}>Ventes équipe</div>
-            <div style={{fontSize:10,fontWeight:700,color:'#B8860B'}}>{teamCA.toFixed(0)} DA</div>
-          </div>
+
+        {/* KPIs CA */}
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:6,marginBottom:10}}>
+          {[{v:nodeSales.length,l:'Ventes perso'},{v:nodeCA.toFixed(0)+' DA',l:'CA total'},{v:clientsSet.size,l:'Clients'}].map((k,i)=><div key={i} className="card-luxe" style={{textAlign:'center',padding:'9px 5px',marginBottom:0}}>
+            <div style={{fontSize:14,fontWeight:800,color:'#B8860B',fontFamily:'Cormorant Garamond'}}>{k.v}</div>
+            <div style={{fontSize:7.5,color:'#9ca3af',textTransform:'uppercase'}}>{k.l}</div>
+          </div>)}
         </div>
-        <div className="grp-lbl">Objectifs de CA — {selectedNode.name}</div>
-        {objM>0||objY>0?<div style={{marginBottom:12}}>
-          {objM>0&&(()=>{
-            const ok=nodeThisMonth>=objM;
-            const pct=Math.min(Math.round((nodeThisMonth/objM)*100),100);
-            return<div style={{background:ok?'#f0fdf4':'#fff5f5',border:`1px solid ${ok?'#86efac':'#fca5a5'}`,borderRadius:12,padding:'10px 13px',marginBottom:8}}>
-              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
-                <span style={{fontSize:10,fontWeight:700,color:ok?'#16a34a':'#e44258'}}>
-                  <i className={`fas ${ok?'fa-circle-check':'fa-circle-xmark'}`} style={{marginRight:5}}></i>
-                  Objectif mensuel
-                </span>
-                <span style={{fontSize:10,fontWeight:700,color:ok?'#16a34a':'#e44258'}}>{nodeThisMonth.toFixed(0)} / {objM.toFixed(0)} DA</span>
-              </div>
-              <div style={{background:ok?'#dcfce7':'#fee2e2',borderRadius:4,height:6,overflow:'hidden'}}>
-                <div style={{height:'100%',borderRadius:4,width:pct+'%',background:ok?'#16a34a':'#e44258',transition:'width .4s'}}></div>
-              </div>
-              <div style={{fontSize:8,color:ok?'#16a34a':'#e44258',marginTop:3,fontWeight:600}}>{pct}% atteint{ok?' ✓':' — '+(objM-nodeThisMonth).toFixed(0)+' DA restants'}</div>
-            </div>;
-          })()}
-          {objY>0&&(()=>{
-            const ok=nodeThisYear>=objY;
-            const pct=Math.min(Math.round((nodeThisYear/objY)*100),100);
-            return<div style={{background:ok?'#f0fdf4':'#fff5f5',border:`1px solid ${ok?'#86efac':'#fca5a5'}`,borderRadius:12,padding:'10px 13px',marginBottom:8}}>
-              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
-                <span style={{fontSize:10,fontWeight:700,color:ok?'#16a34a':'#e44258'}}>
-                  <i className={`fas ${ok?'fa-circle-check':'fa-circle-xmark'}`} style={{marginRight:5}}></i>
-                  Objectif annuel
-                </span>
-                <span style={{fontSize:10,fontWeight:700,color:ok?'#16a34a':'#e44258'}}>{nodeThisYear.toFixed(0)} / {objY.toFixed(0)} DA</span>
-              </div>
-              <div style={{background:ok?'#dcfce7':'#fee2e2',borderRadius:4,height:6,overflow:'hidden'}}>
-                <div style={{height:'100%',borderRadius:4,width:pct+'%',background:ok?'#16a34a':'#e44258',transition:'width .4s'}}></div>
-              </div>
-              <div style={{fontSize:8,color:ok?'#16a34a':'#e44258',marginTop:3,fontWeight:600}}>{pct}% atteint{ok?' ✓':' — '+(objY-nodeThisYear).toFixed(0)+' DA restants'}</div>
-            </div>;
-          })()}
-        </div>:<div style={{background:'#fafafa',borderRadius:10,padding:'9px 12px',marginBottom:12}}>
-          <p style={{fontSize:10,color:'#9ca3af',textAlign:'center'}}>Aucun objectif défini pour {selectedNode.name}.<br/><span style={{fontSize:9}}>La consultante peut les saisir dans l'onglet Stats.</span></p>
-        </div>}
-        <div className="grp-lbl">Dernières ventes de {selectedNode.name}</div>
-        {nodeSales.slice(0,5).map((s,i)=><div key={i} style={{background:'#fafafa',borderRadius:10,padding:'9px 11px',marginBottom:6}}>
-          <div style={{display:'flex',justifyContent:'space-between'}}>
-            <div><div style={{fontSize:11,fontWeight:600}}>{s.client}</div><div style={{fontSize:8,color:'#9ca3af'}}>{s.product} · {fmtS(s.date)}</div></div>
-            <div style={{fontSize:10,fontWeight:700,color:'#B8860B'}}>{s.amount} {s.currency}</div>
+
+        {/* Ce mois / Année */}
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6,marginBottom:10}}>
+          <div style={{background:'#fafafa',borderRadius:10,padding:'9px',textAlign:'center'}}><div style={{fontSize:13,fontWeight:700,color:'#B8860B'}}>{nodeThisMonth.toFixed(0)} DA</div><div style={{fontSize:7.5,color:'#9ca3af'}}>CA ce mois</div></div>
+          <div style={{background:'#fafafa',borderRadius:10,padding:'9px',textAlign:'center'}}><div style={{fontSize:13,fontWeight:700,color:'#B8860B'}}>{nodeThisYear.toFixed(0)} DA</div><div style={{fontSize:7.5,color:'#9ca3af'}}>CA cette année</div></div>
+        </div>
+
+        {/* Objectifs avec couleurs vert/rouge */}
+        {(objM>0||objY>0)&&<><div className="grp-lbl">Objectifs</div>
+        {objM>0&&(()=>{const ok=nodeThisMonth>=objM,pct=Math.min(Math.round((nodeThisMonth/objM)*100),100);return<div style={{background:ok?'#f0fdf4':'#fff5f5',border:`1px solid ${ok?'#86efac':'#fca5a5'}`,borderRadius:12,padding:'10px 13px',marginBottom:8}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
+            <span style={{fontSize:10,fontWeight:700,color:ok?'#16a34a':'#e44258'}}><i className={`fas ${ok?'fa-circle-check':'fa-circle-xmark'}`} style={{marginRight:5}}></i>Objectif mensuel</span>
+            <span style={{fontSize:10,fontWeight:700,color:ok?'#16a34a':'#e44258'}}>{nodeThisMonth.toFixed(0)} / {objM.toFixed(0)} DA</span>
           </div>
+          <div style={{background:ok?'#dcfce7':'#fee2e2',borderRadius:4,height:6,overflow:'hidden'}}><div style={{height:'100%',borderRadius:4,width:pct+'%',background:ok?'#16a34a':'#e44258'}}></div></div>
+          <div style={{fontSize:8,color:ok?'#16a34a':'#e44258',marginTop:3,fontWeight:600}}>{pct}% atteint{ok?' ✓':' — '+(objM-nodeThisMonth).toFixed(0)+' DA restants'}</div>
+        </div>;})()}
+        {objY>0&&(()=>{const ok=nodeThisYear>=objY,pct=Math.min(Math.round((nodeThisYear/objY)*100),100);return<div style={{background:ok?'#f0fdf4':'#fff5f5',border:`1px solid ${ok?'#86efac':'#fca5a5'}`,borderRadius:12,padding:'10px 13px',marginBottom:8}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
+            <span style={{fontSize:10,fontWeight:700,color:ok?'#16a34a':'#e44258'}}><i className={`fas ${ok?'fa-circle-check':'fa-circle-xmark'}`} style={{marginRight:5}}></i>Objectif annuel</span>
+            <span style={{fontSize:10,fontWeight:700,color:ok?'#16a34a':'#e44258'}}>{nodeThisYear.toFixed(0)} / {objY.toFixed(0)} DA</span>
+          </div>
+          <div style={{background:ok?'#dcfce7':'#fee2e2',borderRadius:4,height:6,overflow:'hidden'}}><div style={{height:'100%',borderRadius:4,width:pct+'%',background:ok?'#16a34a':'#e44258'}}></div></div>
+          <div style={{fontSize:8,color:ok?'#16a34a':'#e44258',marginTop:3,fontWeight:600}}>{pct}% atteint{ok?' ✓':' — '+(objY-nodeThisYear).toFixed(0)+' DA restants'}</div>
+        </div>;})()}</>}
+
+        {/* Recrutement & Parrainage */}
+        <div className="grp-lbl">Recrutement & Parrainage</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6,marginBottom:10}}>
+          {[
+            {icon:'fa-user-plus',color:'#16a34a',v:directRecruits,l:'Parrainage personnel'},
+            {icon:'fa-people-group',color:'#2563eb',v:networkRecruits,l:'Parrainage réseau'},
+            {icon:'fa-repeat',color:'#d97706',v:Math.max(returningClientsThisMonth,0),l:'Clients réseau ce mois'},
+            {icon:'fa-user-check',color:'#9333ea',v:newClientsThisMonth,l:'Nouveaux clients'},
+          ].map((k,i)=><div key={i} style={{background:'#fafafa',borderRadius:10,padding:'10px',textAlign:'center'}}>
+            <i className={`fas ${k.icon}`} style={{color:k.color,fontSize:14,marginBottom:4,display:'block'}}></i>
+            <div style={{fontSize:16,fontWeight:800,color:k.color,fontFamily:'Cormorant Garamond'}}>{k.v}</div>
+            <div style={{fontSize:7.5,color:'#9ca3af',marginTop:1}}>{k.l}</div>
+          </div>)}
+        </div>
+
+        {/* Équipe totale */}
+        <div style={{background:'#fafafa',borderRadius:10,padding:'10px 13px',marginBottom:10,display:'flex',justifyContent:'space-between'}}>
+          <span style={{fontSize:10,fontWeight:600}}>CA équipe totale</span>
+          <span style={{fontSize:10,fontWeight:700,color:'#B8860B'}}>{teamCA.toFixed(0)} DA</span>
+        </div>
+
+        <div className="grp-lbl">Dernières ventes</div>
+        {nodeSales.slice(0,4).map((s,i)=><div key={i} style={{background:'#fafafa',borderRadius:10,padding:'9px 11px',marginBottom:6}}>
+          <div style={{display:'flex',justifyContent:'space-between'}}><div><div style={{fontSize:11,fontWeight:600}}>{s.client}</div><div style={{fontSize:8,color:'#9ca3af'}}>{s.product} · {fmtS(s.date)}</div></div><div style={{fontSize:10,fontWeight:700,color:'#B8860B'}}>{s.amount} {s.currency}</div></div>
         </div>)}
         {!nodeSales.length&&<p style={{color:'#9ca3af',fontSize:11,textAlign:'center',padding:12}}>Aucune vente enregistrée</p>}
-        <button onClick={()=>delNode(selectedNode.id)} className="btn-red" style={{width:'100%',marginTop:8}}>
-          <i className="fas fa-trash-can" style={{marginRight:6}}></i>Supprimer ce membre
-        </button>
+        <button onClick={()=>delNode(selectedNode.id)} className="btn-red" style={{width:'100%',marginTop:8}}><i className="fas fa-trash-can" style={{marginRight:6}}></i>Supprimer ce membre</button>
       </div>
     </div>}
   </div>;
@@ -729,13 +725,10 @@ function Dashboard({sales}){
   const topC=Object.values(byC).sort((a,b)=>b.ca-a.ca),maxCA=Math.max(...topC.map(c=>c.ca),1);
   const cMap={};sales.forEach(s=>{if(!cMap[s.client]||s.date>cMap[s.client])cMap[s.client]=s.date;});
   const nowM=new Date();nowM.setHours(0,0,0,0);
-  let rec=0,warn=0,urg=0;
-  Object.values(cMap).forEach(d=>{const days=Math.floor((nowM-new Date(d))/86400000);if(days<30)rec++;else if(days<60)warn++;else urg++;});
-  const monthly={};
-  for(let i=5;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);const k=d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0');monthly[k]={label:d.toLocaleDateString('fr-FR',{month:'short'}),val:0};}
+  let rec=0,warn=0,urg=0;Object.values(cMap).forEach(d=>{const days=Math.floor((nowM-new Date(d))/86400000);if(days<30)rec++;else if(days<60)warn++;else urg++;});
+  const monthly={};for(let i=5;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);const k=d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0');monthly[k]={label:d.toLocaleDateString('fr-FR',{month:'short'}),val:0};}
   sales.forEach(s=>{const k=s.date.substring(0,7);if(monthly[k])monthly[k].val+=s.amount;});
   const mVals=Object.values(monthly),maxM=Math.max(...mVals.map(m=>m.val),1);
-
   return<div>
     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:10}}>
       {[{v:sales.length,l:'Total ventes'},{v:new Set(sales.map(s=>s.client)).size,l:'Clients'},{v:new Set(sales.map(s=>s.consultant)).size,l:'Consultantes'},{v:totalCA.toFixed(0)+' DA',l:'CA Total'}].map((k,i)=><div key={i} className="card-luxe" style={{textAlign:'center',padding:'12px 8px',marginBottom:0}}>
@@ -757,13 +750,9 @@ function Dashboard({sales}){
       <p style={{fontSize:9,fontWeight:700,color:'#9ca3af',textTransform:'uppercase',marginBottom:8}}>Classement consultantes</p>
       {topC.map((c,i)=><div key={i} style={{marginBottom:9}}>
         <div style={{display:'flex',justifyContent:'space-between',fontSize:10,marginBottom:2,alignItems:'center'}}>
-          <div style={{display:'flex',alignItems:'center',gap:6}}>
-            <div style={{width:17,height:17,borderRadius:4,background:i===0?'linear-gradient(135deg,#D4AF37,#B8860B)':'#f3f4f6',display:'flex',alignItems:'center',justifyContent:'center',fontSize:8,fontWeight:700,color:i===0?'white':'#9ca3af'}}>{i+1}</div>
-            <span style={{fontWeight:600}}>{c.name}</span>
-          </div>
+          <div style={{display:'flex',alignItems:'center',gap:6}}><div style={{width:17,height:17,borderRadius:4,background:i===0?'linear-gradient(135deg,#D4AF37,#B8860B)':'#f3f4f6',display:'flex',alignItems:'center',justifyContent:'center',fontSize:8,fontWeight:700,color:i===0?'white':'#9ca3af'}}>{i+1}</div><span style={{fontWeight:600}}>{c.name}</span></div>
           <span style={{color:'#B8860B',fontWeight:700}}>{c.ca.toFixed(0)} DA · {c.sales}v</span>
-        </div>
-        <div className="bar-track"><div className="bar-fill" style={{width:Math.round((c.ca/maxCA)*100)+'%'}}></div></div>
+        </div><div className="bar-track"><div className="bar-fill" style={{width:Math.round((c.ca/maxCA)*100)+'%'}}></div></div>
       </div>)}
       {!topC.length&&<p style={{color:'#9ca3af',fontSize:11,textAlign:'center'}}>Aucune donnée</p>}
     </div>
@@ -784,14 +773,10 @@ function ClientModal({name,sales,onClose}){
   const now=new Date();now.setHours(0,0,0,0);
   const s=sales.filter(x=>x.client===name).sort((a,b)=>new Date(b.date)-new Date(a.date));
   if(!s.length)return null;
-  const days=Math.floor((now-new Date(s[0].date))/86400000);
-  const total=s.reduce((t,x)=>t+x.amount,0);
+  const days=Math.floor((now-new Date(s[0].date))/86400000),total=s.reduce((t,x)=>t+x.amount,0);
   const prods={};s.forEach(x=>{prods[x.product]=(prods[x.product]||0)+x.qty;});
-  const sC=days<30?'#16a34a':days<60?'#d97706':'#e44258';
-  const sTxt=days<30?'Client récent ✓':days<60?'⚠️ À relancer':'🚨 Relance urgente !';
-  const lastEmail=s.find(x=>x.email)?.email;
-  const lastTel=s.find(x=>x.tel)?.tel;
-
+  const sC=days<30?'#16a34a':days<60?'#d97706':'#e44258',sTxt=days<30?'Client récent ✓':days<60?'⚠️ À relancer':'🚨 Relance urgente !';
+  const lastEmail=s.find(x=>x.email)?.email,lastTel=s.find(x=>x.tel)?.tel;
   return<div className="modal-ov" onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
     <div className="modal-sh">
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
@@ -832,17 +817,15 @@ function Settings({onToast,onReset}){
       <p className="lbl" style={{color:'#B8860B',fontSize:10,marginBottom:10}}>Gestion des données</p>
       <div style={{background:'#fafafa',borderRadius:12,padding:'12px 13px',marginBottom:12}}>
         <p style={{fontSize:11,fontWeight:600,color:'#1a1a1a',marginBottom:4}}>Données enregistrées localement</p>
-        <p style={{fontSize:10,color:'#9ca3af',lineHeight:1.5}}>Toutes vos données (ventes, événements, clients, objectifs, équipe) sont sauvegardées dans ce navigateur. Elles persistent après déconnexion.</p>
+        <p style={{fontSize:10,color:'#9ca3af',lineHeight:1.5}}>Ventes, événements, objectifs et équipe sont sauvegardés dans ce navigateur. Les données persistent après déconnexion.</p>
       </div>
-      <p style={{fontSize:10,color:'#9ca3af',marginBottom:8}}>⚠️ La réinitialisation supprime <strong>toutes</strong> les données définitivement.</p>
-      <button className="btn-red" style={{width:'100%'}} onClick={()=>{if(window.confirm('Supprimer toutes les données ? Cette action est irréversible.')){onReset();onToast('Données réinitialisées');}}}>
+      <button className="btn-red" style={{width:'100%'}} onClick={()=>{if(window.confirm('Supprimer TOUTES les données ? Action irréversible.')){onReset();onToast('Données réinitialisées');}}}>
         <i className="fas fa-trash-can" style={{marginRight:6}}></i>Réinitialiser toutes les données
       </button>
     </div>
     <div className="card-luxe" style={{marginTop:4}}>
       <p style={{fontSize:9,fontWeight:700,color:'#9ca3af',textTransform:'uppercase',marginBottom:6}}>À propos</p>
-      <p style={{fontSize:10,color:'#9ca3af'}}>Limitless Elite — Manager Pro</p>
-      <p style={{fontSize:9,color:'#d1d5db'}}>Version finale · 2026</p>
+      <p style={{fontSize:10,color:'#9ca3af'}}>Limitless Elite — Manager Pro · Version finale 2026</p>
     </div>
   </div>;
 }
@@ -850,13 +833,36 @@ function Settings({onToast,onReset}){
 // ── APP
 function App(){
   const [user,setUser]=useState(null);
+  const [needSetup,setNeedSetup]=useState(false);
+  const [pendingLogin,setPendingLogin]=useState(null);
   const [tab,setTab]=useState('agenda');
   const [sales,setSales]=useState(LS.getSales);
   const [toast,setToast]=useState('');
   const [clientModal,setClientModal]=useState(null);
 
+  // Auto-save on page unload
+  useEffect(()=>{
+    const handle=()=>{LS.putSales(sales);};
+    window.addEventListener('beforeunload',handle);
+    return()=>window.removeEventListener('beforeunload',handle);
+  },[sales]);
+
   function showToast(msg){setToast(msg);setTimeout(()=>setToast(''),2600);}
   function handleReset(){LS.reset();setSales([]);setClientModal(null);}
+
+  function handleLogin(role,name){
+    if(role==='admin'){setUser({role,name});setTab('agenda');return;}
+    // Check if profile exists
+    const profiles=LS.getProfiles();
+    if(profiles[name]){setUser({role,name,...profiles[name]});setTab('agenda');}
+    else{setPendingLogin({role,name});setNeedSetup(true);}
+  }
+
+  function handleSetupDone(profile){
+    setNeedSetup(false);
+    const u={role:'consultant',name:pendingLogin.name,...profile};
+    setUser(u);setTab('agenda');setPendingLogin(null);
+  }
 
   const isAdmin=user?.role==='admin';
   const tabs=[
@@ -865,14 +871,11 @@ function App(){
     {id:'vente',icon:'fa-bag-shopping',lbl:'Vente'},
     {id:'clients',icon:'fa-users',lbl:'Clients'},
     {id:'stats',icon:'fa-chart-line',lbl:'Stats'},
-    ...(isAdmin?[
-      {id:'dashboard',icon:'fa-gauge-high',lbl:'Dashboard'},
-      {id:'structure',icon:'fa-sitemap',lbl:'Équipe'},
-      {id:'settings',icon:'fa-gear',lbl:'Réglages'},
-    ]:[{id:'settings',icon:'fa-gear',lbl:'Réglages'}]),
+    ...(isAdmin?[{id:'dashboard',icon:'fa-gauge-high',lbl:'Dashboard'},{id:'structure',icon:'fa-sitemap',lbl:'Équipe'},{id:'settings',icon:'fa-gear',lbl:'Réglages'}]:[{id:'settings',icon:'fa-gear',lbl:'Réglages'}]),
   ];
 
-  if(!user)return<Login onLogin={(r,n)=>{setUser({role:r,name:n});setTab('agenda');}}/>;
+  if(needSetup&&pendingLogin)return<FirstTimeSetup name={pendingLogin.name} onDone={handleSetupDone}/>;
+  if(!user)return<Login onLogin={handleLogin}/>;
 
   return<div style={{maxWidth:480,margin:'0 auto',minHeight:'100vh'}}>
     <div className="gold-gradient" style={{borderRadius:'0 0 2.2rem 2.2rem',padding:'18px 18px 24px',display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:14,boxShadow:'0 8px 28px rgba(212,175,55,.18)'}}>
@@ -885,11 +888,9 @@ function App(){
         <button onClick={()=>setUser(null)} style={{background:'rgba(255,255,255,.2)',border:'none',borderRadius:10,padding:'7px 10px',color:'white',cursor:'pointer',fontSize:12}}><i className="fas fa-right-from-bracket"></i></button>
       </div>
     </div>
-
     <div style={{padding:'0 14px 4px',textAlign:'right'}}>
       <p style={{fontSize:8,color:'#9ca3af'}}>{new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}</p>
     </div>
-
     <div style={{padding:'0 14px'}}>
       {tab==='agenda'&&<Agenda user={user} sales={sales} onClient={n=>setClientModal(n)}/>}
       {tab==='evenements'&&<Evenements onToast={showToast}/>}
@@ -900,14 +901,12 @@ function App(){
       {tab==='structure'&&isAdmin&&<Structure sales={sales} onToast={showToast}/>}
       {tab==='settings'&&<Settings onToast={showToast} onReset={handleReset}/>}
     </div>
-
     <nav style={{position:'fixed',bottom:0,left:0,right:0,maxWidth:480,margin:'0 auto',background:'rgba(255,255,255,.97)',backdropFilter:'blur(12px)',display:'flex',justifyContent:'space-around',alignItems:'center',padding:'8px 2px 14px',borderTop:'1px solid #f3f4f6',boxShadow:'0 -4px 20px rgba(0,0,0,.05)',zIndex:100,borderRadius:'1.8rem 1.8rem 0 0'}}>
       {tabs.map(t=><button key={t.id} onClick={()=>setTab(t.id)} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:2,background:'none',border:'none',cursor:'pointer',color:tab===t.id?'#B8860B':'#d1d5db',transition:'all .15s',fontFamily:'Poppins',flex:1,padding:'2px 0'}}>
         <i className={`fas ${t.icon}`} style={{fontSize:15}}></i>
         <span style={{fontSize:7,fontWeight:600,textTransform:'uppercase',letterSpacing:.3}}>{t.lbl}</span>
       </button>)}
     </nav>
-
     {clientModal&&<ClientModal name={clientModal} sales={sales} onClose={()=>setClientModal(null)}/>}
     <Toast m={toast}/>
   </div>;
