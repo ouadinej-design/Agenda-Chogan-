@@ -949,11 +949,11 @@ function Settings({user,sales,setSales,onToast,onReset}){
   // EXPORT — pour consultante
   function exportData(){
     const mySales=sales.filter(s=>s.consultant===user.name);
-    if(!mySales.length){onToast('⚠️ Aucune vente à partager');return;}
-    const payload={v:1,consultant:user.name,sales:mySales,exportedAt:new Date().toISOString()};
+    const profiles=LS.getProfiles();
+    const myProfile=profiles[user.name]||{name:user.name};
+    const payload={v:1,consultant:user.name,profile:myProfile,sales:mySales,exportedAt:new Date().toISOString()};
     const code=btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
     navigator.clipboard.writeText(code).then(()=>{setCopied(true);setTimeout(()=>setCopied(false),3000);onToast('✦ Code copié ! Envoyez-le à votre manager.');}).catch(()=>{
-      // Fallback: show in prompt
       prompt('Copiez ce code et envoyez-le à votre manager :',code);
     });
   }
@@ -964,14 +964,48 @@ function Settings({user,sales,setSales,onToast,onReset}){
     try{
       const payload=JSON.parse(decodeURIComponent(escape(atob(importCode.trim()))));
       if(!payload.sales||!payload.consultant){onToast('❌ Code invalide');return;}
-      // Merge sales — éviter les doublons par id
+
+      // 1. Merge ventes
       const existingIds=new Set(sales.map(s=>s.id));
       const newSales=payload.sales.filter(s=>!existingIds.has(s.id));
-      if(!newSales.length){onToast('ℹ️ Toutes ces ventes sont déjà importées');return;}
       const merged=[...newSales,...sales];
       setSales(merged);LS.putSales(merged);
+
+      // 2. Ajouter dans l'organigramme si absent
+      const tree=LS.getTree();
+      const alreadyInTree=tree.nodes.find(n=>n.name===payload.consultant);
+      if(!alreadyInTree){
+        // Chercher si un manager correspond au profil
+        const profile=payload.profile||{};
+        const managerName=profile.managerName||'';
+        let parentId=null;
+        if(managerName){
+          const mgr=tree.nodes.find(n=>n.name.toLowerCase()===managerName.toLowerCase());
+          if(mgr)parentId=mgr.id;
+        }
+        tree.nodes.push({
+          id:'import_'+Date.now(),
+          name:payload.consultant,
+          role:profile.role||'Consultante',
+          parentId
+        });
+        LS.putTree(tree);
+      }
+
+      // 3. Sauvegarder le profil si fourni
+      if(payload.profile){
+        const profiles=LS.getProfiles();
+        if(!profiles[payload.consultant]){
+          profiles[payload.consultant]=payload.profile;
+          LS.putProfiles(profiles);
+        }
+      }
+
       setImportCode('');setShowImport(false);
-      onToast(`✦ ${newSales.length} vente(s) importée(s) de ${payload.consultant} !`);
+      const msg=newSales.length>0
+        ?`✦ ${newSales.length} vente(s) importée(s)${!alreadyInTree?' + '+payload.consultant+' ajouté(e) à l\'équipe':''} !`
+        :'ℹ️ Ventes déjà importées — profil mis à jour';
+      onToast(msg);
     }catch(e){onToast('❌ Code invalide ou corrompu');}
   }
 
