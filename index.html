@@ -962,7 +962,9 @@ function sendBrowserNotif(title,body){if('Notification'in window&&Notification.p
 // ── CLIENT LOYALTY CARD (vue client via QR code)
 function ClientCard({consultant,cardCfg,incomingMsg,incomingPts,incomingStamps}){
   const DEFAULT_CFG={type:'points',color1:'#1a1a1a',color2:'#2d2d2d',accent:'#D4AF37',icon:'fa-crown',cardName:'Limitless Card',stampGoal:10,rewardLabel:'1 cadeau offert'};
-  const cfg=cardCfg||DEFAULT_CFG;
+  // Priorité : 1) prop cardCfg (QR scan) 2) cfg sauvegardé dans le_my_card 3) défaut
+  const savedCard=JSON.parse(localStorage.getItem('le_my_card')||'null');
+  const cfg=cardCfg||savedCard?.cfg||DEFAULT_CFG;
 
   const [step,setStep]=useState(()=>{const p=JSON.parse(localStorage.getItem('le_my_card')||'null');return p?'card':'form';});
   const [f,setF]=useState({prenom:'',nom:'',email:'',tel:'',dob:''});
@@ -1001,7 +1003,7 @@ function ClientCard({consultant,cardCfg,incomingMsg,incomingPts,incomingStamps})
 
   function enroll(){
     if(!f.prenom.trim()||!f.tel.trim()){alert('Prénom et téléphone obligatoires');return;}
-    const c={prenom:f.prenom,nom:f.nom,email:f.email,tel:f.tel,dob:f.dob,consultant,enrolledAt:new Date().toISOString(),points:0,stamps:0};
+    const c={prenom:f.prenom,nom:f.nom,email:f.email,tel:f.tel,dob:f.dob,consultant,enrolledAt:new Date().toISOString(),points:0,stamps:0,cfg};
     localStorage.setItem('le_my_card',JSON.stringify(c));
     setCard(c);setStep('card');
     if('Notification'in window&&Notification.permission==='granted'){sendBrowserNotif('Bienvenue !','Votre carte est activée 🎉');}
@@ -1178,14 +1180,13 @@ function Fidelite({user,sales}){
     if(!notifMsg.trim())return;
     pushNotif(notifMsg.trim());
     try{
-      const cfgStr=btoa(unescape(encodeURIComponent(JSON.stringify(cfg))));
       const msgEncoded=btoa(unescape(encodeURIComponent(notifMsg.trim())));
-      const url=`${window.location.origin}${window.location.pathname}?c=${encodeURIComponent(user.name)}&k=${cfgStr}&msg=${msgEncoded}`;
-      const txt=`📢 Message de ${user.name} :\n\n${notifMsg.trim()}\n\n👉 Ouvrez votre carte fidélité : ${url}`;
-      if(navigator.share){navigator.share({title:'Message de '+user.name,text:txt,url});}
+      const url=`${window.location.origin}${window.location.pathname}?c=${encodeURIComponent(user.name)}&msg=${msgEncoded}`;
+      const txt=`📢 ${notifMsg.trim()}\n\n👉 ${url}`;
+      if(navigator.share){navigator.share({title:notifMsg.trim(),text:txt,url});}
       else{
         const el=document.createElement('textarea');el.value=txt;document.body.appendChild(el);el.select();document.execCommand('copy');document.body.removeChild(el);
-        alert('✅ Message copié !\n\nCollez-le dans WhatsApp ou SMS pour l\'envoyer à vos clientes.');
+        alert('✅ Message copié !\nCollez dans WhatsApp ou SMS.');
       }
     }catch(e){sendBrowserNotif('Limitless Elite — '+user.name,notifMsg.trim());}
     setNotifMsg('');setNotifSent(true);setTimeout(()=>setNotifSent(false),3000);
@@ -1301,13 +1302,12 @@ function Fidelite({user,sales}){
           {(()=>{
             function sendUpdate(){
               try{
-                const cfgStr=btoa(unescape(encodeURIComponent(JSON.stringify(cfg))));
-                let url=`${window.location.origin}${window.location.pathname}?c=${encodeURIComponent(user.name)}&k=${cfgStr}&pts=${client.total}&st=${stampsDisplay}`;
-                const txt=`Bonjour ${client.name.split(' ')[0]} 👋\nVoici votre carte fidélité Limitless mise à jour !\n💰 ${client.total} points\nCliquez ici : ${url}`;
+                const url=`${window.location.origin}${window.location.pathname}?c=${encodeURIComponent(user.name)}&pts=${client.total}&st=${stampsDisplay}`;
+                const txt=`Bonjour ${client.name.split(' ')[0]} 👋\nVotre carte fidélité Limitless :\n💰 ${client.total} pts\n👉 ${url}`;
                 if(navigator.share){navigator.share({title:'Votre carte Limitless',text:txt,url});}
                 else{
                   const el=document.createElement('textarea');el.value=txt;document.body.appendChild(el);el.select();document.execCommand('copy');document.body.removeChild(el);
-                  alert('✅ Message copié pour '+client.name.split(' ')[0]+'!\n\nCollez-le dans WhatsApp ou SMS.\nLe client verra ses '+client.total+' points mis à jour dès qu\'il clique le lien.');
+                  alert('✅ Copié pour '+client.name.split(' ')[0]+'!\nCollez dans WhatsApp.');
                 }
               }catch(e){alert('Erreur : '+e.message);}
             }
