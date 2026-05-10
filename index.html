@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Limitless Elite — Manager Pro</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Limitless Elite">
+<meta name="theme-color" content="#D4AF37">
+<meta name="mobile-web-app-capable" content="yes">
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -50,6 +55,13 @@ select.inp option{background:white;}
 /* ORG */
 .org-card{background:white;border:1.5px solid rgba(212,175,55,.2);border-radius:12px;padding:8px 10px;cursor:pointer;transition:.2s;text-align:center;min-width:80px;max-width:110px;}
 .org-card:hover{border-color:#D4AF37;box-shadow:0 4px 14px rgba(212,175,55,.15);}
+.client-card-wrap{min-height:100vh;background:linear-gradient(160deg,#0D0D0D,#1a1a1a);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:30px 20px;}
+.loyalty-card{background:linear-gradient(135deg,#1a1a1a,#2d2d2d);border-radius:24px;padding:24px;width:100%;max-width:360px;border:1px solid rgba(212,175,55,0.3);box-shadow:0 20px 60px rgba(212,175,55,0.15);position:relative;overflow:hidden;}
+.loyalty-card::before{content:'';position:absolute;top:-40px;right:-40px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(212,175,55,0.12),transparent);}
+.stamp-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:10px 0;}
+.stamp{width:44px;height:44px;border-radius:50%;border:2px solid rgba(212,175,55,0.3);display:flex;align-items:center;justify-content:center;font-size:18px;background:rgba(255,255,255,0.03);}
+.stamp.filled{background:rgba(212,175,55,0.15);border-color:#D4AF37;}
+.notif-badge{position:absolute;top:-4px;right:-4px;background:#e44258;color:white;border-radius:50%;width:16px;height:16px;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;}
 .org-manager-card{border-top:3px solid #D4AF37;}
 .org-consultant-card{border-top:3px solid #9ca3af;}
 /* SETUP */
@@ -940,13 +952,159 @@ function ClientModal({name,sales,onClose}){
   </div>;
 }
 
+// ── NOTIFICATIONS HELPER
+const NOTIF_KEY='le_notifications';
+function getNotifs(){return JSON.parse(localStorage.getItem(NOTIF_KEY)||'[]');}
+function pushNotif(msg){const n=getNotifs();n.unshift({id:Date.now(),msg,date:new Date().toISOString(),read:false});localStorage.setItem(NOTIF_KEY,JSON.stringify(n.slice(0,50)));}
+function markRead(){const n=getNotifs().map(x=>({...x,read:true}));localStorage.setItem(NOTIF_KEY,JSON.stringify(n));}
+function sendBrowserNotif(title,body){if('Notification'in window&&Notification.permission==='granted'){new Notification(title,{body,icon:'https://emojicdn.elk.sh/👑'});}}
+
+// ── CLIENT LOYALTY CARD (vue client via QR code)
+function ClientCard({consultant}){
+  const [step,setStep]=useState(()=>{const p=JSON.parse(localStorage.getItem('le_my_card')||'null');return p?'card':'form';});
+  const [f,setF]=useState({prenom:'',nom:'',email:'',tel:'',dob:''});
+  const [card,setCard]=useState(()=>JSON.parse(localStorage.getItem('le_my_card')||'null'));
+  const [deferredPrompt,setDeferredPrompt]=useState(null);
+  const [installed,setInstalled]=useState(false);
+
+  useEffect(()=>{
+    // PWA install prompt
+    const handler=e=>{e.preventDefault();setDeferredPrompt(e);};
+    window.addEventListener('beforeinstallprompt',handler);
+    // Notification permission
+    if('Notification'in window&&Notification.permission==='default'){Notification.requestPermission();}
+    // Check notifications
+    const notifs=getNotifs().filter(n=>!n.read);
+    if(notifs.length>0&&'Notification'in window&&Notification.permission==='granted'){
+      sendBrowserNotif('Limitless Elite',notifs[0].msg);
+    }
+    return()=>window.removeEventListener('beforeinstallprompt',handler);
+  },[]);
+
+  function enroll(){
+    if(!f.prenom.trim()||!f.tel.trim()){alert('Prénom et téléphone obligatoires');return;}
+    const c={prenom:f.prenom,nom:f.nom,email:f.email,tel:f.tel,dob:f.dob,consultant,enrolledAt:new Date().toISOString(),points:0,stamps:0};
+    localStorage.setItem('le_my_card',JSON.stringify(c));
+    setCard(c);setStep('card');
+    if('Notification'in window&&Notification.permission==='granted'){sendBrowserNotif('Bienvenue !','Votre carte Limitless est activée 🎉');}
+  }
+
+  async function installApp(){
+    if(deferredPrompt){await deferredPrompt.prompt();const r=await deferredPrompt.userChoice;if(r.outcome==='accepted')setInstalled(true);setDeferredPrompt(null);}
+    else{alert('Pour ajouter à l\'écran d\'accueil :\niPhone : Partager → Sur l\'écran d\'accueil\nAndroid : Menu → Ajouter à l\'écran d\'accueil');}
+  }
+
+  const level=card?card.points>=3000?{n:'Gold ✨',c:'#D4AF37'}:card.points>=1000?{n:'Silver 🥈',c:'#9ca3af'}:card.points>=300?{n:'Bronze 🥉',c:'#c2410c'}:{n:'Starter',c:'#6b7280'}:{n:'Starter',c:'#6b7280'};
+
+  return(
+    <div className="client-card-wrap">
+      {step==='form'&&<>
+        <div style={{textAlign:'center',marginBottom:24}}>
+          <div style={{width:60,height:60,borderRadius:18,background:'linear-gradient(135deg,#D4AF37,#B8860B)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 12px',boxShadow:'0 8px 24px rgba(212,175,55,.35)'}}>
+            <i className="fas fa-crown" style={{fontSize:24,color:'white'}}></i>
+          </div>
+          <h1 style={{fontFamily:'Cormorant Garamond',fontSize:22,fontWeight:700,color:'#E8D080',margin:0}}>Limitless Elite</h1>
+          <p style={{fontSize:9,color:'rgba(255,255,255,0.4)',letterSpacing:2,textTransform:'uppercase',marginTop:4}}>Carte de Fidélité — {consultant}</p>
+        </div>
+        <div style={{background:'rgba(255,255,255,0.04)',border:'1px solid rgba(212,175,55,0.2)',borderRadius:20,padding:22,width:'100%',maxWidth:360}}>
+          <p style={{fontSize:10,fontWeight:700,color:'#D4AF37',textTransform:'uppercase',letterSpacing:1,marginBottom:14}}>
+            <i className="fas fa-id-card" style={{marginRight:6}}></i>Créer ma carte fidélité
+          </p>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+            <div><p className="lbl" style={{color:'rgba(255,255,255,0.4)'}}>Prénom *</p><input className="inp" placeholder="Prénom" value={f.prenom} onChange={e=>setF(p=>({...p,prenom:e.target.value}))} style={{background:'rgba(255,255,255,0.06)',color:'white',borderColor:'rgba(255,255,255,0.1)'}}/></div>
+            <div><p className="lbl" style={{color:'rgba(255,255,255,0.4)'}}>Nom</p><input className="inp" placeholder="Nom" value={f.nom} onChange={e=>setF(p=>({...p,nom:e.target.value}))} style={{background:'rgba(255,255,255,0.06)',color:'white',borderColor:'rgba(255,255,255,0.1)'}}/></div>
+          </div>
+          <p className="lbl" style={{color:'rgba(255,255,255,0.4)'}}>Téléphone *</p>
+          <input className="inp" type="tel" placeholder="+33 6 00 00 00 00" value={f.tel} onChange={e=>setF(p=>({...p,tel:e.target.value}))} style={{background:'rgba(255,255,255,0.06)',color:'white',borderColor:'rgba(255,255,255,0.1)'}}/>
+          <p className="lbl" style={{color:'rgba(255,255,255,0.4)'}}>Email</p>
+          <input className="inp" type="email" placeholder="votre@email.com" value={f.email} onChange={e=>setF(p=>({...p,email:e.target.value}))} style={{background:'rgba(255,255,255,0.06)',color:'white',borderColor:'rgba(255,255,255,0.1)'}}/>
+          <p className="lbl" style={{color:'rgba(255,255,255,0.4)'}}>Date de naissance</p>
+          <input className="inp" type="date" value={f.dob} onChange={e=>setF(p=>({...p,dob:e.target.value}))} style={{background:'rgba(255,255,255,0.06)',color:'white',borderColor:'rgba(255,255,255,0.1)',marginBottom:14}}/>
+          <button className="btn-g" onClick={enroll}><i className="fas fa-star" style={{marginRight:6}}></i>Activer ma carte ✨</button>
+          <p style={{fontSize:8,color:'rgba(255,255,255,0.25)',textAlign:'center',marginTop:8}}>Vos données sont confidentielles et stockées sur votre appareil.</p>
+        </div>
+      </>}
+
+      {step==='card'&&card&&<>
+        {/* Carte visuelle */}
+        <div className="loyalty-card" style={{marginBottom:16}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:16,position:'relative',zIndex:1}}>
+            <div>
+              <p style={{fontSize:8,color:'#D4AF37',fontWeight:700,letterSpacing:2,textTransform:'uppercase',marginBottom:2}}>Limitless Card</p>
+              <p style={{fontSize:16,fontWeight:700,color:'white'}}>{card.prenom} {card.nom}</p>
+              <p style={{fontSize:9,color:'rgba(255,255,255,0.4)',marginTop:1}}>Via {card.consultant}</p>
+            </div>
+            <span style={{background:level.c,color:'white',fontSize:9,fontWeight:800,padding:'4px 12px',borderRadius:20}}>{level.n}</span>
+          </div>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-end',marginBottom:16,position:'relative',zIndex:1}}>
+            <div>
+              <p style={{fontSize:36,fontWeight:800,color:'#F9E29C',lineHeight:1}}>{card.points||0}</p>
+              <p style={{fontSize:8,color:'rgba(255,255,255,0.4)',textTransform:'uppercase',letterSpacing:1}}>Points fidélité</p>
+            </div>
+            <div style={{textAlign:'right'}}>
+              <p style={{fontSize:9,color:'rgba(255,255,255,0.5)'}}>Tampons</p>
+              <p style={{fontSize:22,fontWeight:800,color:'#D4AF37'}}>{card.stamps||0}/10</p>
+            </div>
+          </div>
+          {/* Grille tampons */}
+          <div className="stamp-grid" style={{position:'relative',zIndex:1}}>
+            {Array.from({length:10}).map((_,i)=><div key={i} className={`stamp ${i<(card.stamps||0)?'filled':''}`}>{i<(card.stamps||0)?'⭐':''}</div>)}
+          </div>
+          <p style={{fontSize:8,color:'rgba(255,255,255,0.3)',textAlign:'center',marginTop:8,position:'relative',zIndex:1}}>10 tampons = 1 cadeau offert</p>
+        </div>
+
+        {/* Notifications reçues */}
+        {getNotifs().length>0&&<div style={{width:'100%',maxWidth:360,marginBottom:12}}>
+          {getNotifs().slice(0,3).map(n=><div key={n.id} style={{background:n.read?'rgba(255,255,255,0.04)':'rgba(212,175,55,0.1)',border:'1px solid rgba(212,175,55,0.2)',borderRadius:12,padding:'10px 13px',marginBottom:6,display:'flex',gap:10,alignItems:'flex-start'}}>
+            <i className="fas fa-bell" style={{color:'#D4AF37',fontSize:12,marginTop:2}}></i>
+            <div><p style={{fontSize:10,color:'white',fontWeight:600,marginBottom:2}}>{n.msg}</p><p style={{fontSize:8,color:'rgba(255,255,255,0.3)'}}>{new Date(n.date).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'})}</p></div>
+          </div>)}
+          <button onClick={markRead} style={{width:'100%',background:'transparent',border:'none',color:'rgba(255,255,255,0.3)',fontSize:9,cursor:'pointer',fontFamily:'Poppins',marginTop:2}}>Tout marquer comme lu</button>
+        </div>}
+
+        {/* Bouton installer */}
+        <div style={{width:'100%',maxWidth:360}}>
+          {!installed&&<button onClick={installApp} style={{width:'100%',background:'linear-gradient(135deg,#D4AF37,#B8860B)',color:'#0D0D0D',fontWeight:700,fontSize:12,border:'none',borderRadius:14,padding:'14px',cursor:'pointer',fontFamily:'Poppins',marginBottom:10,display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
+            <i className="fas fa-mobile-screen"></i> Ajouter à mon écran d'accueil
+          </button>}
+          {installed&&<div style={{textAlign:'center',color:'#16a34a',fontSize:12,fontWeight:700,marginBottom:10}}>✅ Application installée !</div>}
+          <div style={{background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:12,padding:'12px',textAlign:'center'}}>
+            <p style={{fontSize:10,color:'rgba(255,255,255,0.6)',marginBottom:4}}>📱 iPhone : Partager <i className="fas fa-arrow-up-from-bracket"></i> → Sur l'écran d'accueil</p>
+            <p style={{fontSize:10,color:'rgba(255,255,255,0.6)'}}>🤖 Android : Menu ⋮ → Ajouter à l'écran d'accueil</p>
+          </div>
+        </div>
+      </>}
+    </div>
+  );
+}
+
 // ── FIDÉLITÉ
 function Fidelite({user,sales}){
+  const [activeTab,setActiveTab]=useState('clients');
   const [search,setSearch]=useState('');
   const [bonusPoints,setBonusPoints]=useState(()=>JSON.parse(localStorage.getItem('le_fidelite')||'{}'));
   const [selectedClient,setSelectedClient]=useState(null);
   const [bonusAmt,setBonusAmt]=useState('');
   const [bonusReason,setBonusReason]=useState('');
+  const [notifMsg,setNotifMsg]=useState('');
+  const [notifSent,setNotifSent]=useState(false);
+
+  const enrollUrl=typeof window!=='undefined'?`${window.location.origin}${window.location.pathname}?c=${encodeURIComponent(user.name)}`:'';
+  const qrUrl=`https://api.qrserver.com/v1/create-qr-code/?size=220x220&color=1a1a1a&bgcolor=fffbf0&data=${encodeURIComponent(enrollUrl)}`;
+
+  function sendNotification(){
+    if(!notifMsg.trim())return;
+    pushNotif(notifMsg.trim());
+    sendBrowserNotif('Limitless Elite — '+user.name,notifMsg.trim());
+    setNotifMsg('');setNotifSent(true);setTimeout(()=>setNotifSent(false),3000);
+  }
+
+  function validateStamp(clientName){
+    const bp={...bonusPoints};
+    if(!bp[clientName])bp[clientName]=[];
+    bp[clientName].push({pts:0,reason:'Tampon validé',date:new Date().toISOString().split('T')[0],stamp:true});
+    setBonusPoints(bp);localStorage.setItem('le_fidelite',JSON.stringify(bp));
+  }
 
   const mySales=user.role==='admin'?sales:sales.filter(s=>s.consultant===user.name);
 
@@ -1079,34 +1237,93 @@ function Fidelite({user,sales}){
   const silver=clients.filter(c=>c.total>=1000&&c.total<3000).length;
 
   return<div>
-    {/* KPIs */}
-    <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:6,marginBottom:12}}>
-      {[{v:totalClients,l:'Clients',c:'#B8860B'},{v:gold,l:'Gold ✨',c:'#D4AF37'},{v:silver,l:'Silver',c:'#9ca3af'},{v:totalPts.toLocaleString(),l:'Pts totaux',c:'#B8860B'}].map((k,i)=><div key={i} className="card-luxe" style={{textAlign:'center',padding:'10px 6px',marginBottom:0}}>
-        <div style={{fontSize:16,fontWeight:800,color:k.c,fontFamily:'Cormorant Garamond'}}>{k.v}</div>
-        <div style={{fontSize:7.5,color:'#9ca3af',textTransform:'uppercase',marginTop:1}}>{k.l}</div>
-      </div>)}
+    {/* TABS */}
+    <div className="chip-bar" style={{marginBottom:12}}>
+      {[{k:'clients',l:'💳 Clients'},{k:'qr',l:'📱 QR Code'},{k:'notif',l:'🔔 Notifs'}].map(t=><div key={t.k} className={`chip ${activeTab===t.k?'chip-on':''}`} onClick={()=>setActiveTab(t.k)}>{t.l}</div>)}
     </div>
 
-    {/* Barème */}
-    <div className="card-luxe" style={{padding:'12px 14px',marginBottom:12}}>
-      <p className="lbl" style={{color:'#B8860B',marginBottom:8}}>Barème de points</p>
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
-        {[{l:'1 achat en DA',v:'1 pt / 100 DA',c:'#B8860B'},{l:'1 achat en €',v:'10 pts / 1 €',c:'#2563eb'},{l:'Bronze',v:'300 pts',c:'#c2410c'},{l:'Silver',v:'1 000 pts',c:'#9ca3af'},{l:'Gold',v:'3 000 pts',c:'#D4AF37'}].map((k,i)=><div key={i} style={{display:'flex',justifyContent:'space-between',background:'#fafafa',borderRadius:8,padding:'6px 8px',fontSize:9}}>
-          <span style={{color:'#9ca3af'}}>{k.l}</span>
-          <span style={{fontWeight:700,color:k.c}}>{k.v}</span>
+    {/* ── QR CODE */}
+    {activeTab==='qr'&&<div>
+      <div className="card-luxe" style={{textAlign:'center',padding:'24px 20px'}}>
+        <p style={{fontSize:10,fontWeight:700,color:'#B8860B',textTransform:'uppercase',letterSpacing:1,marginBottom:6}}><i className="fas fa-qrcode" style={{marginRight:6}}></i>Lien d'inscription client</p>
+        <p style={{fontSize:11,color:'#9ca3af',marginBottom:16,lineHeight:1.5}}>Faites scanner ce QR code lors du premier achat. Le client crée sa carte fidélité en quelques secondes.</p>
+        <div style={{background:'#fffbf0',border:'2px solid #fde68a',borderRadius:16,padding:16,display:'inline-block',marginBottom:14}}>
+          <img src={qrUrl} alt="QR Code" style={{width:180,height:180,display:'block'}}/>
+        </div>
+        <p style={{fontSize:8,color:'#9ca3af',marginBottom:12,wordBreak:'break-all',padding:'0 8px'}}>{enrollUrl}</p>
+        <div style={{display:'flex',gap:8}}>
+          <button onClick={()=>navigator.clipboard.writeText(enrollUrl).then(()=>alert('Lien copié !'))} style={{flex:1,background:'#fef3c7',border:'1px solid #fde68a',borderRadius:10,padding:'10px',fontSize:10,fontWeight:700,color:'#B8860B',cursor:'pointer',fontFamily:'Poppins'}}>
+            <i className="fas fa-copy" style={{marginRight:5}}></i>Copier
+          </button>
+          {typeof navigator.share!=='undefined'&&<button onClick={()=>navigator.share({title:'Ma carte fidélité Limitless',url:enrollUrl})} style={{flex:1,background:'linear-gradient(135deg,#D4AF37,#B8860B)',border:'none',borderRadius:10,padding:'10px',fontSize:10,fontWeight:700,color:'white',cursor:'pointer',fontFamily:'Poppins'}}>
+            <i className="fas fa-share-nodes" style={{marginRight:5}}></i>Partager
+          </button>}
+        </div>
+      </div>
+      <div className="card-luxe" style={{padding:'14px'}}>
+        <p className="lbl" style={{color:'#B8860B',marginBottom:10}}>Comment ça marche ?</p>
+        {[{i:'fa-qrcode',t:'1. Scan',d:'Le client scanne le QR code avec son téléphone'},
+          {i:'fa-id-card',t:'2. Inscription',d:'Il renseigne nom, prénom, téléphone, email et date de naissance'},
+          {i:'fa-mobile-screen',t:'3. Installation',d:'Un bouton lui permet d\'ajouter la carte sur son écran d\'accueil'},
+          {i:'fa-star',t:'4. Points & Tampons',d:'Vous validez ses points à chaque achat physique ou en ligne'},
+          {i:'fa-bell',t:'5. Notifications',d:'Il reçoit vos messages pour les nouveaux produits et événements'}
+        ].map((s,i)=><div key={i} style={{display:'flex',gap:10,marginBottom:10,alignItems:'flex-start'}}>
+          <div style={{width:28,height:28,borderRadius:8,background:'#fef3c7',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+            <i className={`fas ${s.i}`} style={{color:'#B8860B',fontSize:11}}></i>
+          </div>
+          <div><div style={{fontSize:10,fontWeight:700}}>{s.t}</div><div style={{fontSize:9,color:'#9ca3af',marginTop:1}}>{s.d}</div></div>
         </div>)}
       </div>
-    </div>
+    </div>}
 
-    {/* Recherche */}
-    <input className="inp" placeholder="🔍  Rechercher un client..." value={search} onChange={e=>setSearch(e.target.value)} style={{marginBottom:10}}/>
+    {/* ── NOTIFICATIONS */}
+    {activeTab==='notif'&&<div>
+      <div className="card-luxe">
+        <p className="lbl" style={{color:'#B8860B',fontSize:10,marginBottom:8}}><i className="fas fa-paper-plane" style={{marginRight:6}}></i>Envoyer un message à mes clients</p>
+        <p style={{fontSize:10,color:'#9ca3af',marginBottom:10,lineHeight:1.5}}>Vos clients verront ce message à l'ouverture de leur carte fidélité.</p>
+        <div style={{display:'flex',flexWrap:'wrap',gap:6,marginBottom:8}}>
+          {['🆕 Nouveau parfum Chogan disponible !','🎉 Événement spécial ce weekend !','⭐ Offre exclusive fidèles !','🎁 Bon d\'achat -10% ce mois !'].map(t=><button key={t} onClick={()=>setNotifMsg(t)} style={{background:'#fef3c7',border:'1px solid #fde68a',borderRadius:8,padding:'5px 9px',fontSize:9,fontWeight:600,color:'#B8860B',cursor:'pointer',fontFamily:'Poppins'}}>{t}</button>)}
+        </div>
+        <textarea className="inp" rows={3} placeholder="Écrivez votre message personnalisé..." value={notifMsg} onChange={e=>setNotifMsg(e.target.value)} style={{resize:'none'}}/>
+        {notifSent
+          ?<div style={{background:'#f0fdf4',border:'1px solid #86efac',borderRadius:10,padding:'10px',textAlign:'center',fontSize:11,fontWeight:700,color:'#16a34a'}}>✅ Message envoyé !</div>
+          :<button className="btn-g" onClick={sendNotification}><i className="fas fa-paper-plane" style={{marginRight:6}}></i>Envoyer la notification</button>}
+      </div>
+      <div className="card-luxe">
+        <p className="lbl" style={{color:'#B8860B',marginBottom:8}}>Historique</p>
+        {getNotifs().length?getNotifs().slice(0,10).map(n=><div key={n.id} style={{display:'flex',gap:9,alignItems:'flex-start',paddingBottom:8,marginBottom:8,borderBottom:'1px solid #f9f9f9'}}>
+          <i className="fas fa-bell" style={{color:n.read?'#d1d5db':'#D4AF37',fontSize:11,marginTop:2,flexShrink:0}}></i>
+          <div style={{flex:1}}><div style={{fontSize:10,fontWeight:500}}>{n.msg}</div><div style={{fontSize:8,color:'#9ca3af',marginTop:1}}>{new Date(n.date).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</div></div>
+          <span style={{fontSize:8,color:n.read?'#d1d5db':'#16a34a',fontWeight:600,flexShrink:0}}>{n.read?'Lu':'Nouveau'}</span>
+        </div>):<div style={{textAlign:'center',color:'#9ca3af',padding:'16px 0',fontSize:11}}>Aucun message envoyé</div>}
+      </div>
+    </div>}
 
-    {/* Cartes clients */}
-    {clients.length?clients.map(c=><LoyaltyCard key={c.name} client={c}/>)
-      :<div style={{textAlign:'center',color:'#9ca3af',padding:30,fontSize:12}}>
-        <i className="fas fa-star" style={{fontSize:28,opacity:.2,display:'block',marginBottom:8}}></i>
-        Aucun client — les points s'accumulent automatiquement depuis les ventes
-      </div>}
+    {/* ── CLIENTS */}
+    {activeTab==='clients'&&<div>
+      {/* KPIs */}
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:6,marginBottom:12}}>
+        {[{v:totalClients,l:'Clients',c:'#B8860B'},{v:gold,l:'Gold ✨',c:'#D4AF37'},{v:silver,l:'Silver',c:'#9ca3af'},{v:totalPts.toLocaleString(),l:'Pts totaux',c:'#B8860B'}].map((k,i)=><div key={i} className="card-luxe" style={{textAlign:'center',padding:'10px 6px',marginBottom:0}}>
+          <div style={{fontSize:16,fontWeight:800,color:k.c,fontFamily:'Cormorant Garamond'}}>{k.v}</div>
+          <div style={{fontSize:7.5,color:'#9ca3af',textTransform:'uppercase',marginTop:1}}>{k.l}</div>
+        </div>)}
+      </div>
+      {/* Barème */}
+      <div className="card-luxe" style={{padding:'12px 14px',marginBottom:12}}>
+        <p className="lbl" style={{color:'#B8860B',marginBottom:8}}>Barème de points</p>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
+          {[{l:'1 achat DA',v:'1 pt/100 DA',c:'#B8860B'},{l:'1 achat €',v:'10 pts/1€',c:'#2563eb'},{l:'Bronze',v:'300 pts',c:'#c2410c'},{l:'Silver',v:'1 000 pts',c:'#9ca3af'},{l:'Gold',v:'3 000 pts',c:'#D4AF37'},{l:'🎁 Cadeau',v:'10 tampons',c:'#9333ea'}].map((k,i)=><div key={i} style={{display:'flex',justifyContent:'space-between',background:'#fafafa',borderRadius:8,padding:'6px 8px',fontSize:9}}>
+            <span style={{color:'#9ca3af'}}>{k.l}</span><span style={{fontWeight:700,color:k.c}}>{k.v}</span>
+          </div>)}
+        </div>
+      </div>
+      <input className="inp" placeholder="🔍  Rechercher un client..." value={search} onChange={e=>setSearch(e.target.value)} style={{marginBottom:10}}/>
+      {clients.length?clients.map(c=><LoyaltyCard key={c.name} client={c}/>)
+        :<div style={{textAlign:'center',color:'#9ca3af',padding:30,fontSize:12}}>
+          <i className="fas fa-star" style={{fontSize:28,opacity:.2,display:'block',marginBottom:8}}></i>
+          Les points s'accumulent automatiquement depuis les ventes
+        </div>}
+    </div>}
   </div>;
 }
 
@@ -1267,6 +1484,10 @@ function App(){
     {id:'fidelite',icon:'fa-star',lbl:'Fidélité'},
     ...(isAdmin?[{id:'dashboard',icon:'fa-gauge-high',lbl:'Dashboard'},{id:'structure',icon:'fa-sitemap',lbl:'Équipe'},{id:'settings',icon:'fa-gear',lbl:'Réglages'}]:[{id:'settings',icon:'fa-gear',lbl:'Réglages'}]),
   ];
+
+  // Détection URL client (?c=NOM)
+  const enrollConsultant=useMemo(()=>new URLSearchParams(window.location.search).get('c'),[]);
+  if(enrollConsultant)return<ClientCard consultant={decodeURIComponent(enrollConsultant)}/>;
 
   if(needSetup&&pendingLogin)return<FirstTimeSetup name={pendingLogin.name} onDone={handleSetupDone}/>;
   if(!user)return<Login onLogin={handleLogin}/>;
