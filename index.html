@@ -960,13 +960,22 @@ function markRead(){const n=getNotifs().map(x=>({...x,read:true}));localStorage.
 function sendBrowserNotif(title,body){if('Notification'in window&&Notification.permission==='granted'){new Notification(title,{body,icon:'https://emojicdn.elk.sh/👑'});}}
 
 // ── CLIENT LOYALTY CARD (vue client via QR code)
-function ClientCard({consultant,cardCfg,incomingMsg}){
+function ClientCard({consultant,cardCfg,incomingMsg,incomingPts,incomingStamps}){
   const DEFAULT_CFG={type:'points',color1:'#1a1a1a',color2:'#2d2d2d',accent:'#D4AF37',icon:'fa-crown',cardName:'Limitless Card',stampGoal:10,rewardLabel:'1 cadeau offert'};
   const cfg=cardCfg||DEFAULT_CFG;
 
   const [step,setStep]=useState(()=>{const p=JSON.parse(localStorage.getItem('le_my_card')||'null');return p?'card':'form';});
   const [f,setF]=useState({prenom:'',nom:'',email:'',tel:'',dob:''});
-  const [card,setCard]=useState(()=>JSON.parse(localStorage.getItem('le_my_card')||'null'));
+  const [card,setCard]=useState(()=>{
+    const saved=JSON.parse(localStorage.getItem('le_my_card')||'null');
+    if(!saved)return null;
+    // Appliquer les points/tampons reçus via URL
+    let updated=false;
+    if(incomingPts!==null&&incomingPts!==undefined&&incomingPts!==saved.points){saved.points=incomingPts;updated=true;}
+    if(incomingStamps!==null&&incomingStamps!==undefined&&incomingStamps!==saved.stamps){saved.stamps=incomingStamps;updated=true;}
+    if(updated)localStorage.setItem('le_my_card',JSON.stringify(saved));
+    return saved;
+  });
   const [deferredPrompt,setDeferredPrompt]=useState(null);
   const [installed,setInstalled]=useState(false);
   const [msgs,setMsgs]=useState(()=>{
@@ -1288,18 +1297,33 @@ function Fidelite({user,sales}){
             <i className="fas fa-stamp" style={{marginRight:5}}></i>Valider un tampon (+1 ⭐)
           </button>}
           <button onClick={()=>setSelectedClient(selectedClient===client.name?null:client.name)}
-            style={{width:'100%',background:'#fef3c7',border:'1px solid #fde68a',borderRadius:10,padding:'8px',fontSize:10,fontWeight:700,color:'#B8860B',cursor:'pointer',fontFamily:'Poppins'}}>
+            style={{width:'100%',background:'#fef3c7',border:'1px solid #fde68a',borderRadius:10,padding:'8px',fontSize:10,fontWeight:700,color:'#B8860B',cursor:'pointer',fontFamily:'Poppins',marginBottom:6}}>
             <i className="fas fa-plus-circle" style={{marginRight:5}}></i>Ajouter des points bonus
           </button>
-          {selectedClient===client.name&&<div style={{marginTop:8}}>
+          {selectedClient===client.name&&<div style={{marginTop:6,marginBottom:6}}>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6,marginBottom:6}}>
               <input className="inp" type="number" placeholder="Points" value={bonusAmt} onChange={e=>setBonusAmt(e.target.value)} style={{marginBottom:0}}/>
               <input className="inp" placeholder="Raison (parrainage...)" value={bonusReason} onChange={e=>setBonusReason(e.target.value)} style={{marginBottom:0}}/>
             </div>
             <button className="btn-g" onClick={addBonus} style={{marginTop:0,fontSize:10}}>✦ Valider les points</button>
           </div>}
+
+          {/* BOUTON ENVOI MISE À JOUR AU CLIENT */}
+          <button onClick={()=>{
+            try{
+              const cfgStr=btoa(unescape(encodeURIComponent(JSON.stringify(cfg))));
+              const msgStr=notifMsg?btoa(unescape(encodeURIComponent(notifMsg))):'';
+              let url=`${window.location.origin}${window.location.pathname}?c=${encodeURIComponent(user.name)}&k=${cfgStr}&pts=${client.total}&st=${stampsDisplay}`;
+              if(msgStr)url+=`&msg=${msgStr}`;
+              if(navigator.share){navigator.share({title:'Votre carte fidélité Limitless',text:`Bonjour ${client.name}, voici votre carte à jour : ${client.total} points`,url});}
+              else{navigator.clipboard.writeText(url).then(()=>alert(`✅ Lien copié pour ${client.name} !\n\nEnvoyez-le par WhatsApp ou SMS.\n\nIl verra ses ${client.total} points mis à jour.`));}
+            }catch(e){alert('Erreur génération lien');}
+          }} style={{width:'100%',background:'linear-gradient(135deg,#16a34a,#15803d)',border:'none',borderRadius:10,padding:'9px',fontSize:10,fontWeight:700,color:'white',cursor:'pointer',fontFamily:'Poppins',marginBottom:6}}>
+            <i className="fas fa-paper-plane" style={{marginRight:5}}></i>📤 Envoyer les points à {client.name.split(' ')[0]}
+          </button>
+
           {/* Historique bonus */}
-          {(bonusPoints[client.name]||[]).length>0&&<div style={{marginTop:8}}>
+          {(bonusPoints[client.name]||[]).length>0&&<div style={{marginTop:6}}>
             <p className="grp-lbl" style={{padding:'4px 0 3px'}}>Historique bonus</p>
             {(bonusPoints[client.name]||[]).map((b,i)=><div key={i} style={{display:'flex',justifyContent:'space-between',fontSize:9,color:'#9ca3af',marginBottom:2}}>
               <span>{b.reason} · {b.date}</span>
@@ -1673,7 +1697,15 @@ function App(){
     if(!m)return null;
     try{return decodeURIComponent(escape(atob(m)));}catch(e){return null;}
   },[]);
-  if(enrollConsultant)return<ClientCard consultant={decodeURIComponent(enrollConsultant)} cardCfg={enrollCfg} incomingMsg={enrollMsg}/>;
+  const enrollPts=useMemo(()=>{
+    const p=new URLSearchParams(window.location.search).get('pts');
+    return p?parseInt(p)||null:null;
+  },[]);
+  const enrollStamps=useMemo(()=>{
+    const s=new URLSearchParams(window.location.search).get('st');
+    return s?parseInt(s)||null:null;
+  },[]);
+  if(enrollConsultant)return<ClientCard consultant={decodeURIComponent(enrollConsultant)} cardCfg={enrollCfg} incomingMsg={enrollMsg} incomingPts={enrollPts} incomingStamps={enrollStamps}/>;
 
   if(needSetup&&pendingLogin)return<FirstTimeSetup name={pendingLogin.name} onDone={handleSetupDone}/>;
   if(!user)return<Login onLogin={handleLogin}/>;
