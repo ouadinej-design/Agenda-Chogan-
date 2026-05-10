@@ -960,23 +960,32 @@ function markRead(){const n=getNotifs().map(x=>({...x,read:true}));localStorage.
 function sendBrowserNotif(title,body){if('Notification'in window&&Notification.permission==='granted'){new Notification(title,{body,icon:'https://emojicdn.elk.sh/👑'});}}
 
 // ── CLIENT LOYALTY CARD (vue client via QR code)
-function ClientCard({consultant}){
+function ClientCard({consultant,cardCfg,incomingMsg}){
+  const DEFAULT_CFG={type:'points',color1:'#1a1a1a',color2:'#2d2d2d',accent:'#D4AF37',icon:'fa-crown',cardName:'Limitless Card',stampGoal:10,rewardLabel:'1 cadeau offert'};
+  const cfg=cardCfg||DEFAULT_CFG;
+
   const [step,setStep]=useState(()=>{const p=JSON.parse(localStorage.getItem('le_my_card')||'null');return p?'card':'form';});
   const [f,setF]=useState({prenom:'',nom:'',email:'',tel:'',dob:''});
   const [card,setCard]=useState(()=>JSON.parse(localStorage.getItem('le_my_card')||'null'));
   const [deferredPrompt,setDeferredPrompt]=useState(null);
   const [installed,setInstalled]=useState(false);
+  const [msgs,setMsgs]=useState(()=>{
+    const saved=JSON.parse(localStorage.getItem('le_client_msgs')||'[]');
+    // Ajouter le message reçu via URL si nouveau
+    if(incomingMsg){
+      const exists=saved.find(m=>m.msg===incomingMsg);
+      if(!exists){const updated=[{id:Date.now(),msg:incomingMsg,date:new Date().toISOString(),read:false},...saved];localStorage.setItem('le_client_msgs',JSON.stringify(updated));return updated;}
+    }
+    return saved;
+  });
 
   useEffect(()=>{
-    // PWA install prompt
     const handler=e=>{e.preventDefault();setDeferredPrompt(e);};
     window.addEventListener('beforeinstallprompt',handler);
-    // Notification permission
     if('Notification'in window&&Notification.permission==='default'){Notification.requestPermission();}
-    // Check notifications
-    const notifs=getNotifs().filter(n=>!n.read);
-    if(notifs.length>0&&'Notification'in window&&Notification.permission==='granted'){
-      sendBrowserNotif('Limitless Elite',notifs[0].msg);
+    // Notif browser si message entrant
+    if(incomingMsg&&'Notification'in window&&Notification.permission==='granted'){
+      sendBrowserNotif('Message de '+consultant,incomingMsg);
     }
     return()=>window.removeEventListener('beforeinstallprompt',handler);
   },[]);
@@ -986,28 +995,36 @@ function ClientCard({consultant}){
     const c={prenom:f.prenom,nom:f.nom,email:f.email,tel:f.tel,dob:f.dob,consultant,enrolledAt:new Date().toISOString(),points:0,stamps:0};
     localStorage.setItem('le_my_card',JSON.stringify(c));
     setCard(c);setStep('card');
-    if('Notification'in window&&Notification.permission==='granted'){sendBrowserNotif('Bienvenue !','Votre carte Limitless est activée 🎉');}
+    if('Notification'in window&&Notification.permission==='granted'){sendBrowserNotif('Bienvenue !','Votre carte est activée 🎉');}
   }
 
   async function installApp(){
     if(deferredPrompt){await deferredPrompt.prompt();const r=await deferredPrompt.userChoice;if(r.outcome==='accepted')setInstalled(true);setDeferredPrompt(null);}
-    else{alert('Pour ajouter à l\'écran d\'accueil :\niPhone : Partager → Sur l\'écran d\'accueil\nAndroid : Menu → Ajouter à l\'écran d\'accueil');}
+    else{alert('📱 iPhone : Partager → Sur l\'écran d\'accueil\n🤖 Android : Menu ⋮ → Ajouter à l\'écran d\'accueil');}
   }
 
-  const level=card?card.points>=3000?{n:'Gold ✨',c:'#D4AF37'}:card.points>=1000?{n:'Silver 🥈',c:'#9ca3af'}:card.points>=300?{n:'Bronze 🥉',c:'#c2410c'}:{n:'Starter',c:'#6b7280'}:{n:'Starter',c:'#6b7280'};
+  function markMsgsRead(){const updated=msgs.map(m=>({...m,read:true}));localStorage.setItem('le_client_msgs',JSON.stringify(updated));setMsgs(updated);}
+
+  // Niveau pour carte à points
+  const pts=card?.points||0;
+  const level=pts>=3000?{n:'Gold ✨',c:'#D4AF37'}:pts>=1000?{n:'Silver 🥈',c:'#9ca3af'}:pts>=300?{n:'Bronze 🥉',c:'#c2410c'}:{n:'Starter',c:'#6b7280'};
+  const stamps=card?.stamps||0;
+  const nextLevel=pts<300?{name:'Bronze',need:300-pts}:pts<1000?{name:'Silver',need:1000-pts}:pts<3000?{name:'Gold',need:3000-pts}:null;
+  const pct=nextLevel?Math.min(Math.round(((pts-(nextLevel.need-(nextLevel.name==='Bronze'?300:nextLevel.name==='Silver'?700:2000)))/( nextLevel.name==='Bronze'?300:nextLevel.name==='Silver'?700:2000))*100),100):100;
+  const unreadCount=msgs.filter(m=>!m.read).length;
 
   return(
     <div className="client-card-wrap">
       {step==='form'&&<>
         <div style={{textAlign:'center',marginBottom:24}}>
-          <div style={{width:60,height:60,borderRadius:18,background:'linear-gradient(135deg,#D4AF37,#B8860B)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 12px',boxShadow:'0 8px 24px rgba(212,175,55,.35)'}}>
-            <i className="fas fa-crown" style={{fontSize:24,color:'white'}}></i>
+          <div style={{width:60,height:60,borderRadius:18,background:`linear-gradient(135deg,${cfg.accent},${cfg.color2})`,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 12px',boxShadow:`0 8px 24px ${cfg.accent}44`}}>
+            <i className={`fas ${cfg.icon}`} style={{fontSize:24,color:'white'}}></i>
           </div>
-          <h1 style={{fontFamily:'Cormorant Garamond',fontSize:22,fontWeight:700,color:'#E8D080',margin:0}}>Limitless Elite</h1>
+          <h1 style={{fontFamily:'Cormorant Garamond',fontSize:22,fontWeight:700,color:cfg.accent,margin:0}}>{cfg.cardName}</h1>
           <p style={{fontSize:9,color:'rgba(255,255,255,0.4)',letterSpacing:2,textTransform:'uppercase',marginTop:4}}>Carte de Fidélité — {consultant}</p>
         </div>
-        <div style={{background:'rgba(255,255,255,0.04)',border:'1px solid rgba(212,175,55,0.2)',borderRadius:20,padding:22,width:'100%',maxWidth:360}}>
-          <p style={{fontSize:10,fontWeight:700,color:'#D4AF37',textTransform:'uppercase',letterSpacing:1,marginBottom:14}}>
+        <div style={{background:'rgba(255,255,255,0.04)',border:`1px solid ${cfg.accent}33`,borderRadius:20,padding:22,width:'100%',maxWidth:360}}>
+          <p style={{fontSize:10,fontWeight:700,color:cfg.accent,textTransform:'uppercase',letterSpacing:1,marginBottom:14}}>
             <i className="fas fa-id-card" style={{marginRight:6}}></i>Créer ma carte fidélité
           </p>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
@@ -1020,57 +1037,84 @@ function ClientCard({consultant}){
           <input className="inp" type="email" placeholder="votre@email.com" value={f.email} onChange={e=>setF(p=>({...p,email:e.target.value}))} style={{background:'rgba(255,255,255,0.06)',color:'white',borderColor:'rgba(255,255,255,0.1)'}}/>
           <p className="lbl" style={{color:'rgba(255,255,255,0.4)'}}>Date de naissance</p>
           <input className="inp" type="date" value={f.dob} onChange={e=>setF(p=>({...p,dob:e.target.value}))} style={{background:'rgba(255,255,255,0.06)',color:'white',borderColor:'rgba(255,255,255,0.1)',marginBottom:14}}/>
-          <button className="btn-g" onClick={enroll}><i className="fas fa-star" style={{marginRight:6}}></i>Activer ma carte ✨</button>
-          <p style={{fontSize:8,color:'rgba(255,255,255,0.25)',textAlign:'center',marginTop:8}}>Vos données sont confidentielles et stockées sur votre appareil.</p>
+          <button onClick={enroll} style={{width:'100%',background:`linear-gradient(135deg,${cfg.accent},${cfg.color2})`,color:'white',fontWeight:700,border:'none',borderRadius:12,padding:'13px',cursor:'pointer',fontFamily:'Poppins',fontSize:12}}>
+            <i className="fas fa-star" style={{marginRight:6}}></i>Activer ma carte ✨
+          </button>
+          <p style={{fontSize:8,color:'rgba(255,255,255,0.25)',textAlign:'center',marginTop:8}}>Données confidentielles · Stockées sur votre appareil.</p>
         </div>
       </>}
 
       {step==='card'&&card&&<>
-        {/* Carte visuelle */}
-        <div className="loyalty-card" style={{marginBottom:16}}>
-          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:16,position:'relative',zIndex:1}}>
+        {/* CARTE VISUELLE — design consultante */}
+        <div style={{background:`linear-gradient(135deg,${cfg.color1},${cfg.color2})`,borderRadius:22,padding:'22px 20px 18px',width:'100%',maxWidth:360,border:`1px solid ${cfg.accent}44`,boxShadow:`0 16px 48px ${cfg.accent}22`,position:'relative',overflow:'hidden',marginBottom:14}}>
+          <div style={{position:'absolute',top:-30,right:-30,width:110,height:110,borderRadius:'50%',background:`radial-gradient(circle,${cfg.accent}10,transparent)`}}></div>
+
+          {/* Header */}
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:18,position:'relative',zIndex:1}}>
             <div>
-              <p style={{fontSize:8,color:'#D4AF37',fontWeight:700,letterSpacing:2,textTransform:'uppercase',marginBottom:2}}>Limitless Card</p>
-              <p style={{fontSize:16,fontWeight:700,color:'white'}}>{card.prenom} {card.nom}</p>
-              <p style={{fontSize:9,color:'rgba(255,255,255,0.4)',marginTop:1}}>Via {card.consultant}</p>
+              <p style={{fontSize:8,color:cfg.accent,fontWeight:700,letterSpacing:2,textTransform:'uppercase',marginBottom:3}}>{cfg.cardName}</p>
+              <p style={{fontSize:17,fontWeight:700,color:'white'}}>{card.prenom} {card.nom}</p>
+              <p style={{fontSize:9,color:'rgba(255,255,255,0.4)',marginTop:2}}>Via {card.consultant}</p>
             </div>
-            <span style={{background:level.c,color:'white',fontSize:9,fontWeight:800,padding:'4px 12px',borderRadius:20}}>{level.n}</span>
-          </div>
-          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-end',marginBottom:16,position:'relative',zIndex:1}}>
-            <div>
-              <p style={{fontSize:36,fontWeight:800,color:'#F9E29C',lineHeight:1}}>{card.points||0}</p>
-              <p style={{fontSize:8,color:'rgba(255,255,255,0.4)',textTransform:'uppercase',letterSpacing:1}}>Points fidélité</p>
-            </div>
-            <div style={{textAlign:'right'}}>
-              <p style={{fontSize:9,color:'rgba(255,255,255,0.5)'}}>Tampons</p>
-              <p style={{fontSize:22,fontWeight:800,color:'#D4AF37'}}>{card.stamps||0}/10</p>
+            <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:5}}>
+              <div style={{width:36,height:36,borderRadius:10,background:`${cfg.accent}22`,display:'flex',alignItems:'center',justifyContent:'center',border:`1.5px solid ${cfg.accent}44`}}>
+                <i className={`fas ${cfg.icon}`} style={{color:cfg.accent,fontSize:16}}></i>
+              </div>
+              {cfg.type==='points'&&<span style={{background:level.c,color:'white',fontSize:8,fontWeight:800,padding:'3px 9px',borderRadius:20}}>{level.n}</span>}
             </div>
           </div>
-          {/* Grille tampons */}
-          <div className="stamp-grid" style={{position:'relative',zIndex:1}}>
-            {Array.from({length:10}).map((_,i)=><div key={i} className={`stamp ${i<(card.stamps||0)?'filled':''}`}>{i<(card.stamps||0)?'⭐':''}</div>)}
-          </div>
-          <p style={{fontSize:8,color:'rgba(255,255,255,0.3)',textAlign:'center',marginTop:8,position:'relative',zIndex:1}}>10 tampons = 1 cadeau offert</p>
+
+          {/* POINTS */}
+          {cfg.type==='points'&&<div style={{position:'relative',zIndex:1}}>
+            <p style={{fontSize:38,fontWeight:800,color:cfg.accent,lineHeight:1}}>{pts.toLocaleString()}</p>
+            <p style={{fontSize:8,color:'rgba(255,255,255,0.4)',textTransform:'uppercase',letterSpacing:1,marginBottom:nextLevel?10:0}}>Points fidélité</p>
+            {nextLevel&&<>
+              <div style={{display:'flex',justifyContent:'space-between',marginBottom:4}}>
+                <span style={{fontSize:7.5,color:'rgba(255,255,255,0.4)'}}>→ {nextLevel.name}</span>
+                <span style={{fontSize:7.5,color:cfg.accent,fontWeight:700}}>{nextLevel.need} pts manquants</span>
+              </div>
+              <div style={{background:'rgba(255,255,255,0.1)',borderRadius:10,height:5,overflow:'hidden'}}>
+                <div style={{height:'100%',borderRadius:10,background:`linear-gradient(90deg,${cfg.accent},${cfg.accent}88)`,width:Math.max(pct,3)+'%',transition:'width .6s'}}></div>
+              </div>
+            </>}
+          </div>}
+
+          {/* TAMPONS */}
+          {cfg.type==='stamps'&&<div style={{position:'relative',zIndex:1}}>
+            <div style={{display:'flex',flexWrap:'wrap',gap:7,marginBottom:8}}>
+              {Array.from({length:cfg.stampGoal}).map((_,i)=>(
+                <div key={i} style={{width:34,height:34,borderRadius:'50%',border:`2px solid ${i<stamps?cfg.accent:'rgba(255,255,255,0.2)'}`,display:'flex',alignItems:'center',justifyContent:'center',background:i<stamps?`${cfg.accent}22`:'rgba(255,255,255,0.03)',transition:'all .3s'}}>
+                  {i<stamps&&<i className="fas fa-star" style={{color:cfg.accent,fontSize:11}}></i>}
+                </div>
+              ))}
+            </div>
+            <p style={{fontSize:8.5,color:'rgba(255,255,255,0.45)'}}>{stamps}/{cfg.stampGoal} tampons · {cfg.rewardLabel}</p>
+          </div>}
         </div>
 
-        {/* Notifications reçues */}
-        {getNotifs().length>0&&<div style={{width:'100%',maxWidth:360,marginBottom:12}}>
-          {getNotifs().slice(0,3).map(n=><div key={n.id} style={{background:n.read?'rgba(255,255,255,0.04)':'rgba(212,175,55,0.1)',border:'1px solid rgba(212,175,55,0.2)',borderRadius:12,padding:'10px 13px',marginBottom:6,display:'flex',gap:10,alignItems:'flex-start'}}>
-            <i className="fas fa-bell" style={{color:'#D4AF37',fontSize:12,marginTop:2}}></i>
-            <div><p style={{fontSize:10,color:'white',fontWeight:600,marginBottom:2}}>{n.msg}</p><p style={{fontSize:8,color:'rgba(255,255,255,0.3)'}}>{new Date(n.date).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'})}</p></div>
+        {/* NOTIFICATIONS reçues via URL */}
+        {msgs.length>0&&<div style={{width:'100%',maxWidth:360,marginBottom:12}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
+            <p style={{fontSize:9,fontWeight:700,color:cfg.accent,textTransform:'uppercase',letterSpacing:1}}>
+              <i className="fas fa-bell" style={{marginRight:5}}></i>Messages {unreadCount>0&&<span style={{background:cfg.accent,color:'#0D0D0D',borderRadius:20,padding:'1px 7px',fontSize:8,fontWeight:800,marginLeft:4}}>{unreadCount}</span>}
+            </p>
+            {unreadCount>0&&<button onClick={markMsgsRead} style={{background:'transparent',border:'none',color:'rgba(255,255,255,0.3)',fontSize:9,cursor:'pointer',fontFamily:'Poppins'}}>Marquer comme lu</button>}
+          </div>
+          {msgs.slice(0,4).map(n=><div key={n.id} style={{background:n.read?'rgba(255,255,255,0.04)':`${cfg.accent}12`,border:`1px solid ${n.read?'rgba(255,255,255,0.08)':cfg.accent+'33'}`,borderRadius:12,padding:'10px 13px',marginBottom:6,display:'flex',gap:10,alignItems:'flex-start'}}>
+            <i className="fas fa-bell" style={{color:n.read?'rgba(255,255,255,0.3)':cfg.accent,fontSize:12,marginTop:2,flexShrink:0}}></i>
+            <div><p style={{fontSize:10,color:'white',fontWeight:n.read?400:600,marginBottom:2}}>{n.msg}</p><p style={{fontSize:8,color:'rgba(255,255,255,0.3)'}}>{new Date(n.date).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'})}</p></div>
           </div>)}
-          <button onClick={markRead} style={{width:'100%',background:'transparent',border:'none',color:'rgba(255,255,255,0.3)',fontSize:9,cursor:'pointer',fontFamily:'Poppins',marginTop:2}}>Tout marquer comme lu</button>
         </div>}
 
-        {/* Bouton installer */}
+        {/* BOUTON INSTALLER */}
         <div style={{width:'100%',maxWidth:360}}>
-          {!installed&&<button onClick={installApp} style={{width:'100%',background:'linear-gradient(135deg,#D4AF37,#B8860B)',color:'#0D0D0D',fontWeight:700,fontSize:12,border:'none',borderRadius:14,padding:'14px',cursor:'pointer',fontFamily:'Poppins',marginBottom:10,display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
+          {!installed&&<button onClick={installApp} style={{width:'100%',background:`linear-gradient(135deg,${cfg.accent},${cfg.color2})`,color:'white',fontWeight:700,fontSize:12,border:'none',borderRadius:14,padding:'14px',cursor:'pointer',fontFamily:'Poppins',marginBottom:10,display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
             <i className="fas fa-mobile-screen"></i> Ajouter à mon écran d'accueil
           </button>}
           {installed&&<div style={{textAlign:'center',color:'#16a34a',fontSize:12,fontWeight:700,marginBottom:10}}>✅ Application installée !</div>}
           <div style={{background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:12,padding:'12px',textAlign:'center'}}>
-            <p style={{fontSize:10,color:'rgba(255,255,255,0.6)',marginBottom:4}}>📱 iPhone : Partager <i className="fas fa-arrow-up-from-bracket"></i> → Sur l'écran d'accueil</p>
-            <p style={{fontSize:10,color:'rgba(255,255,255,0.6)'}}>🤖 Android : Menu ⋮ → Ajouter à l'écran d'accueil</p>
+            <p style={{fontSize:10,color:'rgba(255,255,255,0.5)',marginBottom:3}}>📱 iPhone : Partager <i className="fas fa-arrow-up-from-bracket"></i> → Sur l'écran d'accueil</p>
+            <p style={{fontSize:10,color:'rgba(255,255,255,0.5)'}}>🤖 Android : Menu ⋮ → Ajouter à l'écran d'accueil</p>
           </div>
         </div>
       </>}
@@ -1115,13 +1159,23 @@ function Fidelite({user,sales}){
     {k:'fa-fire',e:'🔥'},{k:'fa-snowflake',e:'❄️'},{k:'fa-sun',e:'☀️'},{k:'fa-moon',e:'🌙'},
   ];
 
-  const enrollUrl=typeof window!=='undefined'?`${window.location.origin}${window.location.pathname}?c=${encodeURIComponent(user.name)}`:'';
+  const enrollUrl=typeof window!=='undefined'?(()=>{
+    try{const cfgStr=btoa(unescape(encodeURIComponent(JSON.stringify(cfg))));return`${window.location.origin}${window.location.pathname}?c=${encodeURIComponent(user.name)}&k=${cfgStr}`;}
+    catch(e){return`${window.location.origin}${window.location.pathname}?c=${encodeURIComponent(user.name)}`;}
+  })():'';
   const qrUrl=`https://api.qrserver.com/v1/create-qr-code/?size=220x220&color=1a1a1a&bgcolor=fffbf0&data=${encodeURIComponent(enrollUrl)}`;
 
   function sendNotification(){
     if(!notifMsg.trim())return;
     pushNotif(notifMsg.trim());
-    sendBrowserNotif('Limitless Elite — '+user.name,notifMsg.trim());
+    // Génère une URL avec le message encodé pour partage cross-device
+    try{
+      const cfgStr=btoa(unescape(encodeURIComponent(JSON.stringify(cfg))));
+      const msgStr=btoa(unescape(encodeURIComponent(notifMsg.trim())));
+      const shareUrl=`${window.location.origin}${window.location.pathname}?c=${encodeURIComponent(user.name)}&k=${cfgStr}&msg=${msgStr}`;
+      if(navigator.share){navigator.share({title:'Message de '+user.name,text:notifMsg.trim(),url:shareUrl});}
+      else{navigator.clipboard.writeText(shareUrl).then(()=>alert('Lien de notification copié !\nEnvoyez-le à vos clients par WhatsApp ou SMS.'));}
+    }catch(e){sendBrowserNotif('Limitless Elite — '+user.name,notifMsg.trim());}
     setNotifMsg('');setNotifSent(true);setTimeout(()=>setNotifSent(false),3000);
   }
 
@@ -1607,9 +1661,19 @@ function App(){
     ...(isAdmin?[{id:'dashboard',icon:'fa-gauge-high',lbl:'Dashboard'},{id:'structure',icon:'fa-sitemap',lbl:'Équipe'},{id:'settings',icon:'fa-gear',lbl:'Réglages'}]:[{id:'settings',icon:'fa-gear',lbl:'Réglages'}]),
   ];
 
-  // Détection URL client (?c=NOM)
+  // Détection URL client (?c=NOM&k=CFG&msg=MSG)
   const enrollConsultant=useMemo(()=>new URLSearchParams(window.location.search).get('c'),[]);
-  if(enrollConsultant)return<ClientCard consultant={decodeURIComponent(enrollConsultant)}/>;
+  const enrollCfg=useMemo(()=>{
+    const k=new URLSearchParams(window.location.search).get('k');
+    if(!k)return null;
+    try{return JSON.parse(decodeURIComponent(escape(atob(k))));}catch(e){return null;}
+  },[]);
+  const enrollMsg=useMemo(()=>{
+    const m=new URLSearchParams(window.location.search).get('msg');
+    if(!m)return null;
+    try{return decodeURIComponent(escape(atob(m)));}catch(e){return null;}
+  },[]);
+  if(enrollConsultant)return<ClientCard consultant={decodeURIComponent(enrollConsultant)} cardCfg={enrollCfg} incomingMsg={enrollMsg}/>;
 
   if(needSetup&&pendingLogin)return<FirstTimeSetup name={pendingLogin.name} onDone={handleSetupDone}/>;
   if(!user)return<Login onLogin={handleLogin}/>;
