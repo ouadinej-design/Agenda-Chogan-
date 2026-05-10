@@ -1177,13 +1177,16 @@ function Fidelite({user,sales}){
   function sendNotification(){
     if(!notifMsg.trim())return;
     pushNotif(notifMsg.trim());
-    // Génère une URL avec le message encodé pour partage cross-device
     try{
       const cfgStr=btoa(unescape(encodeURIComponent(JSON.stringify(cfg))));
-      const msgStr=btoa(unescape(encodeURIComponent(notifMsg.trim())));
-      const shareUrl=`${window.location.origin}${window.location.pathname}?c=${encodeURIComponent(user.name)}&k=${cfgStr}&msg=${msgStr}`;
-      if(navigator.share){navigator.share({title:'Message de '+user.name,text:notifMsg.trim(),url:shareUrl});}
-      else{navigator.clipboard.writeText(shareUrl).then(()=>alert('Lien de notification copié !\nEnvoyez-le à vos clients par WhatsApp ou SMS.'));}
+      const msgEncoded=btoa(unescape(encodeURIComponent(notifMsg.trim())));
+      const url=`${window.location.origin}${window.location.pathname}?c=${encodeURIComponent(user.name)}&k=${cfgStr}&msg=${msgEncoded}`;
+      const txt=`📢 Message de ${user.name} :\n\n${notifMsg.trim()}\n\n👉 Ouvrez votre carte fidélité : ${url}`;
+      if(navigator.share){navigator.share({title:'Message de '+user.name,text:txt,url});}
+      else{
+        const el=document.createElement('textarea');el.value=txt;document.body.appendChild(el);el.select();document.execCommand('copy');document.body.removeChild(el);
+        alert('✅ Message copié !\n\nCollez-le dans WhatsApp ou SMS pour l\'envoyer à vos clientes.');
+      }
     }catch(e){sendBrowserNotif('Limitless Elite — '+user.name,notifMsg.trim());}
     setNotifMsg('');setNotifSent(true);setTimeout(()=>setNotifSent(false),3000);
   }
@@ -1293,7 +1296,28 @@ function Fidelite({user,sales}){
               <div style={{fontSize:7.5,color:'#9ca3af'}}>{k.l}</div>
             </div>)}
           </div>
-          {cfg.type==='stamps'&&<button onClick={()=>validateStamp(client.name)} style={{width:'100%',background:`${cfg.accent}15`,border:`1px solid ${cfg.accent}44`,borderRadius:10,padding:'9px',fontSize:10,fontWeight:700,color:cfg.accent,cursor:'pointer',fontFamily:'Poppins',marginBottom:8}}>
+
+          {/* ★ BOUTON PRINCIPAL — Envoyer en PREMIER */}
+          {(()=>{
+            function sendUpdate(){
+              try{
+                const cfgStr=btoa(unescape(encodeURIComponent(JSON.stringify(cfg))));
+                let url=`${window.location.origin}${window.location.pathname}?c=${encodeURIComponent(user.name)}&k=${cfgStr}&pts=${client.total}&st=${stampsDisplay}`;
+                const txt=`Bonjour ${client.name.split(' ')[0]} 👋\nVoici votre carte fidélité Limitless mise à jour !\n💰 ${client.total} points\nCliquez ici : ${url}`;
+                if(navigator.share){navigator.share({title:'Votre carte Limitless',text:txt,url});}
+                else{
+                  const el=document.createElement('textarea');el.value=txt;document.body.appendChild(el);el.select();document.execCommand('copy');document.body.removeChild(el);
+                  alert('✅ Message copié pour '+client.name.split(' ')[0]+'!\n\nCollez-le dans WhatsApp ou SMS.\nLe client verra ses '+client.total+' points mis à jour dès qu\'il clique le lien.');
+                }
+              }catch(e){alert('Erreur : '+e.message);}
+            }
+            return<button onClick={sendUpdate} style={{width:'100%',background:'linear-gradient(135deg,#16a34a,#15803d)',border:'none',borderRadius:12,padding:'13px',fontSize:11,fontWeight:800,color:'white',cursor:'pointer',fontFamily:'Poppins',marginBottom:8,display:'flex',alignItems:'center',justifyContent:'center',gap:6,boxShadow:'0 4px 12px rgba(22,163,74,0.35)'}}>
+              <i className="fas fa-paper-plane"></i>
+              📤 Envoyer la carte à {client.name.split(' ')[0]} ({client.total} pts)
+            </button>;
+          })()}
+
+          {cfg.type==='stamps'&&<button onClick={()=>validateStamp(client.name)} style={{width:'100%',background:`${cfg.accent}15`,border:`1px solid ${cfg.accent}44`,borderRadius:10,padding:'9px',fontSize:10,fontWeight:700,color:cfg.accent,cursor:'pointer',fontFamily:'Poppins',marginBottom:6}}>
             <i className="fas fa-stamp" style={{marginRight:5}}></i>Valider un tampon (+1 ⭐)
           </button>}
           <button onClick={()=>setSelectedClient(selectedClient===client.name?null:client.name)}
@@ -1307,21 +1331,6 @@ function Fidelite({user,sales}){
             </div>
             <button className="btn-g" onClick={addBonus} style={{marginTop:0,fontSize:10}}>✦ Valider les points</button>
           </div>}
-
-          {/* BOUTON ENVOI MISE À JOUR AU CLIENT */}
-          <button onClick={()=>{
-            try{
-              const cfgStr=btoa(unescape(encodeURIComponent(JSON.stringify(cfg))));
-              const msgStr=notifMsg?btoa(unescape(encodeURIComponent(notifMsg))):'';
-              let url=`${window.location.origin}${window.location.pathname}?c=${encodeURIComponent(user.name)}&k=${cfgStr}&pts=${client.total}&st=${stampsDisplay}`;
-              if(msgStr)url+=`&msg=${msgStr}`;
-              if(navigator.share){navigator.share({title:'Votre carte fidélité Limitless',text:`Bonjour ${client.name}, voici votre carte à jour : ${client.total} points`,url});}
-              else{navigator.clipboard.writeText(url).then(()=>alert(`✅ Lien copié pour ${client.name} !\n\nEnvoyez-le par WhatsApp ou SMS.\n\nIl verra ses ${client.total} points mis à jour.`));}
-            }catch(e){alert('Erreur génération lien');}
-          }} style={{width:'100%',background:'linear-gradient(135deg,#16a34a,#15803d)',border:'none',borderRadius:10,padding:'9px',fontSize:10,fontWeight:700,color:'white',cursor:'pointer',fontFamily:'Poppins',marginBottom:6}}>
-            <i className="fas fa-paper-plane" style={{marginRight:5}}></i>📤 Envoyer les points à {client.name.split(' ')[0]}
-          </button>
-
           {/* Historique bonus */}
           {(bonusPoints[client.name]||[]).length>0&&<div style={{marginTop:6}}>
             <p className="grp-lbl" style={{padding:'4px 0 3px'}}>Historique bonus</p>
@@ -1501,6 +1510,14 @@ function Fidelite({user,sales}){
 
     {/* ── CLIENTS */}
     {activeTab==='clients'&&<div>
+      {/* Bandeau explicatif */}
+      <div style={{background:'linear-gradient(135deg,#052e16,#14532d)',border:'1px solid #16a34a44',borderRadius:14,padding:'12px 14px',marginBottom:12,display:'flex',gap:10,alignItems:'flex-start'}}>
+        <i className="fas fa-circle-info" style={{color:'#34d399',fontSize:14,marginTop:1,flexShrink:0}}></i>
+        <div>
+          <p style={{fontSize:10,fontWeight:700,color:'#34d399',marginBottom:3}}>Comment envoyer les points à vos clients ?</p>
+          <p style={{fontSize:9,color:'rgba(255,255,255,0.6)',lineHeight:1.5}}>Après chaque vente, cliquez <strong style={{color:'white'}}>📤 Envoyer la carte</strong> dans la fiche du client → un message WhatsApp/SMS se prépare automatiquement → le client clique le lien → ses points s'affichent sur sa carte.</p>
+        </div>
+      </div>
       {/* KPIs */}
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:6,marginBottom:12}}>
         {[{v:totalClients,l:'Clients',c:'#B8860B'},{v:gold,l:'Gold ✨',c:'#D4AF37'},{v:silver,l:'Silver',c:'#9ca3af'},{v:totalPts.toLocaleString(),l:'Pts totaux',c:'#B8860B'}].map((k,i)=><div key={i} className="card-luxe" style={{textAlign:'center',padding:'10px 6px',marginBottom:0}}>
