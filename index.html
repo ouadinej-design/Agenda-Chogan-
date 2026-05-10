@@ -78,6 +78,27 @@ const TYPE_COLOR={mus:'#16a34a',cath:'#2563eb',comm:'#c2410c',saison:'#9333ea',p
 const PILL_CLS={mus:'pill-mus',cath:'pill-cath',comm:'pill-comm',saison:'pill-saison',prepa:'pill-prepa',perso:'pill-perso'};
 const AVT=['#16a34a','#2563eb','#c2410c','#9333ea','#db2777','#0891b2','#d97706'];
 
+// ── URL-SAFE BASE64
+function toB64(str){try{return btoa(unescape(encodeURIComponent(str))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');}catch(e){return '';}}
+function fromB64(str){try{return decodeURIComponent(escape(atob(str.replace(/-/g,'+').replace(/_/g,'/'))));}catch(e){return '';}}
+
+// ── THEMES & ICONS (module scope pour partage ClientCard ↔ Fidelite)
+const THEMES=[
+  {name:'Or Classique',c1:'#1a1a1a',c2:'#2d2d2d',acc:'#D4AF37'},
+  {name:'Rose Élégant',c1:'#2d0a1a',c2:'#4a1530',acc:'#f472b6'},
+  {name:'Nuit Bleue',c1:'#0a1628',c2:'#1e3a5f',acc:'#60a5fa'},
+  {name:'Émeraude',c1:'#052e16',c2:'#14532d',acc:'#34d399'},
+  {name:'Violet Luxe',c1:'#1e0a3c',c2:'#3b1c6e',acc:'#a78bfa'},
+  {name:'Corail Chic',c1:'#2d1008',c2:'#4a1c0e',acc:'#fb923c'},
+  {name:'Gris Platine',c1:'#111827',c2:'#1f2937',acc:'#e5e7eb'},
+  {name:'Bordeaux',c1:'#2d0a0a',c2:'#4a1515',acc:'#f87171'},
+];
+const ICONS=[
+  {k:'fa-crown',e:'👑'},{k:'fa-star',e:'⭐'},{k:'fa-gem',e:'💎'},{k:'fa-heart',e:'❤️'},
+  {k:'fa-leaf',e:'🌿'},{k:'fa-dove',e:'🕊️'},{k:'fa-bolt',e:'⚡'},{k:'fa-infinity',e:'∞'},
+  {k:'fa-fire',e:'🔥'},{k:'fa-snowflake',e:'❄️'},{k:'fa-sun',e:'☀️'},{k:'fa-moon',e:'🌙'},
+];
+
 const MASTER=[
   {n:"Épiphanie",d:"2026-01-04",t:"cath",lbl:"Catho"},
   {n:"Soldes d'Hiver (début)",d:"2026-01-07",t:"comm",lbl:"Business"},
@@ -1195,23 +1216,6 @@ function Fidelite({user,sales}){
   function saveCfg(newCfg){setCfg(newCfg);setCfgDirty(false);localStorage.setItem(CARD_KEY,JSON.stringify(newCfg));}
   function updCfg(k,v){const n={...cfg,[k]:v};setCfg(n);setCfgDirty(true);}
 
-  const THEMES=[
-    {name:'Or Classique',c1:'#1a1a1a',c2:'#2d2d2d',acc:'#D4AF37'},
-    {name:'Rose Élégant',c1:'#2d0a1a',c2:'#4a1530',acc:'#f472b6'},
-    {name:'Nuit Bleue',c1:'#0a1628',c2:'#1e3a5f',acc:'#60a5fa'},
-    {name:'Émeraude',c1:'#052e16',c2:'#14532d',acc:'#34d399'},
-    {name:'Violet Luxe',c1:'#1e0a3c',c2:'#3b1c6e',acc:'#a78bfa'},
-    {name:'Corail Chic',c1:'#2d1008',c2:'#4a1c0e',acc:'#fb923c'},
-    {name:'Gris Platine',c1:'#111827',c2:'#1f2937',acc:'#e5e7eb'},
-    {name:'Bordeaux',c1:'#2d0a0a',c2:'#4a1515',acc:'#f87171'},
-  ];
-
-  const ICONS=[
-    {k:'fa-crown',e:'👑'},{k:'fa-star',e:'⭐'},{k:'fa-gem',e:'💎'},{k:'fa-heart',e:'❤️'},
-    {k:'fa-leaf',e:'🌿'},{k:'fa-dove',e:'🕊️'},{k:'fa-bolt',e:'⚡'},{k:'fa-infinity',e:'∞'},
-    {k:'fa-fire',e:'🔥'},{k:'fa-snowflake',e:'❄️'},{k:'fa-sun',e:'☀️'},{k:'fa-moon',e:'🌙'},
-  ];
-
   const enrollUrl=typeof window!=='undefined'?(()=>{
     try{const cfgStr=btoa(unescape(encodeURIComponent(JSON.stringify(cfg))));return`${window.location.origin}${window.location.pathname}?c=${encodeURIComponent(user.name)}&k=${cfgStr}`;}
     catch(e){return`${window.location.origin}${window.location.pathname}?c=${encodeURIComponent(user.name)}`;}
@@ -1222,15 +1226,16 @@ function Fidelite({user,sales}){
     if(!notifMsg.trim())return;
     pushNotif(notifMsg.trim());
     try{
-      const msgEncoded=btoa(unescape(encodeURIComponent(notifMsg.trim())));
-      const url=`${window.location.origin}${window.location.pathname}?c=${encodeURIComponent(user.name)}&msg=${msgEncoded}`;
-      if(navigator.share){
-        navigator.share({title:notifMsg.trim(),text:notifMsg.trim(),url});
-      } else {
+      const msgB64=toB64(notifMsg.trim());
+      const ti=THEMES.findIndex(t=>t.c1===cfg.color1&&t.acc===cfg.accent);
+      const ii=ICONS.findIndex(i=>i.k===cfg.icon);
+      const url=`${window.location.origin}${window.location.pathname}?c=${encodeURIComponent(user.name)}&msg=${msgB64}&t=${ti>=0?ti:0}&ic=${ii>=0?ii:0}`;
+      if(navigator.share){navigator.share({title:notifMsg.trim(),text:notifMsg.trim(),url});}
+      else{
         const el=document.createElement('textarea');el.value=url;document.body.appendChild(el);el.select();document.execCommand('copy');document.body.removeChild(el);
         alert('✅ Lien copié !\nCollez dans WhatsApp ou SMS.');
       }
-    }catch(e){sendBrowserNotif('Limitless Elite — '+user.name,notifMsg.trim());}
+    }catch(e){sendBrowserNotif('Limitless Elite',notifMsg.trim());}
     setNotifMsg('');setNotifSent(true);setTimeout(()=>setNotifSent(false),3000);
   }
 
@@ -1344,7 +1349,9 @@ function Fidelite({user,sales}){
           {(()=>{
             function sendUpdate(){
               try{
-                const url=`${window.location.origin}${window.location.pathname}?c=${encodeURIComponent(user.name)}&pts=${client.total}&st=${stampsDisplay}`;
+                const ti=THEMES.findIndex(t=>t.c1===cfg.color1&&t.acc===cfg.accent);
+                const ii=ICONS.findIndex(i=>i.k===cfg.icon);
+                const url=`${window.location.origin}${window.location.pathname}?c=${encodeURIComponent(user.name)}&pts=${client.total}&st=${stampsDisplay}&t=${ti>=0?ti:0}&ic=${ii>=0?ii:0}`;
                 const txt=`Bonjour ${client.name.split(' ')[0]} 👋 Votre carte fidélité : ${client.total} pts`;
                 if(navigator.share){navigator.share({title:txt,text:txt,url});}
                 else{
@@ -1747,14 +1754,23 @@ function App(){
   // Détection URL client (?c=NOM&k=CFG&msg=MSG)
   const enrollConsultant=useMemo(()=>new URLSearchParams(window.location.search).get('c'),[]);
   const enrollCfg=useMemo(()=>{
-    const k=new URLSearchParams(window.location.search).get('k');
-    if(!k)return null;
-    try{return JSON.parse(decodeURIComponent(escape(atob(k))));}catch(e){return null;}
+    const params=new URLSearchParams(window.location.search);
+    const k=params.get('k');
+    const t=params.get('t'),ic=params.get('ic');
+    // Priorité 1 : full config encodé (QR code)
+    if(k){try{return JSON.parse(decodeURIComponent(escape(atob(k))));}catch(e){}}
+    // Priorité 2 : index thème + icône (liens courts)
+    if(t!==null){
+      const theme=THEMES[parseInt(t)]||THEMES[0];
+      const icon=ICONS[parseInt(ic)||0]||ICONS[0];
+      return{type:params.get('y')==='1'?'stamps':'points',color1:theme.c1,color2:theme.c2,accent:theme.acc,icon:icon.k,cardName:'Limitless Card',stampGoal:parseInt(params.get('sg')||'10'),rewardLabel:'1 cadeau offert'};
+    }
+    return null;
   },[]);
   const enrollMsg=useMemo(()=>{
     const m=new URLSearchParams(window.location.search).get('msg');
     if(!m)return null;
-    try{return decodeURIComponent(escape(atob(m)));}catch(e){return null;}
+    return fromB64(m)||null;
   },[]);
   const enrollPts=useMemo(()=>{
     const p=new URLSearchParams(window.location.search).get('pts');
